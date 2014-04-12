@@ -31,18 +31,21 @@ if ($ERRORS) {
     exit;
 }
 
-$password_hash = password_verify($password, PASSWORD_DEFAULT);
-$query = "SELECT `token` FROM `users`
-         WHERE `username`='".$db->real_escape_string($username)."'
-         AND `password`=".$db->real_escape_string($password_hash);
+$query = "SELECT `token`, `password` FROM `users`
+         WHERE `username`='".$db->real_escape_string($username)."'";
 $results = $db->query($query);
-
 if ($results) {
     if ($row = $results->fetch_assoc()) {
-        echo json_encode(array("token" => $row['token']));
-        exit;
+        $password_hash = $row['password'];
+        if (password_verify($password, $password_hash)) {
+            echo json_encode(array(
+                "success" => "You have successfully logged in.", 
+                "token" => $row['token']
+                ));
+            exit;
+        }
     }
-} else {
-    echo json_encode(array("error" => "Invalid username or password"));
-    exit;
 }
+
+echo json_encode(array("error" => "Invalid username or password"));
+exit;
