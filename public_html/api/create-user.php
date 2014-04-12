@@ -2,7 +2,7 @@
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
-    __DIR__."/../resources"
+    __DIR__."/../../resources"
 )));
 
 require_once("global.php");
