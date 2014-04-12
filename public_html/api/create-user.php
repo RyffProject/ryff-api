@@ -7,10 +7,6 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if (!$db) {
-    $ERRORS++;
-}
-
 $name = isset($_POST['name']) ? trim($_POST['name']) : "";
 $username = isset($_POST['username']) ? trim($_POST['username']) : "";
 $email = isset($_POST['email']) ? trim($_POST['email']) : "";
@@ -42,12 +38,13 @@ if (!$password) {
     echo json_encode(array("error" => "Missing password."));
     exit;
 }
-
-if ($db->query("SELECT * FROM `users` WHERE `username`='".$db->real_escape_string($username)."'")) {
+$username_results = $db->query("SELECT * FROM `users` WHERE `username`='".$db->real_escape_string($username)."'");
+if ($username_results && $username_results->num_rows) {
     echo json_encode(array("error" => "Username already in use."));
     exit;
 }
-if ($db->query("SELECT * FROM `users` WHERE `email`='".$db->real_escape_string($email)."'")) {
+$email_results = $db->query("SELECT * FROM `users` WHERE `email`='".$db->real_escape_string($email)."'");
+if ($email_results && $email_results->num_rows) {
     echo json_encode(array("error" => "Email already in use."));
     exit;
 }

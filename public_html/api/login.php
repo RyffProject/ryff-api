@@ -7,10 +7,6 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if (!$db) {
-    $ERRORS++;
-}
-
 if ($ERRORS) {
     echo json_encode(array("error" => "Unable to connect to database"));
     exit;
@@ -31,20 +27,9 @@ if ($ERRORS) {
     exit;
 }
 
-$query = "SELECT `token`, `password` FROM `users`
-         WHERE `username`='".$db->real_escape_string($username)."'";
-$results = $db->query($query);
-if ($results) {
-    if ($row = $results->fetch_assoc()) {
-        $password_hash = $row['password'];
-        if (password_verify($password, $password_hash)) {
-            echo json_encode(array(
-                "success" => "You have successfully logged in.", 
-                "token" => $row['token']
-                ));
-            exit;
-        }
-    }
+if (valid_login($username, $password)) {
+    echo json_encode(array("success" => "You have logged in successfully."));
+    exit;
 }
 
 echo json_encode(array("error" => "Invalid username or password"));

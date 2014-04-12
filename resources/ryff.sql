@@ -171,7 +171,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(255) NOT NULL,
   `bio` text NOT NULL,
   `password` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `date_updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `date_deactivated` timestamp NULL DEFAULT NULL,
