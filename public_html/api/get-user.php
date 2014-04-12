@@ -16,7 +16,7 @@ require_once("global.php");
 if (isset($USER_ID)) {
     $user = get_user_from_id($USER_ID);
     if ($user) {
-        echo json_encode($user);
+        echo json_encode(array("success" => "Retrieved user.", "user" => $user));
     } else {
         echo json_encode(array("error" => "Invalid user id."));
     }

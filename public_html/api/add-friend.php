@@ -32,6 +32,6 @@ if (!$results) {
     echo json_encode(array("error" => "Could not add the user as a friend."));
     exit;
 } else {
-    echo json_encode(array("error" => "Successfully added {$to_user->username} as a friend."));
+    echo json_encode(array("success" => "Successfully added {$to_user->username} as a friend."));
     exit;
 }

@@ -68,7 +68,7 @@ if (isset($_POST['password']) && $_POST['password']) {
 
 $user = get_user_from_id($CURRENT_USER->id);
 if ($user) {
-    echo json_encode($user);
+    echo json_encode(array("success" => "Successfully updated.", "user" => $user));
 } else {
     echo json_encode(array("error" => "An error occurred processing your request."));
 }
