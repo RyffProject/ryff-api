@@ -34,7 +34,6 @@ CREATE TABLE IF NOT EXISTS `friends` (
   `to_id` int(10) unsigned NOT NULL,
   `from_id` int(10) unsigned NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `accepted` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`friend_id`),
   KEY `to_id` (`to_id`,`from_id`),
   KEY `from_id` (`from_id`)
