@@ -20,6 +20,9 @@ SET time_zone = "+00:00";
 -- Database: `ryff`
 --
 
+CREATE DATABASE IF NOT EXISTS `ryff`;
+USE `ryff`;
+
 -- --------------------------------------------------------
 
 --
@@ -169,7 +172,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `bio` text NOT NULL,
   `password` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `date_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `date_updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `date_deactivated` timestamp NULL DEFAULT NULL,
   `active` int(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`user_id`)
