@@ -48,7 +48,7 @@ function get_location_from_user_id($user_id) {
 function get_avatar_url($user_id) {
     $path = AVATAR_ABSOLUTE_PATH."/$user_id.png";
     if (file_exists($path)) {
-        return SITE_ROOT."/".AVATAR_RELATIVE_PATH."/$user_id.png";
+        return SITE_ROOT."/avatars/$user_id.png";
     } else {
         return "";
     }
