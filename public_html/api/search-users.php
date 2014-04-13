@@ -45,6 +45,7 @@ $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`,
           LEFT JOIN `locations` AS l
           ON l.`user_id`=u.`user_id`
           WHERE u.`active`=1
+          AND u.`user_id`!=".$db->real_escape_string($CURRENT_USER->id)."
           AND u.`user_id` NOT IN (".implode(",", $exclude_ids).")
           AND l.`date_created`=(
               SELECT MAX(l2.`date_created`) 
