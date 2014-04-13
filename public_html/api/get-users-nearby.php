@@ -28,7 +28,7 @@ $num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
 
 //Select the closest users not in the $_POST['ids'] array, which are excluded
 //because they have already been sent to the client
-$query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_updated`,
+$query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_created`,
           SQRT(POW(X(l.`location`)-".$db->real_escape_string($user_location->x).",2)+
           POW(Y(l.`location`)-".$db->real_escape_string($user_location->y).",2)) AS `distance`
           FROM `users` AS u
