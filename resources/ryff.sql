@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `riffs` (
   `title` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`riff_id`),
-  KEY `post_id` (`post_id`),
+  KEY `post_id` (`post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
