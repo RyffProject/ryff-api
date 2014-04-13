@@ -50,12 +50,11 @@ if ($email_results && $email_results->num_rows) {
 }
 
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
-$token = sha1(rand());
 $query = "INSERT INTO `users`
-          (`name`, `username`, `email`, `bio`, `password`, `token`, `date_updated`)
+          (`name`, `username`, `email`, `bio`, `password`, `date_updated`)
           VALUES ('".$db->real_escape_string($name)."','".$db->real_escape_string($username)."'
           ,'".$db->real_escape_string($email)."','".$db->real_escape_string($bio)."'
-          ,'".$db->real_escape_string($password_hash)."','".$db->real_escape_string($token)."',NOW())";
+          ,'".$db->real_escape_string($password_hash)."',NOW())";
 $results = $db->query($query);
 
 if ($results) {
