@@ -1,5 +1,7 @@
 <?php
 
+
+
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     __DIR__."/../../resources"
@@ -12,8 +14,8 @@ if ($ERRORS) {
     exit;
 }
 
-$username = isset($_POST['username']) ? trim($_POST['username']) : "";
-$password = isset($_POST['password']) ? $_POST['password'] : "";
+$username = isset($_POST['auth_username']) ? trim($_POST['auth_username']) : "";
+$password = isset($_POST['auth_password']) ? $_POST['auth_password'] : "";
 
 if (!$username) {
     $ERRORS++;
