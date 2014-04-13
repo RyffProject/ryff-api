@@ -10,7 +10,9 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 $content = isset($_POST['content']) ? trim($_POST['content']) : "";
-if (!$content) {
+if (!$content && 
+        ((!isset($_FILES['riff']) || $_FILES['riff']['error']) ||
+        (!isset($_POST['title']) || !$_POST['title']))) {
     echo json_encode(array("error" => "No post to add!"));
     exit;
 }
@@ -27,7 +29,7 @@ if ($post_results) {
     if (isset($_FILES['riff']) && !$_FILES['riff']['error']) {
         $title = isset($_POST['title']) ? trim($_POST['title']) : "";
         $duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 0;
-        if ($title && strlen($title) < 255) {
+        if ($title) {
             $riff_query = "INSERT INTO `riffs` (`post_id`, `title`, `duration`)
                            VALUES (".$db->real_escape_string($post_id).",
                            '".$db->real_escape_string($title)."',".
