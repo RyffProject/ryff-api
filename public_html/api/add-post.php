@@ -1,0 +1,57 @@
+<?php
+
+define("REQUIRES_AUTHENTICATION", true);
+
+set_include_path(implode(PATH_SEPARATOR, array(
+    get_include_path(),
+    __DIR__."/../../resources"
+)));
+
+require_once("global.php");
+
+$content = isset($_POST['content']) ? trim($_POST['content']) : "";
+if (!$content) {
+    echo json_encode(array("error" => "No post to add!"));
+    exit;
+}
+
+$post_query = "INSERT INTO `posts` (`user_id`, `content`)
+          VALUES (".$db->real_escape_string($CURRENT_USER->id).",'".$db->real_escape_string($content)."')";
+$post_results = $db->query($post_query);
+if ($post_results) {
+    $post_id = $db->insert_id;
+    
+    //If there was a riff uploaded as well, it would have been uploaded with a title between
+    //zero and 255 characters. Make sure the file was uploaded without errors and it's an mp3, 
+    //then create a record in the riffs table with the title and save the .mp3 in as riff_id.mp3
+    if (isset($_FILES['riff']) && !$_FILES['riff']['error'] && $_FILES['riff']['type'] === "audio/mp3") {
+        $title = isset($_POST['title']) ? trim($_POST['title']) : "";
+        if ($title && strlen($title) < 255) {
+            $riff_query = "INSERT INTO `riffs` (`post_id`, `title`)
+                           VALUES (".$db->real_escape_string($post_id).",
+                           '".$db->real_escape_string($title)."')";
+            $riff_results = $db->query($riff_query);
+            if ($riff_results) {
+                $riff_id = $db->insert_id;
+            } else {
+                echo json_encode(array("error" => "Error adding a new riff."));
+            }
+        }
+        if ($riff_id) {
+            $path = RIFF_ABSOLUTE_PATH."/$riff_id.mp3";
+            if (file_exists($path)) {
+                unlink($path);
+            }
+            if (!move_uploaded_file($_FILES['riff']['tmp_name'], $path)) {
+                echo json_encode(array("error" => "Unable to upload riff."));
+                exit;
+            }
+        }
+    }
+    echo json_encode(array(
+        "success" => "Successfully added post from user.",
+        "post" => get_post_from_id($post_id)
+        ));
+} else {
+    echo json_encode(array("error" => "Error adding post from user."));
+}

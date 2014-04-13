@@ -143,18 +143,16 @@ CREATE TABLE IF NOT EXISTS `posts` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `recordings`
+-- Table structure for table `riffs`
 --
 
-CREATE TABLE IF NOT EXISTS `recordings` (
-  `recording_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned DEFAULT NULL,
-  `group_id` int(10) unsigned DEFAULT NULL,
-  `content` text NOT NULL,
+CREATE TABLE IF NOT EXISTS `riffs` (
+  `riff_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `post_id` int(10) unsigned NOT NULL,
+  `title` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`recording_id`),
-  KEY `user_id` (`user_id`),
-  KEY `group_id` (`group_id`)
+  PRIMARY KEY (`riff_id`),
+  KEY `post_id` (`post_id`),
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -229,8 +227,7 @@ ALTER TABLE `posts`
   ADD CONSTRAINT `posts_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `recordings`
+-- Constraints for table `riffs`
 --
-ALTER TABLE `recordings`
-  ADD CONSTRAINT `recordings_group_id_constr` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `recordings_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `riffs`
+  ADD CONSTRAINT `riffs_post_id_constr` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE;

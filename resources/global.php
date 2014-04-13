@@ -7,6 +7,8 @@ require_once("functions.php");
 
 require_once("user.class.php");
 require_once("point.class.php");
+require_once("post.class.php");
+require_once("riff.class.php");
 
 $ERRORS = 0;
 

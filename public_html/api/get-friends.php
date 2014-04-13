@@ -26,7 +26,7 @@ if (isset($_POST['exclude'])) {
 
 $num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
 
-$query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`
+$query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_created`
           FROM `users` AS u
           JOIN `friends` AS f
           ON f.`to_id`=u.`user_id`
@@ -39,7 +39,8 @@ $results = $db->query($query);
 if ($results) {
     $friends = array();
     while ($row = $results->fetch_assoc()) {
-        $user = new User($row['user_id'], $row['name'], $row['username'], $row['email'], $row['bio']);
+        $user = new User($row['user_id'], $row['name'], $row['username'], 
+                $row['email'], $row['bio'], $row['date_created']);
         if ($user) {
             $friends[] = $user;
         }
