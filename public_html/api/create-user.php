@@ -58,18 +58,25 @@ $query = "INSERT INTO `users`
 $results = $db->query($query);
 
 if ($results) {
+    $user_id = $db->insert_id;
     if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
         $latitude = (double)$_POST['latitude'];
         $longitude = (double)$_POST['longitude'];
         
         if ($latitude && $longitude) {
-            $user_id = $db->insert_id;
             $location_query = "INSERT INTO `locations` (`user_id`, `location`)
                                VALUES (".$db->real_escape_string((int)$user_id).",
                                POINT(".$db->real_escape_string($latitude).",".
                                $db->real_escape_string($longitude)."))";
             $results = $db->query($location_query);
         }
+    }
+    if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
+        $path = AVATAR_ABSOLUTE_PATH."/$user_id.png";
+        if (file_exists($path)) {
+            unlink($path);
+        }
+        move_uploaded_file($_FILES['avatar']['tmp_name'], $path);
     }
     echo json_encode(array("success" => "You have successfully registered, $username."));
 } else {

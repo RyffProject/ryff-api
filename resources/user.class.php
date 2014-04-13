@@ -6,6 +6,7 @@ class User {
     public $username;
     public $email;
     public $bio;
+    public $avatar;
     
     function __construct($id, $name, $username, $email, $bio) {
         $this->id = $id;
@@ -13,5 +14,6 @@ class User {
         $this->username = $username;
         $this->email = $email;
         $this->bio = $bio;
+        $this->avatar = get_avatar_url($id);
     }
 }

@@ -45,6 +45,15 @@ function get_location_from_user_id($user_id) {
     return null;
 }
 
+function get_avatar_url($user_id) {
+    $path = AVATAR_ABSOLUTE_PATH."/$user_id.png";
+    if (file_exists($path)) {
+        return SITE_ROOT."/".AVATAR_RELATIVE_PATH."/$user_id.png";
+    } else {
+        return "";
+    }
+}
+
 function valid_login($username, $password) {
     global $db;
     

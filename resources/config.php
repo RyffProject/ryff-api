@@ -1,5 +1,8 @@
 <?php
 
+define("SITE_ROOT", "");
+define("AVATAR_ABSOLUTE_PATH", "");
+
 define("DB_NAME", "");
 define("DB_USER", "");
 define("DB_HOST", "");
