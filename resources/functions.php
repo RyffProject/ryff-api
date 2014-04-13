@@ -30,6 +30,21 @@ function get_user_from_id($user_id) {
     }
 }
 
+function get_location_from_user_id($user_id) {
+    global $db;
+    
+    $query = "SELECT X(`location`) AS `x`, Y(`location`) AS `y`
+              FROM `locations` WHERE `user_id`=".$db->real_escape_string($user_id)."
+              ORDER BY `date_created` DESC LIMIT 1";
+    $results = $db->query($query);
+    if ($results && $results->num_rows) {
+        if ($row = $results->fetch_assoc()) {
+            return new Point($row['x'], $row['y']);
+        }
+    }
+    return null;
+}
+
 function valid_login($username, $password) {
     global $db;
     
