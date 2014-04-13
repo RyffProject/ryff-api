@@ -66,6 +66,17 @@ if (isset($_POST['password']) && $_POST['password']) {
     }
 }
 
+if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
+    $path = AVATAR_ABSOLUTE_PATH."/$user_id.png";
+    if (file_exists($path)) {
+        unlink($path);
+    }
+    if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $path)) {
+        echo json_encode(array("error" => "Unable to upload avatar."));
+        exit;
+    }
+}
+
 $user = get_user_from_id($CURRENT_USER->id);
 if ($user) {
     echo json_encode(array("success" => "Successfully updated.", "user" => $user));
