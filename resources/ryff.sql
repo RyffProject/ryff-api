@@ -93,10 +93,10 @@ CREATE TABLE IF NOT EXISTS `group_members` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `location`
+-- Table structure for table `locations`
 --
 
-CREATE TABLE IF NOT EXISTS `location` (
+CREATE TABLE IF NOT EXISTS `locations` (
   `location_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `location` point NOT NULL,
@@ -203,9 +203,9 @@ ALTER TABLE `group_members`
   ADD CONSTRAINT `members_group_id_constr` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `location`
+-- Constraints for table `locations`
 --
-ALTER TABLE `location`
+ALTER TABLE `locations`
   ADD CONSTRAINT `locations_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --

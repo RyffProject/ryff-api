@@ -59,6 +59,19 @@ $query = "INSERT INTO `users`
 $results = $db->query($query);
 
 if ($results) {
+    if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
+        $latitude = (double)$_POST['latitude'];
+        $longitude = (double)$_POST['longitude'];
+        
+        if ($latitude && $longitude) {
+            $user_id = $db->insert_id;
+            $location_query = "INSERT INTO `locations` (`user_id`, `location`)
+                               VALUES (".$db->real_escape_string((int)$user_id).",
+                               POINT(".$db->real_escape_string($latitude).",".
+                               $db->real_escape_string($longitude)."))";
+            $results = $db->query($location_query);
+        }
+    }
     echo json_encode(array("success" => "You have successfully registered, $username."));
 } else {
     echo json_encode(array("error" => "There was an error processing your request."));
