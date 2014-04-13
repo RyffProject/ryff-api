@@ -150,6 +150,7 @@ CREATE TABLE IF NOT EXISTS `riffs` (
   `riff_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `post_id` int(10) unsigned NOT NULL,
   `title` varchar(255) NOT NULL,
+  `duration` int(10) unsigned NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`riff_id`),
   KEY `post_id` (`post_id`)

@@ -26,10 +26,12 @@ if ($post_results) {
     //then create a record in the riffs table with the title and save the .m4a in as riff_id.m4a
     if (isset($_FILES['riff']) && !$_FILES['riff']['error']) {
         $title = isset($_POST['title']) ? trim($_POST['title']) : "";
+        $duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 0;
         if ($title && strlen($title) < 255) {
-            $riff_query = "INSERT INTO `riffs` (`post_id`, `title`)
+            $riff_query = "INSERT INTO `riffs` (`post_id`, `title`, `duration`)
                            VALUES (".$db->real_escape_string($post_id).",
-                           '".$db->real_escape_string($title)."')";
+                           '".$db->real_escape_string($title)."',".
+                           $db->real_escape_string($duration).")";
             $riff_results = $db->query($riff_query);
             if ($riff_results) {
                 $riff_id = $db->insert_id;
