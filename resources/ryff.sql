@@ -1,20 +1,5 @@
--- phpMyAdmin SQL Dump
--- version 4.1.6
--- http://www.phpmyadmin.net
---
--- Host: localhost
--- Generation Time: Apr 12, 2014 at 08:18 AM
--- Server version: 5.6.16
--- PHP Version: 5.5.9
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
 
 --
 -- Database: `ryff`
@@ -47,9 +32,9 @@ CREATE TABLE IF NOT EXISTS `friends` (
 
 CREATE TABLE IF NOT EXISTS `genres` (
   `genre_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `group_id` int(10) unsigned NOT NULL,
-  `content` varchar(255) NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `group_id` int(10) unsigned DEFAULT NULL,
+  `genre` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`genre_id`),
   KEY `user_id` (`user_id`,`group_id`),
@@ -146,8 +131,8 @@ CREATE TABLE IF NOT EXISTS `messages` (
 
 CREATE TABLE IF NOT EXISTS `posts` (
   `post_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `group_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `group_id` int(10) unsigned DEFAULT NULL,
   `content` text NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`post_id`),
@@ -163,8 +148,8 @@ CREATE TABLE IF NOT EXISTS `posts` (
 
 CREATE TABLE IF NOT EXISTS `recordings` (
   `recording_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `group_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned DEFAULT NULL,
+  `group_id` int(10) unsigned DEFAULT NULL,
   `content` text NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`recording_id`),
@@ -249,7 +234,3 @@ ALTER TABLE `posts`
 ALTER TABLE `recordings`
   ADD CONSTRAINT `recordings_group_id_constr` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `recordings_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
