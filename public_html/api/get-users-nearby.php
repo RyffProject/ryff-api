@@ -15,16 +15,18 @@ if (!$user_location) {
     exit;
 }
 
-if (isset($_POST['ids'])) {
-    $user_ids = explode(",", $_POST['ids']);
-    foreach ($user_ids as &$id) {
+if (isset($_POST['exclude'])) {
+    $exclude_ids = explode(",", $_POST['exclude']);
+    foreach ($exclude_ids as &$id) {
         $id = $db->real_escape_string((int)$id);
     }
 } else {
-    $user_ids = array(0);
+    $exclude_ids = array(0);
 }
 
-//Select the 5 closest users not in the $_POST['ids'] array, which are excluded
+$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
+
+//Select the closest users not in the $_POST['ids'] array, which are excluded
 //because they have already been sent to the client
 $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`,
           SQRT(POW(X(l.`location`)-".$db->real_escape_string($user_location->x).",2)+
@@ -32,7 +34,7 @@ $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`,
           FROM `users` AS u
           LEFT JOIN `locations` AS l
           ON l.`user_id` = u.`user_id` AND u.`active`=1
-          WHERE l.`user_id` NOT IN (".implode(",", $user_ids).")
+          WHERE l.`user_id` NOT IN (".implode(",", $exclude_ids).")
           AND l.`date_created`=(
               SELECT MAX(l2.`date_created`) 
               FROM `locations` AS l2 
@@ -40,7 +42,7 @@ $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`,
           )
           AND l.`user_id`!=".$db->real_escape_string($CURRENT_USER->id)."
           ORDER BY `distance` ASC
-          LIMIT 5";
+          LIMIT ".$db->real_escape_string($num_users);
 $results = $db->query($query);
 
 if ($results && $results->num_rows) {

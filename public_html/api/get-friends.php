@@ -15,11 +15,25 @@ if (isset($_POST['id'])) {
     $USER_ID = $CURRENT_USER->id;
 }
 
+if (isset($_POST['exclude'])) {
+    $exclude_ids = explode(",", $_POST['exclude']);
+    foreach ($exclude_ids as &$id) {
+        $id = $db->real_escape_string((int)$id);
+    }
+} else {
+    $exclude_ids = array(0);
+}
+
+$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
+
 $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`
           FROM `users` AS u
           JOIN `friends` AS f
           ON f.`to_id`=u.`user_id`
-          AND f.`from_id`=".$db->real_escape_string($USER_ID);
+          AND f.`from_id`=".$db->real_escape_string($USER_ID)."
+          WHERE u.`user_id` NOT IN (".implode(",", $exclude_ids).")
+          ORDER BY f.`date_created` ASC
+          LIMIT ".$db->real_escape_string($num_users);
 $results = $db->query($query);
 
 if ($results) {

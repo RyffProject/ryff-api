@@ -93,6 +93,21 @@ CREATE TABLE IF NOT EXISTS `group_members` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `instruments`
+--
+
+CREATE TABLE IF NOT EXISTS `instruments` (
+  `instrument_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `instrument` varchar(255) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`instrument_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `locations`
 --
 
@@ -201,6 +216,12 @@ ALTER TABLE `genres`
 ALTER TABLE `group_members`
   ADD CONSTRAINT `members_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `members_group_id_constr` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `instruments`
+--
+ALTER TABLE `instruments`
+  ADD CONSTRAINT `instruments_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `locations`
