@@ -22,9 +22,9 @@ if ($post_results) {
     $post_id = $db->insert_id;
     
     //If there was a riff uploaded as well, it would have been uploaded with a title between
-    //zero and 255 characters. Make sure the file was uploaded without errors and it's an mp3, 
-    //then create a record in the riffs table with the title and save the .mp3 in as riff_id.mp3
-    if (isset($_FILES['riff']) && !$_FILES['riff']['error'] && $_FILES['riff']['type'] === "audio/mp3") {
+    //zero and 255 characters. Make sure the file was uploaded without errors and it's an m4a, 
+    //then create a record in the riffs table with the title and save the .m4a in as riff_id.m4a
+    if (isset($_FILES['riff']) && !$_FILES['riff']['error']) {
         $title = isset($_POST['title']) ? trim($_POST['title']) : "";
         if ($title && strlen($title) < 255) {
             $riff_query = "INSERT INTO `riffs` (`post_id`, `title`)
@@ -38,7 +38,7 @@ if ($post_results) {
             }
         }
         if ($riff_id) {
-            $path = RIFF_ABSOLUTE_PATH."/$riff_id.mp3";
+            $path = RIFF_ABSOLUTE_PATH."/$riff_id.m4a";
             if (file_exists($path)) {
                 unlink($path);
             }

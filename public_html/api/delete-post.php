@@ -21,9 +21,9 @@ $query = "DELETE FROM `posts`
           AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
 $results = $db->query($query);
 if ($results) {
-    //If there is an .mp3 file attached to this post, unlink the file
+    //If there is an .m4a file attached to this post, unlink the file
     if ($post->riff && $post->riff->id) {
-        $path = RIFF_ABSOLUTE_PATH."/{$post->riff->id}.mp3";
+        $path = RIFF_ABSOLUTE_PATH."/{$post->riff->id}.m4a";
         if (file_exists($path)) {
             unlink($path);
         }

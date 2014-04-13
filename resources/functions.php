@@ -70,10 +70,10 @@ function get_post_from_id($post_id) {
         $riff_results = $db->query($riff_query);
         if ($riff_results && $riff_results->num_rows && $riff_row = $riff_results->fetch_assoc()) {
             $riff_id = $riff_row['riff_id'];
-            $path = RIFF_ABSOLUTE_PATH."/$riff_id.mp3";
+            $path = RIFF_ABSOLUTE_PATH."/$riff_id.m4a";
             if (file_exists($path)) {
                 $riff = new Riff($riff_row['riff_id'], 
-                        $riff_row['title'], SITE_ROOT."/riffs/$riff_id.mp3");
+                        $riff_row['title'], SITE_ROOT."/riffs/$riff_id.m4a");
             }
         }
         $post = new Post($post_id, $user, isset($riff) ? $riff : 0, 
