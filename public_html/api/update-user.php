@@ -43,6 +43,25 @@ if (isset($_POST['username']) && $_POST['username']) {
     }
 }
 
+if (isset($_POST['email']) && $_POST['email']) {
+    $email = $_POST['email'];
+    if (get_user_from_email($email)) {
+        echo json_encode(array("error" => "This email is already in use."));
+        exit;
+    }
+    if (strlen($email) > 255) {
+        echo json_encode(array("error" => "Email cannot be more than 255 characters."));
+        exit;
+    }
+    $query = "UPDATE `users` SET `email`='".$db->real_escape_string($email)."'
+              WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id);
+    $results = $db->query($query);
+    if (!$results) {
+        echo json_encode(array("error" => "Could not update email."));
+        exit;
+    }
+}
+
 if (isset($_POST['bio'])) {
     $bio = $_POST['bio'];
     $query = "UPDATE `users` SET `bio`='".$db->real_escape_string($bio)."'

@@ -16,6 +16,22 @@ function get_user_from_username($username) {
     }
 }
 
+function get_user_from_email($email) {
+    global $db;
+    
+    $query = "SELECT * FROM `users`
+              WHERE `email`='".$db->real_escape_string($email)."'
+              AND `active`=1";
+    $results = $db->query($query);
+    if ($results) {
+        if ($row = $results->fetch_assoc()) {
+            $user = new User($row['user_id'], $row['name'], $row['username'], 
+                    $row['email'], $row['bio'], $row['date_created']);
+            return $user;
+        }
+    }
+}
+
 function get_user_from_id($user_id) {
     global $db;
     
