@@ -28,7 +28,10 @@ if ($ERRORS) {
 }
 
 if (valid_login($username, $password)) {
-    echo json_encode(array("success" => "You have logged in successfully."));
+    echo json_encode(array(
+        "success" => "You have logged in successfully.",
+        "user" => get_user_from_username($username)
+        ));
     exit;
 }
 

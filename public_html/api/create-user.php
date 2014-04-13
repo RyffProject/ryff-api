@@ -38,12 +38,12 @@ if (!$password) {
     echo json_encode(array("error" => "Missing password."));
     exit;
 }
-$username_results = $db->query("SELECT * FROM `users` WHERE `username`='".$db->real_escape_string($username)."'");
+$username_results = $db->query("SELECT * FROM `users` WHERE `username`='".$db->real_escape_string($username)."' AND `active`=1");
 if ($username_results && $username_results->num_rows) {
     echo json_encode(array("error" => "Username already in use."));
     exit;
 }
-$email_results = $db->query("SELECT * FROM `users` WHERE `email`='".$db->real_escape_string($email)."'");
+$email_results = $db->query("SELECT * FROM `users` WHERE `email`='".$db->real_escape_string($email)."' AND `active`=1");
 if ($email_results && $email_results->num_rows) {
     echo json_encode(array("error" => "Email already in use."));
     exit;
@@ -78,7 +78,10 @@ if ($results) {
         }
         move_uploaded_file($_FILES['avatar']['tmp_name'], $path);
     }
-    echo json_encode(array("success" => "You have successfully registered, $username."));
+    echo json_encode(array(
+        "success" => "You have successfully registered, $username.",
+        "user" => get_user_from_username($username)
+         ));
 } else {
     echo json_encode(array("error" => "There was an error processing your request."));
 }
