@@ -17,8 +17,30 @@ if (!$content &&
     exit;
 }
 
-$post_query = "INSERT INTO `posts` (`user_id`, `content`)
-          VALUES (".$db->real_escape_string($CURRENT_USER->id).",'".$db->real_escape_string($content)."')";
+$parent_id = isset($_POST['parent_id']) ? (int)$_POST['parent_id'] : false;
+//If there is a parent_id set, make sure it refers to an actual post
+if ($parent_id) {
+    $parent_query = "SELECT * FROM `posts` WHERE `post_id`=".$db->real_escape_string($parent_id);
+    $parent_results = $db->real_escape_string($parent_query);
+    if (!$parent_results || $parent_results->num_rows <= 0) {
+        $parent_id = false;
+    }
+}
+
+if ($parent_id) {
+    $post_query = "INSERT INTO `posts` (`user_id`, `parent_id`, `content`)
+                   VALUES (
+                       ".$db->real_escape_string($CURRENT_USER->id).",
+                       ".$db->real_escape_string($parent_id).",
+                       '".$db->real_escape_string($content)."'
+                   )";
+} else {
+    $post_query = "INSERT INTO `posts` (`user_id`, `content`)
+                   VALUES (
+                       ".$db->real_escape_string($CURRENT_USER->id).",
+                       '".$db->real_escape_string($content)."'
+                   )";
+}
 $post_results = $db->query($post_query);
 if ($post_results) {
     $post_id = $db->insert_id;

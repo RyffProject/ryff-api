@@ -10,7 +10,7 @@ class User {
     public $avatar;
     
     function __construct($id, $name, $username, $email, $bio, $date_created) {
-        $this->id = $id;
+        $this->id = (int)$id;
         $this->name = $name;
         $this->username = $username;
         $this->email = $email;

@@ -92,7 +92,7 @@ function get_post_from_id($post_id) {
                         $riff_row['duration'], SITE_ROOT."/riffs/$riff_id.m4a");
             }
         }
-        $post = new Post($post_id, $user, isset($riff) ? $riff : 0, 
+        $post = new Post($post_id, $post_row['parent_id'], $user, isset($riff) ? $riff : 0, 
                 $post_row['content'], $post_row['date_created']);
         return $post;
     }

@@ -131,11 +131,13 @@ CREATE TABLE IF NOT EXISTS `messages` (
 
 CREATE TABLE IF NOT EXISTS `posts` (
   `post_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(10) unsigned DEFAULT NULL,
   `user_id` int(10) unsigned DEFAULT NULL,
   `group_id` int(10) unsigned DEFAULT NULL,
   `content` text NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`post_id`),
+  KEY `parent_id` (`parent_id`),
   KEY `user_id` (`user_id`),
   KEY `group_id` (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -224,6 +226,7 @@ ALTER TABLE `messages`
 -- Constraints for table `posts`
 --
 ALTER TABLE `posts`
+  ADD CONSTRAINT `posts_parent_id_constr` FOREIGN KEY (`parent_id`) REFERENCES `posts` (`post_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
   ADD CONSTRAINT `posts_group_id_constr` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `posts_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

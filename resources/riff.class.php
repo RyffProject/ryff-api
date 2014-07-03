@@ -7,7 +7,7 @@ class Riff {
     public $link;
     
     function __construct($id, $title, $duration, $link) {
-        $this->id = $id;
+        $this->id = (int)$id;
         $this->title = $title;
         $this->duration = $duration;
         $this->link = $link;
