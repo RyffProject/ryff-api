@@ -1,5 +1,22 @@
 <?php
 
+function get_upvote_user_ids($post_id) {
+    global $db;
+    
+    $user_ids = array();
+    
+    $query = "SELECT `user_id` FROM `upvotes`
+              WHERE `post_id`=".$db->real_escape_string((int)$post_id);
+    $results = $db->query($query);
+    if ($results) {
+        while ($row = $results->fetch_assoc()) {
+            $user_ids[] = $row['user_id'];
+        }
+    }
+    
+    return $user_ids;
+}
+
 function get_user_from_username($username) {
     global $db;
     
@@ -73,7 +90,9 @@ function get_avatar_url($user_id) {
 }
 
 function get_post_from_id($post_id) {
-    global $db;
+    global $db, $CURRENT_USER;
+    
+    $user_id = ($CURRENT_USER && $CURRENT_USER->id) ? $CURRENT_USER->id : 0;
     
     $post_query = "SELECT * FROM `posts` WHERE `post_id`=".$db->real_escape_string($post_id);
     $post_results = $db->query($post_query);
@@ -92,8 +111,10 @@ function get_post_from_id($post_id) {
                         $riff_row['duration'], SITE_ROOT."/riffs/$riff_id.m4a");
             }
         }
+        $upvote_ids = get_upvote_user_ids($post_id);
         $post = new Post($post_id, $post_row['parent_id'], $user, isset($riff) ? $riff : 0, 
-                $post_row['content'], $post_row['date_created']);
+                $post_row['content'], $post_row['date_created'],
+                count($upvote_ids), in_array($user_id, $upvote_ids));
         return $post;
     }
 }

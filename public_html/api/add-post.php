@@ -19,12 +19,8 @@ if (!$content &&
 
 $parent_id = isset($_POST['parent_id']) ? (int)$_POST['parent_id'] : false;
 //If there is a parent_id set, make sure it refers to an actual post
-if ($parent_id) {
-    $parent_query = "SELECT * FROM `posts` WHERE `post_id`=".$db->real_escape_string($parent_id);
-    $parent_results = $db->real_escape_string($parent_query);
-    if (!$parent_results || $parent_results->num_rows <= 0) {
-        $parent_id = false;
-    }
+if (!get_post_from_id($parent_id)) {
+    $parent_id = false;
 }
 
 if ($parent_id) {

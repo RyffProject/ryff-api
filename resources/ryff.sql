@@ -161,6 +161,22 @@ CREATE TABLE IF NOT EXISTS `riffs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `upvotes`
+--
+
+CREATE TABLE IF NOT EXISTS `upvotes` (
+  `upvote_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `post_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`upvote_id`),
+  KEY `post_id` (`post_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -235,3 +251,10 @@ ALTER TABLE `posts`
 --
 ALTER TABLE `riffs`
   ADD CONSTRAINT `riffs_post_id_constr` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `upvotes`
+--
+ALTER TABLE `upvotes`
+  ADD CONSTRAINT `upvotes_post_id_constr` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `upvotes_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
