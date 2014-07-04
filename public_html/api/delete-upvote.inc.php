@@ -16,26 +16,24 @@ if (!$post) {
     exit;
 }
 
-if (!$post->is_upvoted) {
-    $upvote_query = "INSERT INTO `upvotes` (`post_id`, `user_id`)
-                     VALUES (
-                       ".$db->real_escape_string($post->id)."
-                       ".$db->real_escape_string($CURRENT_USER->id)."
-                     )";
+if ($post->is_upvoted) {
+    $upvote_query = "DELETE FROM `upvotes`
+                     WHERE `post_id`=".$db->real_escape_string($post->id)."
+                     AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
     $upvote_results = $db->query($upvote_query);
     if ($upvote_results) {
         $new_post = get_post_from_id($post->id);
         if ($new_post) {
             echo json_encode(array(
-                "success" => "Successfully added upvote.",
+                "success" => "Successfully removed upvote.",
                 "post" => $new_post
             ));
         } else {
-            echo json_encode(array("error" => "Added upvote but was unable to get the new post."));
+            echo json_encode(array("error" => "Removed upvote but was unable to get the new post."));
         }
     } else {
-        echo json_encode(array("error" => "Unable to add upvote."));
+        echo json_encode(array("error" => "Unable to remove upvote."));
     }
 } else {
-    echo json_encode(array("error" => "You have already upvoted this post."));
+    echo json_encode(array("error" => "You have not upvoted this post."));
 }
