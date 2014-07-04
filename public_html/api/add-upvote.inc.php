@@ -12,7 +12,7 @@ require_once("global.php");
 $post_id = isset($_POST['id']) ? (int)$_POST['id'] : false;
 $post = get_post_from_id($post_id);
 if (!$post) {
-    echo json_encode(array("error" => "No post to favorite!"));
+    echo json_encode(array("error" => "No post to upvote!"));
     exit;
 }
 
