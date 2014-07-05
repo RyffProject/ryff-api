@@ -39,8 +39,7 @@ $results = $db->query($query);
 if ($results) {
     $friends = array();
     while ($row = $results->fetch_assoc()) {
-        $user = new User($row['user_id'], $row['name'], $row['username'], 
-                $row['email'], $row['bio'], $row['date_created']);
+        $user = User::create($row);
         if ($user) {
             $friends[] = $user;
         }

@@ -26,7 +26,7 @@ if (isset($_POST['name']) && $_POST['name']) {
 
 if (isset($_POST['username']) && $_POST['username']) {
     $username = $_POST['username'];
-    if (get_user_from_username($username)) {
+    if (User::get_by_username($username)) {
         echo json_encode(array("error" => "This username is already in use."));
         exit;
     }
@@ -45,7 +45,7 @@ if (isset($_POST['username']) && $_POST['username']) {
 
 if (isset($_POST['email']) && $_POST['email']) {
     $email = $_POST['email'];
-    if (get_user_from_email($email)) {
+    if (User::get_by_email($email)) {
         echo json_encode(array("error" => "This email is already in use."));
         exit;
     }
@@ -96,7 +96,7 @@ if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']
     }
 }
 
-$user = get_user_from_id($CURRENT_USER->id);
+$user = User::get_by_id($CURRENT_USER->id);
 if ($user) {
     echo json_encode(array("success" => "Successfully updated.", "user" => $user));
 } else {

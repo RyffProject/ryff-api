@@ -40,7 +40,7 @@ $results = $db->query($query);
 if ($results) {
     $posts = array();
     while ($row = $results->fetch_assoc()) {
-        $post = get_post_from_id($row['post_id']);
+        $post = Post::get_by_id($row['post_id']);
         if ($post) {
             $posts[] = $post;
         }

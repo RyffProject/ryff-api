@@ -68,7 +68,7 @@ if ($results) {
     }
     echo json_encode(array(
         "success" => "You have successfully registered, $username.",
-        "user" => get_user_from_username($username)
+        "user" => User::get_by_id($user_id)
     ));
 } else {
     echo json_encode(array("error" => "There was an error processing your request."));

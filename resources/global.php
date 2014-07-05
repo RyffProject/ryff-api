@@ -27,9 +27,9 @@ if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
     if (!isset($AUTH_USERNAME) || !isset($AUTH_PASSWORD)) {
         echo json_encode(array("error" => "Authentication required."));
         exit;
-    } else if (!valid_login($AUTH_USERNAME, $AUTH_PASSWORD)) {
+    } else if (!User::is_valid_login($AUTH_USERNAME, $AUTH_PASSWORD)) {
         echo json_encode(array("error" => "Invalid credentials."));
         exit;
     }
-    $CURRENT_USER = get_user_from_username($AUTH_USERNAME);
+    $CURRENT_USER = User::get_by_username($AUTH_USERNAME);
 }

@@ -14,7 +14,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 if (isset($USER_ID)) {
-    $user = get_user_from_id($USER_ID);
+    $user = User::get_by_id($USER_ID);
     if ($user) {
         echo json_encode(array("success" => "Retrieved user.", "user" => $user));
     } else {

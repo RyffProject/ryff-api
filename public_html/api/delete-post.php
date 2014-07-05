@@ -10,7 +10,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 $POST_ID = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-$post = get_post_from_id($POST_ID);
+$post = Post::get_by_id($POST_ID);
 if (!$post) {
     echo json_encode(array("error" => "No post to delete!"));
     exit;

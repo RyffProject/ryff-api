@@ -9,7 +9,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$user_location = get_location_from_user_id($CURRENT_USER->id);
+$user_location = $CURRENT_USER->get_location();
 if (!$user_location) {
     echo json_encode(array("error" => "No location found for user."));
     exit;
@@ -68,8 +68,7 @@ $results = $db->query($query);
 if ($results) {
     $users = array();
     while ($row = $results->fetch_assoc()) {
-        $user = new User($row['user_id'], $row['name'], $row['username'],
-                $row['email'], $row['bio'], $row['date_created']);
+        $user = User::create($row);
         if ($user) {
             $users[] = $user;
         }

@@ -10,7 +10,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 $to_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-$to_user = get_user_from_id($to_id);
+$to_user = User::get_by_id($to_id);
 if (!$to_user) {
     echo json_encode(array("error" => "This user does not exist to add as a friend."));
     exit;
