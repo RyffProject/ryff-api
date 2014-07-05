@@ -29,7 +29,7 @@ if ($ERRORS) {
     exit;
 }
 
-if (User::is_valid_login($username, $password)) {
+if (User::is_login_valid($username, $password)) {
     echo json_encode(array(
         "success" => "You have logged in successfully.",
         "user" => User::get_by_username($username)
