@@ -73,7 +73,7 @@ class User {
             'user_id' => 0, 'name' => 0, 'username' => 0, 
             'email' => 0, 'bio' => 0, 'date_created' => 0
         );
-        if (!empty(array_diff_key($required_keys, $row))) {
+        if (empty(array_diff_key($required_keys, $row))) {
             return new User(
                 $row['user_id'], $row['name'], $row['username'],
                 $row['email'], $row['bio'], $row['date_created']
