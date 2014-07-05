@@ -3,7 +3,6 @@
 header("Content-Type: application/json");
 
 require_once("connect-db.php");
-require_once("functions.php");
 
 require_once("user.class.php");
 require_once("point.class.php");
