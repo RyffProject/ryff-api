@@ -19,7 +19,7 @@ if (!$content &&
 
 $parent_id = isset($_POST['parent_id']) ? (int)$_POST['parent_id'] : false;
 //If there is a parent_id set, make sure it refers to an actual post
-if (!get_post_from_id($parent_id)) {
+if (!Post::get_by_id($parent_id)) {
     $parent_id = false;
 }
 
@@ -72,7 +72,7 @@ if ($post_results) {
     }
     echo json_encode(array(
         "success" => "Successfully added post from user.",
-        "post" => get_post_from_id($post_id)
+        "post" => Post::get_by_id($post_id)
         ));
 } else {
     echo json_encode(array("error" => "Error adding post from user."));

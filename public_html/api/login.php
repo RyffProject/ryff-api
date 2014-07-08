@@ -29,10 +29,10 @@ if ($ERRORS) {
     exit;
 }
 
-if (valid_login($username, $password)) {
+if (User::is_login_valid($username, $password)) {
     echo json_encode(array(
         "success" => "You have logged in successfully.",
-        "user" => get_user_from_username($username)
+        "user" => User::get_by_username($username)
         ));
     exit;
 }

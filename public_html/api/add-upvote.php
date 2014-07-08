@@ -10,7 +10,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 $post_id = isset($_POST['id']) ? (int)$_POST['id'] : false;
-$post = get_post_from_id($post_id);
+$post = Post::get_by_id($post_id);
 if (!$post) {
     echo json_encode(array("error" => "No post to upvote!"));
     exit;
@@ -19,12 +19,12 @@ if (!$post) {
 if (!$post->is_upvoted) {
     $upvote_query = "INSERT INTO `upvotes` (`post_id`, `user_id`)
                      VALUES (
-                       ".$db->real_escape_string($post->id)."
+                       ".$db->real_escape_string($post->id).",
                        ".$db->real_escape_string($CURRENT_USER->id)."
                      )";
     $upvote_results = $db->query($upvote_query);
     if ($upvote_results) {
-        $new_post = get_post_from_id($post->id);
+        $new_post = Post::get_by_id($post->id);
         if ($new_post) {
             echo json_encode(array(
                 "success" => "Successfully added upvote.",
