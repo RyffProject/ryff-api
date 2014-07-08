@@ -19,7 +19,7 @@ if (!$post) {
 if (!$post->is_upvoted) {
     $upvote_query = "INSERT INTO `upvotes` (`post_id`, `user_id`)
                      VALUES (
-                       ".$db->real_escape_string($post->id)."
+                       ".$db->real_escape_string($post->id).",
                        ".$db->real_escape_string($CURRENT_USER->id)."
                      )";
     $upvote_results = $db->query($upvote_query);
