@@ -13,11 +13,19 @@ $email = isset($_POST['email']) ? trim($_POST['email']) : "";
 $bio = isset($_POST['bio']) ? trim($_POST['bio']) : "";
 $password = isset($_POST['password']) ? trim($_POST['password']) : "";
 
+if (strlen($name) > 255) {
+    echo json_encode(array("error" => "Name cannot be more than 255 characters."));
+    exit;
+}
 if (!$username) {
     echo json_encode(array("error" => "Missing username."));
     exit;
 } else if (strlen($username) > 32) {
     echo json_encode(array("error" => "Username cannot be more than 32 characters."));
+    exit;
+}
+if (strlen($email) > 255) {
+    echo json_encode(array("error" => "Email cannot be more than 255 characters."));
     exit;
 }
 if (!$password) {
