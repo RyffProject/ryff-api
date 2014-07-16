@@ -1,5 +1,32 @@
 <?php
 
+/**
+ * Create User
+ * ===========
+ * 
+ * POST variables:
+ * "username" (required) The username for the new user. No more than 32 characters.
+ * "password" (required) The password for the new user.
+ * "name" (optional) The name for the new user. No more than 255 characters.
+ * "email" (optional) The email address for the new user. No more than 255 characters.
+ * "bio" (optional) The bio[graphy] for the new user. No more than 65535 bytes.
+ * "latitude" (optional) The user's current latitude GPS coordinate.
+ * "longitude" (optional) The user's current longitude GPS coordinate.
+ * 
+ * File uploads:
+ * "avatar" (optional) An image for the new user in PNG format.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "user" The newly created user object.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     __DIR__."/../../resources"

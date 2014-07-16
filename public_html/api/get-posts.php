@@ -1,5 +1,28 @@
 <?php
 
+/**
+ * Get Posts
+ * =========
+ * 
+ * POST variables:
+ * "id" (optional) The id of the user whose posts you want to get. Defaults 
+ *                 to the current user.
+ * "exclude" (optional) A comma-separated list of the post ids you have already received.
+ * "limit" (optional) The maximum number of posts that will be returned. Defaults to 5.
+ * "auth_username" (required) The current user's username, used for authentication.
+ * "auth_password" (required) The current user's password, used for authentication.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "posts" An array of post objects from the requested user.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(

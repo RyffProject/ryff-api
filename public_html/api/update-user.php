@@ -1,5 +1,32 @@
 <?php
 
+/**
+ * Update User
+ * ===========
+ * 
+ * POST variables:
+ * "name" (optional) The new name for the current user. No more than 255 characters.
+ * "username" (optional) The new username for the current user. No more than 32 characters.
+ * "email" (optional) The new email address for the current user. No more than 255 characters.
+ * "bio" (optional) The new bio[graphy] for the current user. No more than 65535 bytes.
+ * "password" (optional) The new password for the current user.
+ * "auth_username" (required) The current user's username, used for authentication.
+ * "auth_password" (required) The current user's password, used for authentication.
+ * 
+ * File uploads:
+ * "avatar" (optional) An image for the current user in PNG format.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "user" The updated user object.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(

@@ -1,5 +1,33 @@
 <?php
 
+/**
+ * Add Post
+ * ========
+ * 
+ * NOTE: Either the content of the post must be set, or the title and riff 
+ * upload must both be set.
+ * 
+ * POST variables:
+ * "title" The title of the post. Titles longer than 255 characters will be truncated.
+ * "content" The body of the post. Bodies longer than 65535 bytes will be truncated.
+ * "parent_id" (optional) The id of the parent post, if this is a reply.
+ * "auth_username" (required) The current user's username, used for authentication.
+ * "auth_password" (required) The current user's password, used for authentication.
+ * 
+ * File uploads:
+ * "riff" An .m4a audio file.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "post" The created post object.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(

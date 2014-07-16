@@ -1,5 +1,27 @@
 <?php
 
+/**
+ * Get Friends
+ * ===========
+ * 
+ * POST variables:
+ * "id" (optional) The id of the user whose friends you want. Defaults to the current user.
+ * "exclude" (optional) A comma-separated list of the user ids you have already received.
+ * "limit" (optional) The maximum amount of users that will be returned. Defaults to 5.
+ * "auth_username" (required) The current user's username, used for authentication.
+ * "auth_password" (required) The current user's password, used for authentication.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "users" An array of user objects that are friends of the requested user.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
@@ -47,7 +69,7 @@ if ($results) {
     echo json_encode(array(
         "success" => "Retrieved friends successfully.",
         "users" => $friends
-        ));
+    ));
 } else {
     echo json_encode(array("error" => "There was an error getting the user's friends."));
 }

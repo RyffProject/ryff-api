@@ -1,5 +1,27 @@
 <?php
 
+/**
+ * Get User
+ * ========
+ * 
+ * NOTE: Either "id" or both "auth_username" and "auth_password" are required.
+ * 
+ * POST variables:
+ * "id" The id of the user you want to get. Defaults to the current user.
+ * "auth_username" The current user's username, used for authentication.
+ * "auth_password" The current user's password, used for authentication.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "user" The user object.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 if (isset($_POST['id'])) {
     $USER_ID = (int)$_POST['id'];
 } else {

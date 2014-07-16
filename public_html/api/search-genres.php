@@ -1,5 +1,23 @@
 <?php
 
+/**
+ * Search Genres
+ * =============
+ * 
+ * POST variables:
+ * "query" (optional) The text that the returned genres should match.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "genres" An array of up to 10 of the most popular genre names that match the query.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     __DIR__."/../../resources"
@@ -23,7 +41,7 @@ if ($results) {
     echo json_encode(array(
         "success" => "Retrieved genres successfully.",
         "genres" => $genres
-        ));
+    ));
     exit;
 }
 

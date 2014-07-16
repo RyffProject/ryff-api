@@ -1,5 +1,27 @@
 <?php
 
+/**
+ * Search Users
+ * ============
+ * 
+ * POST variables:
+ * "exclude" (optional) A comma-separated list of user ids that have already been received.
+ * "limit" (optional) The maximum number of users that will be returned.
+ * "query" (optional) The text that the returned users should match.
+ * "auth_username" (required) The current user's username, used for authentication.
+ * "auth_password" (required) The current user's password, used for authentication.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "users" An array of user objects that match the query.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(

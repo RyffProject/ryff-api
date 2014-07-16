@@ -1,5 +1,26 @@
 <?php
 
+/**
+ * Get Friends' Posts
+ * ==================
+ * 
+ * POST variables:
+ * "exclude" (optional) A comma-separated list of the post ids you have already received.
+ * "limit" (optional) The maximum amount of posts to return. Defaults to 5.
+ * "auth_username" (required) The current user's username, used for authentication.
+ * "auth_password" (required) The current user's password, used for authentication.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "posts" An array of no more than "limit" post objects in descending chronological order.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
+
 define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
@@ -48,7 +69,7 @@ if ($results) {
     echo json_encode(array(
         "success" => "Retrieved posts successfully.",
         "posts" => $posts
-        ));
+    ));
 } else {
     echo json_encode(array("error" => "There was an error getting the user's friends' posts."));
 }

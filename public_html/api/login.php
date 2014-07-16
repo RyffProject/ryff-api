@@ -1,6 +1,23 @@
 <?php
 
-
+/**
+ * Login
+ * =====
+ * 
+ * POST variables:
+ * "auth_username" (required) The user's username.
+ * "auth_password" (required) The user's password.
+ * 
+ * Return on success:
+ * "success" The success message.
+ * "user" The user object for the current user.
+ * 
+ * Return on error:
+ * "error" The error message.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the MIT License.
+ */
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
@@ -33,7 +50,7 @@ if (User::is_login_valid($username, $password)) {
     echo json_encode(array(
         "success" => "You have logged in successfully.",
         "user" => User::get_by_username($username)
-        ));
+    ));
     exit;
 }
 
