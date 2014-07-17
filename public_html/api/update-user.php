@@ -10,6 +10,8 @@
  * "email" (optional) The new email address for the current user. No more than 255 characters.
  * "bio" (optional) The new bio[graphy] for the current user. No more than 65535 bytes.
  * "password" (optional) The new password for the current user.
+ * "latitude" (optional) The new latitude coordinate for the current user's location.
+ * "longitude" (optional) The new longitude coordinate for the current user's location.
  * "auth_username" (required) The current user's username, used for authentication.
  * "auth_password" (required) The current user's password, used for authentication.
  * 
@@ -113,13 +115,29 @@ if (isset($_POST['password']) && $_POST['password']) {
 }
 
 if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
-    $path = AVATAR_ABSOLUTE_PATH."/$user_id.png";
+    $path = AVATAR_ABSOLUTE_PATH."/{$CURRENT_USER->id}.png";
     if (file_exists($path)) {
         unlink($path);
     }
     if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $path)) {
         echo json_encode(array("error" => "Unable to upload avatar."));
         exit;
+    }
+}
+
+if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
+    $latitude = (double)$_POST['latitude'];
+    $longitude = (double)$_POST['longitude'];
+    if ($latitude && $longitude) {
+        $location_query = "INSERT INTO `locations` (`user_id`, `location`)
+                           VALUES (".$db->real_escape_string($CURRENT_USER->id).",
+                           POINT(".$db->real_escape_string($latitude).",".
+                           $db->real_escape_string($longitude)."))";
+        $results = $db->query($location_query);
+        if (!$results) {
+            echo json_encode(array("error" => "Could not update location."));
+            exit;
+        }
     }
 }
 
