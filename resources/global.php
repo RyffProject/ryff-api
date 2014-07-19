@@ -31,7 +31,7 @@ if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
     $auth_token_query = "
         SELECT * FROM `auth_tokens`
         WHERE `user_id`=".$db->real_escape_string($AUTH_USER_ID)."
-        AND `auth_token`='".$db->real_escape_string($AUTH_TOKEN)."'
+        AND `token`='".$db->real_escape_string($AUTH_TOKEN)."'
         AND `token_id`=(
             SELECT `token_id` FROM `auth_tokens`
             WHERE `user_id`=".$db->real_escape_string($AUTH_USER_ID)."
@@ -42,7 +42,7 @@ if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
     if ($auth_token_results && $auth_token_results->num_rows) {
         $auth_token_row = $auth_token_results->fetch_assoc();
         $auth_token_expiration = $auth_token_row['date_expires'];
-        if (strtotime($auth_token_expiration) >= time()) {
+        if (time() >= strtotime($auth_token_expiration)) {
             echo json_encode(array("error" => "Your auth token has expired."));
             exit;
         }

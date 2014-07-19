@@ -109,11 +109,11 @@ class User {
         $auth_token = bin2hex(openssl_random_pseudo_bytes(32));
         
         $insert_auth_query = "
-            INSERT INTO `auth_tokens` (`user_id`, `auth_token`, `date_expires`)
+            INSERT INTO `auth_tokens` (`user_id`, `token`, `date_expires`)
             VALUES
             (
                 ".$db->real_escape_string($this->id).",
-                '".$db->real_escape_string($auth_token)."'
+                '".$db->real_escape_string($auth_token)."',
                 '".$db->real_escape_string($expiration_date)."'
             )";
         
