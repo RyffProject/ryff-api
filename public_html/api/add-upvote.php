@@ -4,10 +4,10 @@
  * Add Upvote
  * ==========
  * 
+ * Authentication required.
+ * 
  * POST variables:
  * "id" (required) The id of the post you want to upvote.
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
  * 
  * Return on success:
  * "success" The success message.

@@ -15,20 +15,40 @@ if (!$db) {
     $ERRORS++;
 }
 
-if (isset($_POST['auth_username'])) {
-    $AUTH_USERNAME = $_POST['auth_username'];
+if (isset($_COOKIE['user_id'])) {
+    $AUTH_USER_ID = (int)$_COOKIE['user_id'];
 }
-if (isset($_POST['auth_password'])) {
-    $AUTH_PASSWORD = $_POST['auth_password'];
+if (isset($_COOKIE['auth_token'])) {
+    $AUTH_TOKEN = $_COOKIE['auth_token'];
 }
 
 if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
-    if (!isset($AUTH_USERNAME) || !isset($AUTH_PASSWORD)) {
+    if (!isset($AUTH_USER_ID) || !isset($AUTH_TOKEN)) {
         echo json_encode(array("error" => "Authentication required."));
         exit;
-    } else if (!User::is_login_valid($AUTH_USERNAME, $AUTH_PASSWORD)) {
+    }
+    
+    $auth_token_query = "
+        SELECT * FROM `auth_tokens`
+        WHERE `user_id`=".$db->real_escape_string($AUTH_USER_ID)."
+        AND `auth_token`='".$db->real_escape_string($AUTH_TOKEN)."'
+        AND `token_id`=(
+            SELECT `token_id` FROM `auth_tokens`
+            WHERE `user_id`=".$db->real_escape_string($AUTH_USER_ID)."
+            ORDER BY `date_created` DESC
+            LIMIT 1
+        )";
+    $auth_token_results = $db->query($auth_token_query);
+    if ($auth_token_results && $auth_token_results->num_rows) {
+        $auth_token_row = $auth_token_results->fetch_assoc();
+        $auth_token_expiration = $auth_token_row['date_expires'];
+        if (strtotime($auth_token_expiration) >= time()) {
+            echo json_encode(array("error" => "Your auth token has expired."));
+            exit;
+        }
+    } else {
         echo json_encode(array("error" => "Invalid credentials."));
         exit;
     }
-    $CURRENT_USER = User::get_by_username($AUTH_USERNAME);
+    $CURRENT_USER = User::get_by_id($AUTH_USER_ID);
 }

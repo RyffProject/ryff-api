@@ -4,6 +4,8 @@
  * Update User
  * ===========
  * 
+ * Authentication required.
+ * 
  * POST variables:
  * "name" (optional) The new name for the current user. No more than 255 characters.
  * "username" (optional) The new username for the current user. No more than 32 characters.
@@ -12,8 +14,6 @@
  * "password" (optional) The new password for the current user.
  * "latitude" (optional) The new latitude coordinate for the current user's location.
  * "longitude" (optional) The new longitude coordinate for the current user's location.
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
  * 
  * File uploads:
  * "avatar" (optional) An image for the current user in PNG format.

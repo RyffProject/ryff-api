@@ -9,4 +9,6 @@ define("DB_USER", "");
 define("DB_HOST", "");
 define("DB_PASS", "");
 
+define("COOKIE_LIFESPAN", 604800);
+
 date_default_timezone_set("America/Los_Angeles");

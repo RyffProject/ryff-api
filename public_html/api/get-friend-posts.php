@@ -4,11 +4,11 @@
  * Get Friends' Posts
  * ==================
  * 
+ * Authentication required.
+ * 
  * POST variables:
  * "exclude" (optional) A comma-separated list of the post ids you have already received.
  * "limit" (optional) The maximum amount of posts to return. Defaults to 5.
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
  * 
  * Return on success:
  * "success" The success message.

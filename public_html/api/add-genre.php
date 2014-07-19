@@ -4,10 +4,10 @@
  * Add Genre
  * =========
  * 
+ * Authentication required.
+ * 
  * POST variables:
  * "genre" (required) The name of the genre you want to add.
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
  * 
  * On success:
  * "success" The success message.

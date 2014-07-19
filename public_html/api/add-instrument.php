@@ -4,10 +4,10 @@
  * Add Instrument
  * ==============
  * 
+ * Authentication required.
+ * 
  * POST variables:
  * "instrument" (required) The name of the instrument you want to add.
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
  * 
  * Return on success:
  * "success" The success message.

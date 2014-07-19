@@ -4,9 +4,7 @@
  * Get Genres
  * ==========
  * 
- * POST variables:
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
+ * Authentication required.
  * 
  * Return on success:
  * "success" The success message.

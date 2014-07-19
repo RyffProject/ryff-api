@@ -4,6 +4,9 @@
  * Login
  * =====
  * 
+ * NOTE: On success, this script sets two cookies, one for the user_id and the
+ * other for the auth_token. These are used to authenticate after logging in.
+ * 
  * POST variables:
  * "auth_username" (required) The user's username.
  * "auth_password" (required) The user's password.
@@ -47,9 +50,21 @@ if ($ERRORS) {
 }
 
 if (User::is_login_valid($username, $password)) {
+    $CURRENT_USER = User::get_by_username($username);
+    $expiration = time() + COOKIE_LIFESPAN;
+    $auth_token = $CURRENT_USER->get_new_auth_token($expiration);
+    
+    if (!$auth_token) {
+        echo json_encode(array("error" => "There was an error creating your auth token."));
+        exit;
+    }
+    
+    setcookie('user_id', $CURRENT_USER->id, $expiration);
+    setcookie('auth_token', $auth_token, $expiration);
+    
     echo json_encode(array(
         "success" => "You have logged in successfully.",
-        "user" => User::get_by_username($username)
+        "user" => $CURRENT_USER
     ));
     exit;
 }

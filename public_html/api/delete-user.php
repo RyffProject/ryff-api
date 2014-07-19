@@ -4,12 +4,10 @@
  * Delete User
  * ===========
  * 
+ * Authentication required.
+ * 
  * NOTE: This script only sets the user "inactive", it does not actually delete
  * their record in the database.
- * 
- * POST variables:
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
  * 
  * Return on success:
  * "success" The success message.

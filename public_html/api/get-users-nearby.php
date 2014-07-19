@@ -4,13 +4,13 @@
  * Get Users Nearby
  * ================
  * 
+ * Authentication required.
+ * 
  * NOTE: The current user must have latitude and longitude information in the database.
  * 
  * POST variables:
  * "exclude" (optional) A comma-separated list of user ids that the user has already received.
  * "limit" (optional) The maximum amount of users that will be returned. Defaults to 5.
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
  * 
  * Return on success:
  * "success" The success message.
