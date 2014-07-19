@@ -7,9 +7,7 @@
  * POST variables:
  * "exclude" (optional) A comma-separated list of user ids that have already been received.
  * "limit" (optional) The maximum number of users that will be returned.
- * "query" (optional) The text that the returned users should match.
- * "auth_username" (required) The current user's username, used for authentication.
- * "auth_password" (required) The current user's password, used for authentication.
+ * "query" (required) The text that the returned users should match.
  * 
  * Return on success:
  * "success" The success message.
@@ -21,8 +19,6 @@
  * Ryff API <http://www.github.com/rfotino/ryff-api>
  * Released under the MIT License.
  */
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
@@ -48,7 +44,11 @@ if (isset($_POST['exclude'])) {
 
 $num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
 
-$query_str = isset($_POST['query']) ? trim($_POST['query']) : "";
+$query_str = isset($_POST['query']) ? trim($_POST['query']) : false;
+if (!$query_str) {
+    echo json_encode(array("error" => "You must provide a query to search for."));
+    exit;
+}
 $safe_query_str = $db->real_escape_string($query_str);
 
 $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`, 

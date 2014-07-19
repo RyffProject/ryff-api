@@ -5,7 +5,7 @@
  * =============
  * 
  * POST variables:
- * "query" (optional) The text that the returned genres should match.
+ * "query" (required) The text that the returned genres should match.
  * 
  * Return on success:
  * "success" The success message.
@@ -25,7 +25,11 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$query_str = isset($_POST['query']) ? trim($_POST['query']) : "";
+$query_str = isset($_POST['query']) ? trim($_POST['query']) : false;
+if (!$query_str) {
+    echo json_encode(array("error" => "You must provide a query to search for."));
+    exit;
+}
 
 $query = "SELECT `genre` FROM `genres`
           WHERE `genre` LIKE '%".$db->real_escape_string($query_str)."%'
