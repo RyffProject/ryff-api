@@ -38,7 +38,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if (isset($_POST['name']) && $_POST['name']) {
+if (isset($_POST['name'])) {
     $name = $_POST['name'];
     if (strlen($name) > 255) {
         echo json_encode(array("error" => "Name cannot be more than 255 characters."));
@@ -72,7 +72,7 @@ if (isset($_POST['username']) && $_POST['username']) {
     }
 }
 
-if (isset($_POST['email']) && $_POST['email']) {
+if (isset($_POST['email'])) {
     $email = $_POST['email'];
     if (User::get_by_email($email)) {
         echo json_encode(array("error" => "This email is already in use."));
@@ -114,7 +114,14 @@ if (isset($_POST['password']) && $_POST['password']) {
     }
 }
 
-if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
+if (isset($_FILES['avatar'])) {
+    if ($_FILES['avatar']['error']) {
+        echo json_encode(array("error" => "There was an error with your avatar upload."));
+        exit;
+    } else if ($_FILES['avatar']['type'] !== "image/png") {
+        echo json_encode(array("error" => "Your avatar must be in PNG format."));
+        exit;
+    }
     $path = AVATAR_ABSOLUTE_PATH."/{$CURRENT_USER->id}.png";
     if (file_exists($path)) {
         unlink($path);
