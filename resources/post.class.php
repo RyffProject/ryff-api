@@ -54,6 +54,36 @@ class Post {
         return false;
     }
     
+    public function get_parents() {
+        global $db;
+        
+        $parents = array();
+        $parents_query = "SELECT `parent_id` FROM `post_families`
+                          WHERE `child_id`=".$db->real_escape_string($this->id);
+        $parents_results = $db->query($parents_query);
+        if ($parents_results) {
+            while ($parent_row = $parents_results->fetch_assoc()) {
+                $parents[] = Post::get_by_id((int)$parent_row['parent_id']);
+            }
+        }
+        return $parents;
+    }
+    
+    public function get_children() {
+        global $db;
+        
+        $children = array();
+        $children_query = "SELECT `child_id` FROM `post_families`
+                           WHERE `parent_id`=".$db->real_escape_string($this->id);
+        $children_results = $db->query($children_query);
+        if ($children_results) {
+            while ($child_row = $children_results->fetch_assoc()) {
+                $children[] = Post::get_by_id((int)$child_row['child_id']);
+            }
+        }
+        return $children;
+    }
+    
     public static function get_by_id($post_id) {
         global $db;
 
