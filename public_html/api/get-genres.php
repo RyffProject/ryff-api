@@ -4,7 +4,10 @@
  * Get Genres
  * ==========
  * 
- * Authentication required.
+ * Authentication required if "id" is not set.
+ * 
+ * POST variables:
+ * "id" The id of the user you want to get. Defaults to the current user.
  * 
  * Return on success:
  * "success" The success message.
@@ -17,7 +20,15 @@
  * Released under the MIT License.
  */
 
-define("REQUIRES_AUTHENTICATION", true);
+if (isset($_POST['id'])) {
+    $USER_ID = (int)$_POST['id'];
+    if (!User::get_by_id($USER_ID)) {
+        echo json_encode(array("error" => "The requested user does not exist."));
+        exit;
+    }
+} else {
+    define("REQUIRES_AUTHENTICATION", true);
+}
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
@@ -26,7 +37,11 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$query = "SELECT `genre` FROM `genres` WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id);
+if (!isset($USER_ID)) {
+    $USER_ID = $CURRENT_USER->id;
+}
+
+$query = "SELECT `genre` FROM `genres` WHERE `user_id`=".$db->real_escape_string($USER_ID);
 $results = $db->query($query);
 if ($results) {
     $genres = array();
