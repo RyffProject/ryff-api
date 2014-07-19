@@ -10,6 +10,8 @@ class User {
     
     public $avatar;
     public $karma;
+    public $genres;
+    public $instruments;
     
     protected function __construct($id, $name, $username, $email, $bio, $date_created) {
         $this->id = (int)$id;
@@ -21,6 +23,8 @@ class User {
         
         $this->avatar = $this->get_avatar_url();
         $this->karma = $this->get_karma();
+        $this->genres = $this->get_genres();
+        $this->instruments = $this->get_instruments();
     }
     
     protected function get_avatar_url() {
@@ -50,6 +54,36 @@ class User {
         }
         
         return 0;
+    }
+    
+    protected function get_genres() {
+        global $db;
+        
+        $genres = array();
+        $genre_query = "SELECT `genre` FROM `genres`
+                        WHERE `user_id`=".$db->real_escape_string($this->id);
+        $genre_results = $db->query($genre_query);
+        if ($genre_results && $genre_results->num_rows) {
+            while ($genre_row = $genre_results->fetch_assoc()) {
+                $genres[] = $genre_row['genre'];
+            }
+        }
+        return $genres;
+    }
+    
+    protected function get_instruments() {
+        global $db;
+        
+        $instruments = array();
+        $instrument_query = "SELECT `instrument` FROM `instruments`
+                             WHERE `user_id`=".$db->real_escape_string($this->id);
+        $instrument_results = $db->query($instrument_query);
+        if ($instrument_results && $instrument_results->num_rows) {
+            while ($instrument_row = $instrument_results->fetch_assoc()) {
+                $instruments[] = $instrument_row['instrument'];
+            }
+        }
+        return $instruments;
     }
     
     public function get_location() {
