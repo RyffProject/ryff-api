@@ -45,26 +45,25 @@ if (!$content &&
     exit;
 }
 
-$parent_id = isset($_POST['parent_id']) ? (int)$_POST['parent_id'] : false;
+if (isset($_POST['parent_ids'])) {
+    $parent_ids = array_filter(
+        array_map(intval, explode(',', $_POST['parent_ids'])),
+        function($id) { return Post::get_by_id($id) !== false; }
+    );
+} else {
+    $parent_ids = false;
+}
+
 //If there is a parent_id set, make sure it refers to an actual post
 if (!Post::get_by_id($parent_id)) {
     $parent_id = false;
 }
 
-if ($parent_id) {
-    $post_query = "INSERT INTO `posts` (`user_id`, `parent_id`, `content`)
-                   VALUES (
-                       ".$db->real_escape_string($CURRENT_USER->id).",
-                       ".$db->real_escape_string($parent_id).",
-                       '".$db->real_escape_string($content)."'
-                   )";
-} else {
-    $post_query = "INSERT INTO `posts` (`user_id`, `content`)
-                   VALUES (
-                       ".$db->real_escape_string($CURRENT_USER->id).",
-                       '".$db->real_escape_string($content)."'
-                   )";
-}
+$post_query = "INSERT INTO `posts` (`user_id`, `content`)
+               VALUES (
+                   ".$db->real_escape_string($CURRENT_USER->id).",
+                   '".$db->real_escape_string($content)."'
+               )";
 $post_results = $db->query($post_query);
 if ($post_results) {
     $post_id = $db->insert_id;
@@ -98,10 +97,26 @@ if ($post_results) {
             }
         }
     }
+    if ($parent_ids) {
+        $post_family_query = "INSERT INTO `post_families` (`parent_id`, `child_id`) VALUES ";
+        $post_family_query_pieces = array();
+        foreach ($parent_ids as $parent_id) {
+            $post_family_query_pieces[] .= "(
+                ".$db->real_escape_string($parent_id).",
+                ".$db->real_escape_string($post_id)."
+            )";
+        }
+        $post_family_query .= implode(',', $post_family_query_pieces);
+        $post_family_results = $db->query($post_family_query);
+        if (!$post_family_results) {
+            echo json_encode(array("error" => "There was an error attaching a parent post."));
+            exit;
+        }
+    }
     echo json_encode(array(
         "success" => "Successfully added post from user.",
         "post" => Post::get_by_id($post_id)
-        ));
+    ));
 } else {
     echo json_encode(array("error" => "Error adding post from user."));
 }

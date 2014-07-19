@@ -2,7 +2,6 @@
 
 class Post {
     public $id;
-    public $parent_id;
     public $user;
     public $riff;
     public $content;
@@ -11,10 +10,9 @@ class Post {
     public $upvotes;
     public $is_upvoted;
     
-    protected function __construct($id, $parent_id, $user, $riff, $content, $date_created,
+    protected function __construct($id, $user, $riff, $content, $date_created,
             $upvotes = 0, $is_upvoted = false) {
         $this->id = (int)$id;
-        $this->parent_id = (int)$parent_id;
         $this->user = $user;
         $this->riff = $riff;
         $this->content = $content;
@@ -93,7 +91,7 @@ class Post {
             $user = User::get_by_id($post_row['user_id']);
             $riff = Riff::get_by_post_id($post_id);
             
-            $post = new Post($post_id, $post_row['parent_id'], $user, $riff, 
+            $post = new Post($post_id, $user, $riff, 
                     $post_row['content'], $post_row['date_created']);
             return $post;
         }
