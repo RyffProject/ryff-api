@@ -11,6 +11,7 @@
  * 
  * Return on success:
  * "success" The success message.
+ * "id" The id of the user that was removed.
  * 
  * Return on error:
  * "error" The error message.
@@ -40,7 +41,10 @@ $query = "DELETE FROM `friends`
           AND `from_id`=".$db->real_escape_string($CURRENT_USER->id);
 $results = $db->query($query);
 if ($results) {
-    echo json_encode(array("success" => "Successfully unfriended {$to_user->username}"));
+    echo json_encode(array(
+        "success" => "Successfully unfriended {$to_user->username}",
+        "id" => $to_user->id
+    ));
     exit;
 } else {
     echo json_encode(array("error" => "Unable to unfriend {$to_user->username}."));

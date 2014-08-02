@@ -14,6 +14,7 @@
  * 
  * Return on error:
  * "error" The error message.
+ * "id" The id of the user that was added.
  * 
  * Ryff API <http://www.github.com/rfotino/ryff-api>
  * Released under the MIT License.
@@ -51,6 +52,9 @@ if (!$results) {
     echo json_encode(array("error" => "Could not add the user as a friend."));
     exit;
 } else {
-    echo json_encode(array("success" => "Successfully added {$to_user->username} as a friend."));
+    echo json_encode(array(
+        "success" => "Successfully added {$to_user->username} as a friend.",
+        "id" => $to_user->id
+    ));
     exit;
 }
