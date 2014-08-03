@@ -102,9 +102,10 @@ class User {
         return false;
     }
     
-    public function get_new_auth_token($expiration) {
+    public function set_logged_in() {
         global $db;
         
+        $expiration = time() + COOKIE_LIFESPAN;
         $expiration_date = date('Y-m-d H:i:s', $expiration);
         $auth_token = bin2hex(openssl_random_pseudo_bytes(32));
         
@@ -117,11 +118,14 @@ class User {
                 '".$db->real_escape_string($expiration_date)."'
             )";
         
-        if ($db->query($insert_auth_query)) {
-            return $auth_token;
-        } else {
+        if (!$db->query($insert_auth_query)) {
             return false;
         }
+        
+        setcookie('user_id', $this->id, $expiration);
+        setcookie('auth_token', $auth_token, $expiration);
+        
+        return true;
     }
     
     public static function create($row) {

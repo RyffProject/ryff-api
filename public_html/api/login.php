@@ -51,22 +51,16 @@ if ($ERRORS) {
 
 if (User::is_login_valid($username, $password)) {
     $CURRENT_USER = User::get_by_username($username);
-    $expiration = time() + COOKIE_LIFESPAN;
-    $auth_token = $CURRENT_USER->get_new_auth_token($expiration);
-    
-    if (!$auth_token) {
-        echo json_encode(array("error" => "There was an error creating your auth token."));
+    if ($CURRENT_USER->set_logged_in()) {
+        echo json_encode(array(
+            "success" => "You have logged in successfully.",
+            "user" => $CURRENT_USER
+        ));
+        exit;
+    } else {
+        echo json_encode(array("error" => "There was an error logging you in."));
         exit;
     }
-    
-    setcookie('user_id', $CURRENT_USER->id, $expiration);
-    setcookie('auth_token', $auth_token, $expiration);
-    
-    echo json_encode(array(
-        "success" => "You have logged in successfully.",
-        "user" => $CURRENT_USER
-    ));
-    exit;
 }
 
 echo json_encode(array("error" => "Invalid username or password"));

@@ -101,10 +101,18 @@ if ($results) {
         }
         move_uploaded_file($_FILES['avatar']['tmp_name'], $path);
     }
-    echo json_encode(array(
-        "success" => "You have successfully registered, $username.",
-        "user" => User::get_by_id($user_id)
-    ));
+    
+    $new_user = User::get_by_id($user_id);
+    if ($new_user->set_logged_in()) {
+        echo json_encode(array(
+            "success" => "You have successfully registered, $username.",
+            "user" => $new_user
+        ));
+    } else {
+        echo json_encode(array(
+            "error" => "You have been registered, but there was an error logging you in."
+        ));
+    }
 } else {
     echo json_encode(array("error" => "There was an error processing your request."));
 }
