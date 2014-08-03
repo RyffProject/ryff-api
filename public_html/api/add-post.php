@@ -54,11 +54,6 @@ if (isset($_POST['parent_ids'])) {
     $parent_ids = false;
 }
 
-//If there is a parent_id set, make sure it refers to an actual post
-if (!Post::get_by_id($parent_id)) {
-    $parent_id = false;
-}
-
 $post_query = "INSERT INTO `posts` (`user_id`, `content`)
                VALUES (
                    ".$db->real_escape_string($CURRENT_USER->id).",
