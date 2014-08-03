@@ -5,8 +5,8 @@
  * ============
  * 
  * POST variables:
- * "exclude" (optional) A comma-separated list of user ids that have already been received.
- * "limit" (optional) The maximum number of users that will be returned.
+ * "page" (optional) The page number of the results, 1-based.
+ * "limit" (optional) The maximum number of users per page. Defaults to 15.
  * "query" (required) The text that the returned users should match.
  * 
  * Return on success:
@@ -33,16 +33,8 @@ if (!$user_location) {
     exit;
 }
 
-if (isset($_POST['exclude'])) {
-    $exclude_ids = explode(",", $_POST['exclude']);
-    foreach ($exclude_ids as &$id) {
-        $id = $db->real_escape_string((int)$id);
-    }
-} else {
-    $exclude_ids = array(0);
-}
-
-$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
+$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $query_str = isset($_POST['query']) ? trim($_POST['query']) : false;
 if (!$query_str) {
@@ -68,7 +60,6 @@ $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`,
           ON l.`user_id`=u.`user_id`
           WHERE u.`active`=1
           AND u.`user_id`!=".$db->real_escape_string($CURRENT_USER->id)."
-          AND u.`user_id` NOT IN (".implode(",", $exclude_ids).")
           AND l.`date_created`=(
               SELECT MAX(l2.`date_created`) 
               FROM `locations` AS l2 
@@ -85,7 +76,7 @@ $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`,
               OR r.`title` LIKE '%$safe_query_str%'
           )
           ORDER BY `distance` ASC
-          LIMIT ".$db->real_escape_string($num_users);
+          LIMIT ".(($page_num - 1) * $num_users).", ".$num_users;
 $results = $db->query($query);
 if ($results) {
     $users = array();

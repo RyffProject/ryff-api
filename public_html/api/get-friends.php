@@ -8,8 +8,8 @@
  * 
  * POST variables:
  * "id" (optional) The id of the user whose friends you want. Defaults to the current user.
- * "exclude" (optional) A comma-separated list of the user ids you have already received.
- * "limit" (optional) The maximum amount of users that will be returned. Defaults to 5.
+ * "page" (optional) The page number of the results, 1-based.
+ * "limit" (optional) The maximum number of users per page. Defaults to 15.
  * 
  * Return on success:
  * "success" The success message.
@@ -37,25 +37,16 @@ if (isset($_POST['id'])) {
     $USER_ID = $CURRENT_USER->id;
 }
 
-if (isset($_POST['exclude'])) {
-    $exclude_ids = explode(",", $_POST['exclude']);
-    foreach ($exclude_ids as &$id) {
-        $id = $db->real_escape_string((int)$id);
-    }
-} else {
-    $exclude_ids = array(0);
-}
-
-$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
+$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_created`
           FROM `users` AS u
           JOIN `friends` AS f
           ON f.`to_id`=u.`user_id`
           AND f.`from_id`=".$db->real_escape_string($USER_ID)."
-          WHERE u.`user_id` NOT IN (".implode(",", $exclude_ids).")
           ORDER BY f.`date_created` ASC
-          LIMIT ".$db->real_escape_string($num_users);
+          LIMIT ".(($page_num - 1) * $num_users).", ".$num_users;
 $results = $db->query($query);
 
 if ($results) {

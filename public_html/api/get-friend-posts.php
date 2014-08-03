@@ -7,8 +7,8 @@
  * Authentication required.
  * 
  * POST variables:
- * "exclude" (optional) A comma-separated list of the post ids you have already received.
- * "limit" (optional) The maximum amount of posts to return. Defaults to 5.
+ * "page" (optional) The page number of the results, 1-based.
+ * "limit" (optional) The maximum number of posts per page. Defaults to 15.
  * 
  * Return on success:
  * "success" The success message.
@@ -30,32 +30,15 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if (isset($_POST['exclude'])) {
-    $exclude_ids = explode(",", $_POST['exclude']);
-    foreach ($exclude_ids as &$id) {
-        $id = $db->real_escape_string((int)$id);
-    }
-} else {
-    $exclude_ids = array(0);
-}
+$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
-
-$friend_ids = array();
-$friend_query = "SELECT `to_id` FROM `friends`
-                 WHERE `from_id`=".$db->real_escape_string($CURRENT_USER->id);
-$friend_results = $db->query($friend_query);
-if ($friend_results) {
-    while ($row = $friend_results->fetch_assoc()) {
-        $friend_ids[] = $db->real_escape_string((int)$row['to_id']);
-    }
-}
-
-$query = "SELECT * FROM `posts`
-          WHERE `user_id` IN (".implode(",", $friend_ids).")
-          AND `post_id` NOT IN (".implode(",", $exclude_ids).")
-          ORDER BY `date_created` DESC
-          LIMIT ".$db->real_escape_string($num_posts);
+$query = "SELECT a.* FROM `posts` AS a
+          JOIN `friends` AS b
+          ON b.`to_id` = a.`user_id`
+          AND b.`from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
+          ORDER BY a.`date_created` DESC
+          LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
 $results = $db->query($query);
 
 if ($results) {

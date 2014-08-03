@@ -9,8 +9,8 @@
  * NOTE: The current user must have latitude and longitude information in the database.
  * 
  * POST variables:
- * "exclude" (optional) A comma-separated list of user ids that the user has already received.
- * "limit" (optional) The maximum amount of users that will be returned. Defaults to 5.
+ * "page" (optional) The page number of the results, 1-based.
+ * "limit" (optional) The maximum number of users per page. Defaults to 15.
  * 
  * Return on success:
  * "success" The success message.
@@ -38,16 +38,8 @@ if (!$user_location) {
     exit;
 }
 
-if (isset($_POST['exclude'])) {
-    $exclude_ids = explode(",", $_POST['exclude']);
-    foreach ($exclude_ids as &$id) {
-        $id = $db->real_escape_string((int)$id);
-    }
-} else {
-    $exclude_ids = array(0);
-}
-
-$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
+$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_created`,
           SQRT(POW(X(l.`location`)-".$db->real_escape_string($user_location->x).",2)+
@@ -55,15 +47,14 @@ $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`dat
           FROM `users` AS u
           LEFT JOIN `locations` AS l
           ON l.`user_id` = u.`user_id` AND u.`active`=1
-          WHERE l.`user_id` NOT IN (".implode(",", $exclude_ids).")
-          AND l.`date_created`=(
+          WHERE l.`date_created`=(
               SELECT MAX(l2.`date_created`) 
               FROM `locations` AS l2 
               WHERE l2.`user_id`= l.`user_id`
           )
           AND l.`user_id`!=".$db->real_escape_string($CURRENT_USER->id)."
           ORDER BY `distance` ASC
-          LIMIT ".$db->real_escape_string($num_users);
+          LIMIT ".(($page_num - 1) * $num_users).", ".$num_users;
 $results = $db->query($query);
 
 if ($results && $results->num_rows) {

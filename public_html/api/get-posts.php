@@ -9,8 +9,8 @@
  * POST variables:
  * "id" (optional) The id of the user whose posts you want to get. Defaults 
  *                 to the current user.
- * "exclude" (optional) A comma-separated list of the post ids you have already received.
- * "limit" (optional) The maximum number of posts that will be returned. Defaults to 5.
+ * "page" (optional) The page number of the results, 1-based.
+ * "limit" (optional) The maximum number of posts per page. Defaults to 15.
  * 
  * Return on success:
  * "success" The success message.
@@ -38,22 +38,13 @@ if (isset($_POST['id'])) {
     $USER_ID = $CURRENT_USER->id;
 }
 
-if (isset($_POST['exclude'])) {
-    $exclude_ids = explode(",", $_POST['exclude']);
-    foreach ($exclude_ids as &$id) {
-        $id = $db->real_escape_string((int)$id);
-    }
-} else {
-    $exclude_ids = array(0);
-}
-
-$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 5;
+$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $query = "SELECT * FROM `posts`
           WHERE `user_id`=".$db->real_escape_string($USER_ID)."
-          AND `post_id` NOT IN (".implode(",", $exclude_ids).")
           ORDER BY `date_created` DESC
-          LIMIT ".$db->real_escape_string($num_posts);
+          LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
 $results = $db->query($query);
 
 if ($results) {
