@@ -4,6 +4,8 @@
  * Search Instruments
  * ==================
  * 
+ * Authentication required.
+ * 
  * POST variables:
  * "query" (required) The text that the returned instruments should match.
  * 
@@ -17,6 +19,8 @@
  * Ryff API <http://www.github.com/rfotino/ryff-api>
  * Released under the MIT License.
  */
+
+define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

@@ -4,10 +4,10 @@
  * Get Genres
  * ==========
  * 
- * Authentication required if "id" is not set.
+ * Authentication required.
  * 
  * POST variables:
- * "id" The id of the user you want to get. Defaults to the current user.
+ * "id" (optional) The id of the user you want to get. Defaults to the current user.
  * 
  * Return on success:
  * "success" The success message.
@@ -20,15 +20,7 @@
  * Released under the MIT License.
  */
 
-if (isset($_POST['id'])) {
-    $USER_ID = (int)$_POST['id'];
-    if (!User::get_by_id($USER_ID)) {
-        echo json_encode(array("error" => "The requested user does not exist."));
-        exit;
-    }
-} else {
-    define("REQUIRES_AUTHENTICATION", true);
-}
+define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
@@ -37,7 +29,13 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if (!isset($USER_ID)) {
+if (isset($_POST['id'])) {
+    $USER_ID = (int)$_POST['id'];
+    if (!User::get_by_id($USER_ID)) {
+        echo json_encode(array("error" => "The requested user does not exist."));
+        exit;
+    }
+} else {
     $USER_ID = $CURRENT_USER->id;
 }
 

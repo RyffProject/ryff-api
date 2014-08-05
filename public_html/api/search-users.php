@@ -4,6 +4,8 @@
  * Search Users
  * ============
  * 
+ * Authentication required.
+ * 
  * POST variables:
  * "page" (optional) The page number of the results, 1-based.
  * "limit" (optional) The maximum number of users per page. Defaults to 15.
@@ -19,6 +21,8 @@
  * Ryff API <http://www.github.com/rfotino/ryff-api>
  * Released under the MIT License.
  */
+
+define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

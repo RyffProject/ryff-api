@@ -4,10 +4,10 @@
  * Get User
  * ========
  * 
- * Authentication required if "id" is not set.
+ * Authentication required.
  * 
  * POST variables:
- * "id" The id of the user you want to get. Defaults to the current user.
+ * "id" (optional) The id of the user you want to get. Defaults to the current user.
  * 
  * Return on success:
  * "success" The success message.
@@ -20,11 +20,7 @@
  * Released under the MIT License.
  */
 
-if (isset($_POST['id'])) {
-    $USER_ID = (int)$_POST['id'];
-} else {
-    define("REQUIRES_AUTHENTICATION", true);
-}
+define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
@@ -33,13 +29,16 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if (isset($USER_ID)) {
-    $user = User::get_by_id($USER_ID);
+if (isset($_POST['id'])) {
+    $user_id = (int)$_POST['id'];
+    
+    $user = User::get_by_id($user_id);
     if ($user) {
         echo json_encode(array("success" => "Retrieved user.", "user" => $user));
     } else {
         echo json_encode(array("error" => "Invalid user id."));
     }
 } else {
-    echo json_encode($CURRENT_USER);
+    echo json_encode(array("success" => "Retrieved user.", "user" => $CURRENT_USER));
 }
+
