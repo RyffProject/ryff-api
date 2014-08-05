@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Get Friends' Posts
- * ==================
+ * Get News Feed
+ * =============
  * 
  * Authentication required.
+ * Gets the posts of the users you follow, ordered by most recent first.
  * 
  * POST variables:
  * "page" (optional) The page number of the results, 1-based.
@@ -34,7 +35,7 @@ $page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $query = "SELECT a.* FROM `posts` AS a
-          JOIN `friends` AS b
+          JOIN `follows` AS b
           ON b.`to_id` = a.`user_id`
           AND b.`from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
           ORDER BY a.`date_created` DESC
@@ -54,5 +55,5 @@ if ($results) {
         "posts" => $posts
     ));
 } else {
-    echo json_encode(array("error" => "There was an error getting the user's friends' posts."));
+    echo json_encode(array("error" => "There was an error getting the news feed."));
 }

@@ -1,19 +1,20 @@
 <?php
 
 /**
- * Get Friends
- * ===========
+ * Get Following
+ * =============
  * 
  * Authentication required.
+ * Gets the users that the given user follows.
  * 
  * POST variables:
- * "id" (optional) The id of the user whose friends you want. Defaults to the current user.
+ * "id" (optional) Defaults to the current user.
  * "page" (optional) The page number of the results, 1-based.
  * "limit" (optional) The maximum number of users per page. Defaults to 15.
  * 
  * Return on success:
  * "success" The success message.
- * "users" An array of user objects that are friends of the requested user.
+ * "users" An array of user objects that are followed by the requested user.
  * 
  * Return on error:
  * "error" The error message.
@@ -37,30 +38,33 @@ if (isset($_POST['id'])) {
     $USER_ID = $CURRENT_USER->id;
 }
 
+$user = User::get_by_id($USER_ID);
+if (!$user) {
+    echo json_encode(array("error" => "You must provide a valid user id."));
+    exit;
+}
+
 $page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_created`
           FROM `users` AS u
-          JOIN `friends` AS f
+          JOIN `follows` AS f
           ON f.`to_id`=u.`user_id`
-          AND f.`from_id`=".$db->real_escape_string($USER_ID)."
+          AND f.`from_id`=".$db->real_escape_string($user->id)."
           ORDER BY f.`date_created` ASC
           LIMIT ".(($page_num - 1) * $num_users).", ".$num_users;
 $results = $db->query($query);
 
 if ($results) {
-    $friends = array();
+    $following = array();
     while ($row = $results->fetch_assoc()) {
-        $user = User::create($row);
-        if ($user) {
-            $friends[] = $user;
-        }
+        $following[] = User::create($row);
     }
     echo json_encode(array(
-        "success" => "Retrieved friends successfully.",
-        "users" => $friends
+        "success" => "Retrieved users that {$user->username} is following successfully.",
+        "users" => $following
     ));
 } else {
-    echo json_encode(array("error" => "There was an error getting the user's friends."));
+    echo json_encode(array("error" => "There was an error getting the users that {$user->username} follows."));
 }

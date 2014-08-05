@@ -27,15 +27,15 @@ CREATE TABLE IF NOT EXISTS `auth_tokens` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `friends`
+-- Table structure for table `follows`
 --
 
-CREATE TABLE IF NOT EXISTS `friends` (
-  `friend_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `follows` (
+  `follow_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `to_id` int(10) unsigned NOT NULL,
   `from_id` int(10) unsigned NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`friend_id`),
+  PRIMARY KEY (`follow_id`),
   KEY `to_id` (`to_id`,`from_id`),
   KEY `from_id` (`from_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -235,11 +235,11 @@ ALTER TABLE `auth_tokens`
   ADD CONSTRAINT `auth_tokens_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `friends`
+-- Constraints for table `follows`
 --
-ALTER TABLE `friends`
-  ADD CONSTRAINT `friends_from_id_constr` FOREIGN KEY (`from_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `friends_to_id_constr` FOREIGN KEY (`to_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `follows`
+  ADD CONSTRAINT `follows_from_id_constr` FOREIGN KEY (`from_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `follows_to_id_constr` FOREIGN KEY (`to_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `genres`
