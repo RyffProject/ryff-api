@@ -12,6 +12,7 @@ class User {
     public $karma;
     public $genres;
     public $instruments;
+    public $is_following;
     
     protected function __construct($id, $name, $username, $email, $bio, $date_created) {
         $this->id = (int)$id;
@@ -25,6 +26,7 @@ class User {
         $this->karma = $this->get_karma();
         $this->genres = $this->get_genres();
         $this->instruments = $this->get_instruments();
+        $this->is_following = $this->get_is_following();
     }
     
     protected function get_avatar_url() {
@@ -84,6 +86,25 @@ class User {
             }
         }
         return $instruments;
+    }
+    
+    protected function get_is_following() {
+        global $db, $CURRENT_USER;
+        
+        if (!isset($CURRENT_USER)) {
+            return false;
+        }
+        
+        $is_following_query = "
+            SELECT `follow_id` FROM `follows`
+            WHERE `from_id`=".$db->real_escape_string($CURRENT_USER->id)."
+            AND `to_id`=".$db->real_escape_string($this->id);
+        $is_following_result = $db->query($is_following_query);
+        if ($is_following_result && $is_following_result->num_rows > 0) {
+            return true;
+        }
+        
+        return false;
     }
     
     public function get_location() {
