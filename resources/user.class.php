@@ -166,8 +166,7 @@ class User {
         global $db;
 
         $query = "SELECT * FROM `users`
-                  WHERE `username`='".$db->real_escape_string($username)."'
-                  AND `active`=1";
+                  WHERE `username`='".$db->real_escape_string($username)."'";
         $results = $db->query($query);
         if ($results && $results->num_rows > 0) {
             $row = $results->fetch_assoc();
@@ -181,8 +180,7 @@ class User {
         global $db;
 
         $query = "SELECT * FROM `users`
-                  WHERE `email`='".$db->real_escape_string($email)."'
-                  AND `active`=1";
+                  WHERE `email`='".$db->real_escape_string($email)."'";
         $results = $db->query($query);
         if ($results && $results->num_rows > 0) {
             $row = $results->fetch_assoc();
@@ -196,14 +194,11 @@ class User {
         global $db;
 
         $query = "SELECT * FROM `users`
-                  WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
-                  AND `active`=1";
+                  WHERE `user_id`=".$db->real_escape_string((int)$user_id);
         $results = $db->query($query);
-        if ($results) {
-            if ($row = $results->fetch_assoc()) {
-                $user = User::create($row);
-                return $user;
-            }
+        if ($results && $results->num_rows > 0) {
+            $row = $results->fetch_assoc();
+            return User::create($row);
         }
         
         return null;
@@ -213,8 +208,7 @@ class User {
         global $db;
 
         $query = "SELECT `password` FROM `users`
-                  WHERE `username`='".$db->real_escape_string($username)."'
-                  AND `active`=1";
+                  WHERE `username`='".$db->real_escape_string($username)."'";
         $results = $db->query($query);
         if ($results && $results->num_rows > 0) {
             $row = $results->fetch_assoc();

@@ -46,7 +46,7 @@ $query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`dat
           POW(Y(l.`location`)-".$db->real_escape_string($user_location->y).",2)) AS `distance`
           FROM `users` AS u
           LEFT JOIN `locations` AS l
-          ON l.`user_id` = u.`user_id` AND u.`active`=1
+          ON l.`user_id` = u.`user_id`
           WHERE l.`date_created`=(
               SELECT MAX(l2.`date_created`) 
               FROM `locations` AS l2 

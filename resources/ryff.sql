@@ -70,7 +70,6 @@ CREATE TABLE IF NOT EXISTS `groups` (
   `bio` text NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `active` int(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`group_id`),
   KEY `created_by` (`created_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -219,8 +218,6 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `date_updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `date_deactivated` timestamp NULL DEFAULT NULL,
-  `active` int(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 

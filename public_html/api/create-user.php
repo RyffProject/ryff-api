@@ -4,6 +4,9 @@
  * Create User
  * ===========
  * 
+ * NOTE: On success, this script sets two cookies, one for the user_id and the
+ * other for the auth_token. These are used to authenticate after logging in.
+ * 
  * POST variables:
  * "username" (required) The username for the new user. No more than 32 characters.
  * "password" (required) The password for the new user.
@@ -59,13 +62,13 @@ if (!$password) {
     echo json_encode(array("error" => "Missing password."));
     exit;
 }
-$username_results = $db->query("SELECT * FROM `users` WHERE `username`='".$db->real_escape_string($username)."' AND `active`=1");
+$username_results = $db->query("SELECT * FROM `users` WHERE `username`='".$db->real_escape_string($username)."'");
 if ($username_results && $username_results->num_rows) {
     echo json_encode(array("error" => "Username already in use."));
     exit;
 }
 if ($email) {
-    $email_results = $db->query("SELECT * FROM `users` WHERE `email`='".$db->real_escape_string($email)."' AND `active`=1");
+    $email_results = $db->query("SELECT * FROM `users` WHERE `email`='".$db->real_escape_string($email)."'");
     if ($email_results && $email_results->num_rows) {
         echo json_encode(array("error" => "Email already in use."));
         exit;

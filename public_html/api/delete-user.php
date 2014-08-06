@@ -28,7 +28,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$query = "UPDATE `users` SET `active`=0, `date_deactivated`=NOW()
+$query = "DELETE FROM `users`
           WHERE `user_id`=".$db->real_escape_string((int)$CURRENT_USER->id);
 $results = $db->query($query);
 if ($results) {
