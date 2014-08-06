@@ -92,11 +92,12 @@ if ($post_results) {
             }
         }
     }
+    
     if ($parent_ids) {
         $post_family_query = "INSERT INTO `post_families` (`parent_id`, `child_id`) VALUES ";
         $post_family_query_pieces = array();
         foreach ($parent_ids as $parent_id) {
-            $post_family_query_pieces[] .= "(
+            $post_family_query_pieces[] = "(
                 ".$db->real_escape_string($parent_id).",
                 ".$db->real_escape_string($post_id)."
             )";
@@ -108,6 +109,21 @@ if ($post_results) {
             exit;
         }
     }
+    
+    $tags = array();
+    if (preg_match_all('/#([a-zA-Z0-9_]+)/', $content, $tags)) {
+        $post_tags_query = "INSERT INTO `post_tags` (`post_id`, `tag`) VALUES ";
+        $post_tags_query_pieces = array();
+        foreach ($tags[1] as $tag) {
+            $post_tags_query_pieces[] = "(
+                ".$db->real_escape_string($post_id).",
+                '".$db->real_escape_string($tag)."'
+            )"; 
+        }
+        $post_tags_query .= implode(',', $post_tags_query_pieces);
+        $db->query($post_tags_query);
+    }
+    
     echo json_encode(array(
         "success" => "Successfully added post from user.",
         "post" => Post::get_by_id($post_id)
