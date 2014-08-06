@@ -148,6 +148,28 @@ class User {
         return true;
     }
     
+    public function set_logged_out() {
+        global $db, $AUTH_TOKEN;
+        
+        $expiration = time() - 3600;
+        $expiration_date = date('Y-m-d H:i:s', $expiration);
+        
+        $update_auth_query = "
+            UPDATE `auth_tokens`
+            SET `date_expires`='".$db->real_escape_string($expiration_date)."'
+            WHERE `user_id`=".$db->real_escape_string($this->id)."
+            AND `token`='".$db->real_escape_string($AUTH_TOKEN)."'";
+        
+        if (!$db->query($update_auth_query)) {
+            return false;
+        }
+        
+        setcookie('user_id', '', $expiration);
+        setcookie('auth_token', '', $expiration);
+        
+        return true;
+    }
+    
     public static function create($row) {
         $required_keys = array(
             'user_id' => 0, 'name' => 0, 'username' => 0, 

@@ -19,7 +19,7 @@ if (isset($_COOKIE['user_id'])) {
     $AUTH_USER_ID = (int)$_COOKIE['user_id'];
 }
 if (isset($_COOKIE['auth_token'])) {
-    $AUTH_TOKEN = $_COOKIE['auth_token'];
+    $AUTH_TOKEN = preg_replace('/[^0-9a-f]/', '', $_COOKIE['auth_token']);
 }
 
 if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {

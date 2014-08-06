@@ -32,6 +32,8 @@ $query = "DELETE FROM `users`
           WHERE `user_id`=".$db->real_escape_string((int)$CURRENT_USER->id);
 $results = $db->query($query);
 if ($results) {
+    setcookie('user_id', '', time() - 3600);
+    setcookie('auth_token', '', time() - 3600);
     echo json_encode(array("success" => "User deleted successfully."));
 } else {
     echo json_encode(array("error" => "An error occurred while deleting the user."));
