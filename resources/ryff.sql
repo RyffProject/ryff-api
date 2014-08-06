@@ -58,24 +58,6 @@ CREATE TABLE IF NOT EXISTS `locations` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `messages`
---
-
-CREATE TABLE IF NOT EXISTS `messages` (
-  `message_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `to_id` int(10) unsigned NOT NULL,
-  `from_id` int(10) unsigned NOT NULL,
-  `content` text NOT NULL,
-  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date_read` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`message_id`),
-  KEY `to_id` (`to_id`,`from_id`),
-  KEY `from_id` (`from_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `post_families`
 --
 
