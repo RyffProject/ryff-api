@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Get Genres
- * ==========
+ * Get Tags
+ * ========
  * 
  * Authentication required.
  * 
@@ -11,7 +11,7 @@
  * 
  * Return on success:
  * "success" The success message.
- * "genres" An array of the names of genres for the current user.
+ * "tags" An array of the names of tags for the current user.
  * 
  * Return on error:
  * "error" The error message.
@@ -39,17 +39,17 @@ if (isset($_POST['id'])) {
     $USER_ID = $CURRENT_USER->id;
 }
 
-$query = "SELECT `genre` FROM `genres` WHERE `user_id`=".$db->real_escape_string($USER_ID);
+$query = "SELECT `tag` FROM `user_tags` WHERE `user_id`=".$db->real_escape_string($USER_ID);
 $results = $db->query($query);
 if ($results) {
-    $genres = array();
+    $tags = array();
     while ($row = $results->fetch_assoc()) {
-        $genres[] = $row['genre'];
+        $tags[] = $row['tag'];
     }
     echo json_encode(array(
-        "success" => "Successfully retrieved genres for user.",
-        "genres" => $genres
+        "success" => "Successfully retrieved tags for user.",
+        "tags" => $tags
     ));
 } else {
-    echo json_encode(array("error" => "Error retrieving genres for user."));
+    echo json_encode(array("error" => "Error retrieving tags for user."));
 }

@@ -54,10 +54,8 @@ $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`,
           FROM `users` AS u
           LEFT JOIN `posts` AS p
           ON p.`user_id`=u.`user_id`
-          LEFT JOIN `genres` AS g
-          ON g.`user_id`=u.`user_id`
-          LEFT JOIN `instruments` AS i
-          ON i.`user_id`=u.`user_id`
+          LEFT JOIN `user_tags` AS t
+          ON t.`user_id`=u.`user_id`
           LEFT JOIN `riffs` AS r
           ON r.`post_id`=p.`post_id`
           LEFT JOIN `locations` AS l
@@ -73,8 +71,7 @@ $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`,
               u.`name` LIKE '%$safe_query_str%'
               OR u.`username` LIKE '%$safe_query_str%'
               OR u.`bio` LIKE '%$safe_query_str%'
-              OR g.`genre` LIKE '%$safe_query_str%'
-              OR i.`instrument` LIKE '%$safe_query_str%'
+              OR t.`tag` LIKE '%$safe_query_str%'
               OR p.`content` LIKE '%$safe_query_str%'
               OR r.`title` LIKE '%$safe_query_str%'
           )

@@ -10,8 +10,7 @@ class User {
     
     public $avatar;
     public $karma;
-    public $genres;
-    public $instruments;
+    public $tags;
     public $is_following;
     
     protected function __construct($id, $name, $username, $email, $bio, $date_created) {
@@ -24,8 +23,7 @@ class User {
         
         $this->avatar = $this->get_avatar_url();
         $this->karma = $this->get_karma();
-        $this->genres = $this->get_genres();
-        $this->instruments = $this->get_instruments();
+        $this->tags = $this->get_tags();
         $this->is_following = $this->get_is_following();
     }
     
@@ -58,34 +56,19 @@ class User {
         return 0;
     }
     
-    protected function get_genres() {
+    protected function get_tags() {
         global $db;
         
-        $genres = array();
-        $genre_query = "SELECT `genre` FROM `genres`
-                        WHERE `user_id`=".$db->real_escape_string($this->id);
-        $genre_results = $db->query($genre_query);
-        if ($genre_results && $genre_results->num_rows) {
-            while ($genre_row = $genre_results->fetch_assoc()) {
-                $genres[] = $genre_row['genre'];
+        $tags = array();
+        $tag_query = "SELECT `tag` FROM `user_tags`
+                      WHERE `user_id`=".$db->real_escape_string($this->id);
+        $tag_results = $db->query($tag_query);
+        if ($tag_results) {
+            while ($tag_row = $tag_results->fetch_assoc()) {
+                $tags[] = $tag_row['tag'];
             }
         }
-        return $genres;
-    }
-    
-    protected function get_instruments() {
-        global $db;
-        
-        $instruments = array();
-        $instrument_query = "SELECT `instrument` FROM `instruments`
-                             WHERE `user_id`=".$db->real_escape_string($this->id);
-        $instrument_results = $db->query($instrument_query);
-        if ($instrument_results && $instrument_results->num_rows) {
-            while ($instrument_row = $instrument_results->fetch_assoc()) {
-                $instruments[] = $instrument_row['instrument'];
-            }
-        }
-        return $instruments;
+        return $tags;
     }
     
     protected function get_is_following() {

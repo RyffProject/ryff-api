@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Search Genres
- * =============
+ * Search Tags
+ * ===========
  * 
  * Authentication required.
  * 
  * POST variables:
- * "query" (required) The text that the returned genres should match.
+ * "query" (required) The text that the returned tags should match.
  * 
  * Return on success:
  * "success" The success message.
- * "genres" An array of up to 10 of the most popular genre names that match the query.
+ * "tags" An array of up to 10 of the most popular user tags that match the query.
  * 
  * Return on error:
  * "error" The error message.
@@ -35,22 +35,22 @@ if (!$query_str) {
     exit;
 }
 
-$query = "SELECT `genre` FROM `genres`
-          WHERE `genre` LIKE '%".$db->real_escape_string($query_str)."%'
-          GROUP BY `genre`
+$query = "SELECT `tag` FROM `user_tags`
+          WHERE `tag` LIKE '%".$db->real_escape_string($query_str)."%'
+          GROUP BY `tag`
           ORDER BY COUNT(*) DESC
           LIMIT 10";
 $results = $db->query($query);
 if ($results) {
-    $genres = array();
+    $tags = array();
     while ($row = $results->fetch_assoc()) {
-        $genres[] = $row['genre'];
+        $tags[] = $row['tag'];
     }
     echo json_encode(array(
-        "success" => "Retrieved genres successfully.",
-        "genres" => $genres
+        "success" => "Retrieved tags successfully.",
+        "tags" => $tags
     ));
     exit;
 }
 
-echo json_encode(array("error" => "Unable to retrieve genres."));
+echo json_encode(array("error" => "Unable to retrieve tags."));

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Delete Genre
- * ============
+ * Delete Tag
+ * ==========
  * 
  * Authentication required.
  * 
  * POST variables:
- * "genre" (required) The name of the genre you want to remove.
+ * "tag" (required) The name of the tag you want to remove.
  * 
  * Return on success:
  * "success" The success message.
@@ -28,18 +28,18 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$genre = isset($_POST['genre']) ? trim($_POST['genre']) : "";
-if (!$genre) {
-    echo json_encode(array("error" => "No genre to delete!"));
+$tag = isset($_POST['tag']) ? trim($_POST['tag']) : "";
+if (!$tag) {
+    echo json_encode(array("error" => "No tag to delete!"));
     exit;
 }
 
-$query = "DELETE FROM `genres`
-          WHERE `genre`='".$db->real_escape_string($genre)."'
+$query = "DELETE FROM `user_tags`
+          WHERE `tag`='".$db->real_escape_string($tag)."'
           AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
 $results = $db->query($query);
 if ($results) {
-    echo json_encode(array("success" => "Successfully deleted genre from user."));
+    echo json_encode(array("success" => "Successfully deleted tag from user."));
 } else {
-    echo json_encode(array("error" => "Error deleting genre from user."));
+    echo json_encode(array("error" => "Error deleting tag from user."));
 }

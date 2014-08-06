@@ -43,36 +43,6 @@ CREATE TABLE IF NOT EXISTS `follows` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `genres`
---
-
-CREATE TABLE IF NOT EXISTS `genres` (
-  `genre_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `genre` varchar(255) NOT NULL,
-  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`genre_id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `instruments`
---
-
-CREATE TABLE IF NOT EXISTS `instruments` (
-  `instrument_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `instrument` varchar(255) NOT NULL,
-  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`instrument_id`),
-  KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `locations`
 --
 
@@ -169,6 +139,21 @@ CREATE TABLE IF NOT EXISTS `upvotes` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_tags`
+--
+
+CREATE TABLE IF NOT EXISTS `user_tags` (
+  `tag_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `tag` varchar(255) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`tag_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -200,18 +185,6 @@ ALTER TABLE `auth_tokens`
 ALTER TABLE `follows`
   ADD CONSTRAINT `follows_from_id_constr` FOREIGN KEY (`from_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `follows_to_id_constr` FOREIGN KEY (`to_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `genres`
---
-ALTER TABLE `genres`
-  ADD CONSTRAINT `genres_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `instruments`
---
-ALTER TABLE `instruments`
-  ADD CONSTRAINT `instruments_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `locations`
@@ -252,3 +225,9 @@ ALTER TABLE `riffs`
 ALTER TABLE `upvotes`
   ADD CONSTRAINT `upvotes_post_id_constr` FOREIGN KEY (`post_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `upvotes_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_tags`
+--
+ALTER TABLE `user_tags`
+  ADD CONSTRAINT `tags_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
