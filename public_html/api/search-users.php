@@ -40,7 +40,7 @@ if (!$user_location) {
 $page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$query_str = isset($_POST['query']) ? trim($_POST['query']) : false;
+$query_str = isset($_POST['query']) ? trim($_POST['query']) : "";
 if (!$query_str) {
     echo json_encode(array("error" => "You must provide a query to search for."));
     exit;

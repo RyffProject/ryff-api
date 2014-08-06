@@ -114,13 +114,12 @@ class User {
                   FROM `locations` WHERE `user_id`=".$db->real_escape_string($this->id)."
                   ORDER BY `date_created` DESC LIMIT 1";
         $results = $db->query($query);
-        if ($results && $results->num_rows) {
-            if ($row = $results->fetch_assoc()) {
-                return new Point($row['x'], $row['y']);
-            }
+        if ($results && $results->num_rows > 0) {
+            $row = $results->fetch_assoc();
+            return new Point($row['x'], $row['y']);
         }
         
-        return false;
+        return null;
     }
     
     public function set_logged_in() {
@@ -160,7 +159,7 @@ class User {
                 $row['email'], $row['bio'], $row['date_created']
             );
         }
-        return false;
+        return null;
     }
     
     public static function get_by_username($username) {
@@ -170,14 +169,12 @@ class User {
                   WHERE `username`='".$db->real_escape_string($username)."'
                   AND `active`=1";
         $results = $db->query($query);
-        if ($results) {
-            if ($row = $results->fetch_assoc()) {
-                $user = User::create($row);
-                return $user;
-            }
+        if ($results && $results->num_rows > 0) {
+            $row = $results->fetch_assoc();
+            return User::create($row);
         }
         
-        return false;
+        return null;
     }
     
     public static function get_by_email($email) {
@@ -187,14 +184,12 @@ class User {
                   WHERE `email`='".$db->real_escape_string($email)."'
                   AND `active`=1";
         $results = $db->query($query);
-        if ($results) {
-            if ($row = $results->fetch_assoc()) {
-                $user = User::create($row);
-                return $user;
-            }
+        if ($results && $results->num_rows > 0) {
+            $row = $results->fetch_assoc();
+            return User::create($row);
         }
         
-        return false;
+        return null;
     }
     
     public static function get_by_id($user_id) {
@@ -211,7 +206,7 @@ class User {
             }
         }
         
-        return false;
+        return null;
     }
     
     public static function is_login_valid($username, $password) {
@@ -221,12 +216,11 @@ class User {
                   WHERE `username`='".$db->real_escape_string($username)."'
                   AND `active`=1";
         $results = $db->query($query);
-        if ($results) {
-            if ($row = $results->fetch_assoc()) {
-                $password_hash = $row['password'];
-                if (password_verify($password, $password_hash)) {
-                    return true;
-                }
+        if ($results && $results->num_rows > 0) {
+            $row = $results->fetch_assoc();
+            $password_hash = $row['password'];
+            if (password_verify($password, $password_hash)) {
+                return true;
             }
         }
         

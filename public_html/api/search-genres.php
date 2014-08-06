@@ -29,7 +29,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$query_str = isset($_POST['query']) ? trim($_POST['query']) : false;
+$query_str = isset($_POST['query']) ? trim($_POST['query']) : "";
 if (!$query_str) {
     echo json_encode(array("error" => "You must provide a query to search for."));
     exit;

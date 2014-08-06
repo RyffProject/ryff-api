@@ -48,10 +48,10 @@ if (!$content &&
 if (isset($_POST['parent_ids'])) {
     $parent_ids = array_filter(
         array_map(intval, explode(',', $_POST['parent_ids'])),
-        function($id) { return Post::get_by_id($id) !== false; }
+        function($id) { return Post::get_by_id($id) !== null; }
     );
 } else {
-    $parent_ids = false;
+    $parent_ids = array();
 }
 
 $post_query = "INSERT INTO `posts` (`user_id`, `content`)

@@ -27,6 +27,6 @@ class Riff {
             }
         }
         
-        return false;
+        return null;
     }
 }

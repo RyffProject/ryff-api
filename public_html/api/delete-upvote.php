@@ -29,7 +29,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$post_id = isset($_POST['id']) ? (int)$_POST['id'] : false;
+$post_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 $post = Post::get_by_id($post_id);
 if (!$post) {
     echo json_encode(array("error" => "No post to remove upvote!"));

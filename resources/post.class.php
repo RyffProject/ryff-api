@@ -96,6 +96,6 @@ class Post {
             return $post;
         }
         
-        return false;
+        return null;
     }
 }
