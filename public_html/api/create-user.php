@@ -27,7 +27,7 @@
  * "error" The error message.
  * 
  * Ryff API <http://www.github.com/rfotino/ryff-api>
- * Released under the MIT License.
+ * Released under the Apache License 2.0.
  */
 
 set_include_path(implode(PATH_SEPARATOR, array(
