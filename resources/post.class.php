@@ -10,8 +10,7 @@ class Post {
     public $upvotes;
     public $is_upvoted;
     
-    protected function __construct($id, $user, $riff, $content, $date_created,
-            $upvotes = 0, $is_upvoted = false) {
+    protected function __construct($id, $user, $riff, $content, $date_created) {
         $this->id = (int)$id;
         $this->user = $user;
         $this->riff = $riff;
@@ -19,7 +18,7 @@ class Post {
         $this->date_created = $date_created;
         
         $this->upvotes = $this->get_num_upvotes();
-        $this->is_upvoted = $this->is_upvoted();
+        $this->is_upvoted = $this->get_is_upvoted();
     }
     
     protected function get_num_upvotes() {
@@ -36,7 +35,7 @@ class Post {
         return 0;
     }
     
-    protected function is_upvoted() {
+    protected function get_is_upvoted() {
         global $db, $CURRENT_USER;
         
         if ($CURRENT_USER) {
@@ -84,7 +83,8 @@ class Post {
     
     public static function get_by_id($post_id) {
         global $db;
-
+        
+        $post_id = (int)$post_id;
         $post_query = "SELECT * FROM `posts` WHERE `post_id`=".$db->real_escape_string($post_id);
         $post_results = $db->query($post_query);
         if ($post_results && $post_results->num_rows && $post_row = $post_results->fetch_assoc()) {
