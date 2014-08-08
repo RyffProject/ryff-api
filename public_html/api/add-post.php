@@ -11,6 +11,7 @@
  * 
  * POST variables:
  * "title" The title of the post. Titles longer than 255 characters will be truncated.
+ * "duration" (optional) Duration of the associated riff, defaults to zero.
  * "content" The body of the post. Bodies longer than 65535 bytes will be truncated.
  * "parent_ids" (optional) Array of ids of the parent posts sampled in this post's riff.
  * 
