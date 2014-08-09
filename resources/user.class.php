@@ -12,6 +12,7 @@ class User {
     public $karma;
     public $tags;
     public $is_following;
+    public $num_followers;
     public $num_following;
     
     protected function __construct($id, $name, $username, $email, $bio, $date_created) {
@@ -26,6 +27,7 @@ class User {
         $this->karma = $this->get_karma();
         $this->tags = $this->get_tags();
         $this->is_following = $this->get_is_following();
+        $this->num_followers = $this->get_num_followers();
         $this->num_following = $this->get_num_following();
     }
     
@@ -90,6 +92,21 @@ class User {
         }
         
         return false;
+    }
+    
+    protected function get_num_followers() {
+        global $db;
+        
+        $num_followers_query = "
+            SELECT COUNT(*) AS `num_followers` FROM `follows`
+            WHERE `to_id`=".$db->real_escape_string($this->id);
+        $num_followers_result = $db->query($num_followers_query);
+        if ($num_followers_result && $num_followers_result->num_rows > 0) {
+            $row = $num_followers_result->fetch_assoc();
+            return (int)$row['num_followers'];
+        }
+        
+        return 0;
     }
     
     protected function get_num_following() {
