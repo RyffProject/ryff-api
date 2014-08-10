@@ -42,7 +42,7 @@ $results = $db->query($query);
 if ($results) {
     //If there is an .m4a file attached to this post, unlink the file
     if ($post->riff && $post->riff->id) {
-        $path = RIFF_ABSOLUTE_PATH."/{$post->riff->id}.m4a";
+        $path = MEDIA_ABSOLUTE_PATH."/riffs/{$post->riff->id}.m4a";
         if (file_exists($path)) {
             unlink($path);
         }

@@ -9,6 +9,7 @@ class Post {
     
     public $upvotes;
     public $is_upvoted;
+    public $image_url;
     
     protected function __construct($id, $user, $riff, $content, $date_created) {
         $this->id = (int)$id;
@@ -19,6 +20,7 @@ class Post {
         
         $this->upvotes = $this->get_num_upvotes();
         $this->is_upvoted = $this->get_is_upvoted();
+        $this->image_url = $this->get_image_url();
     }
     
     protected function get_num_upvotes() {
@@ -49,6 +51,14 @@ class Post {
         }
         
         return false;
+    }
+    
+    protected function get_image_url() {
+        $image_path = MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
+        if (file_exists($image_path)) {
+            return MEDIA_URL."/posts/{$this->id}.png";
+        }
+        return "";
     }
     
     public function get_parents() {

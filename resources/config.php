@@ -1,8 +1,8 @@
 <?php
 
 define("SITE_ROOT", "");
-define("AVATAR_ABSOLUTE_PATH", "");
-define("RIFF_ABSOLUTE_PATH", "");
+define("MEDIA_ABSOLUTE_PATH", ""); //Contains avatars, posts, and riffs subfolders.
+define("MEDIA_URL", ""); //Contains avatars, posts, and riffs subfolders.
 
 define("DB_NAME", "");
 define("DB_USER", "");

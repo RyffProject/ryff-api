@@ -122,7 +122,7 @@ if (isset($_FILES['avatar'])) {
         echo json_encode(array("error" => "Your avatar must be in PNG format."));
         exit;
     }
-    $path = AVATAR_ABSOLUTE_PATH."/{$CURRENT_USER->id}.png";
+    $path = MEDIA_ABSOLUTE_PATH."/avatars/{$CURRENT_USER->id}.png";
     if (file_exists($path)) {
         unlink($path);
     }

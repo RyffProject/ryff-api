@@ -32,9 +32,9 @@ class User {
     }
     
     protected function get_avatar_url() {
-        $path = AVATAR_ABSOLUTE_PATH."/$this->id.png";
+        $path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
         if (file_exists($path)) {
-            return SITE_ROOT."/avatars/$this->id.png";
+            return MEDIA_URL."/avatars/{$this->id}.png";
         } else {
             return "";
         }

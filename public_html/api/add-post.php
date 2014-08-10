@@ -16,6 +16,7 @@
  * "parent_ids" (optional) Array of ids of the parent posts sampled in this post's riff.
  * 
  * File uploads:
+ * "image" (optional) A PNG image.
  * "riff" An .m4a audio file.
  * 
  * Return on success:
@@ -64,6 +65,14 @@ $post_results = $db->query($post_query);
 if ($post_results) {
     $post_id = $db->insert_id;
     
+    if (isset($_FILES['image']) && !$_FILES['image']['error'] && $_FILES['image']['type'] === "image/png") {
+        $path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
+        if (file_exists($path)) {
+            unlink($path);
+        }
+        move_uploaded_file($_FILES['image']['tmp_name'], $path);
+    }
+    
     //If there was a riff uploaded as well, it would have been uploaded with a title between
     //zero and 255 characters. Make sure the file was uploaded without errors and it's an m4a, 
     //then create a record in the riffs table with the title and save the .m4a in as riff_id.m4a
@@ -83,7 +92,7 @@ if ($post_results) {
             }
         }
         if ($riff_id) {
-            $path = RIFF_ABSOLUTE_PATH."/$riff_id.m4a";
+            $path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
             if (file_exists($path)) {
                 unlink($path);
             }

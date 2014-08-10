@@ -98,7 +98,7 @@ if ($results) {
         }
     }
     if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
-        $path = AVATAR_ABSOLUTE_PATH."/$user_id.png";
+        $path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
         if (file_exists($path)) {
             unlink($path);
         }
