@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Get Users Trending
+ * Search Users Trending
  * ==================
  * 
  * Authentication required.
@@ -96,14 +96,10 @@ if ($results && $results->num_rows) {
             $users[] = $user;
         }
     }
-    if (count($users)) {
-        echo json_encode(array(
-            "success" => "Found some users nearby.",
-            "users" => $users
-        ));
-    } else {
-        echo json_encode(array("error" => "Could not find any users."));
-    }
+    echo json_encode(array(
+        "success" => "Found some users nearby.",
+        "users" => $users
+    ));
 } else {
-    echo json_encode(array("error" => "There was an error processing your request."));
+    echo json_encode(array("error" => "Could not find any users."));
 }
