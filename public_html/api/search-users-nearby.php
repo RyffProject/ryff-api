@@ -62,8 +62,8 @@ $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`, u.`email`, u.`bi
           SQRT(POW(X(l.`location`)-".$db->real_escape_string($user_location->x).",2)+
           POW(Y(l.`location`)-".$db->real_escape_string($user_location->y).",2)) AS `distance`
           FROM `users` AS u
-          JOIN `user_tags` AS t
-          ON t.`user_id` = u.`user_id`
+          ".($tags ? "JOIN `user_tags` AS t
+          ON t.`user_id` = u.`user_id`" : "")."
           JOIN `locations` AS l
           ON l.`user_id` = u.`user_id`
           WHERE l.`date_created`=(

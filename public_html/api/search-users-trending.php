@@ -75,8 +75,8 @@ $from_date = date("Y-m-d H:i:s", $from_time);
 $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_created`,
               COUNT(up.`upvote_id`) AS `num_upvotes`
           FROM `users` AS u
-          JOIN `user_tags` AS t
-          ON t.`user_id` = u.`user_id`
+          ".($tags ? "JOIN `user_tags` AS t
+          ON t.`user_id` = u.`user_id`" : "")."
           JOIN `posts` AS p
           ON p.`user_id` = u.`user_id`
           JOIN `upvotes` AS up
