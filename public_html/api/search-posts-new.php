@@ -33,7 +33,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 $page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $tags = array();
 if (isset($_POST['tags'])) {
@@ -57,7 +57,7 @@ $query = "SELECT DISTINCT(p.`post_id`)
           ON t.`post_id` = p.`post_id`
           WHERE t.`tag` IN (".implode(',', $safe_tags).")" : "")."
           ORDER BY p.`date_created` DESC
-          LIMIT ".(($page_num - 1) * $num_users).", ".$num_users;
+          LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
 $results = $db->query($query);
 
 if ($results && $results->num_rows) {
