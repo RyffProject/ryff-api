@@ -85,7 +85,7 @@ $query = "SELECT DISTINCT(p.`post_id`), COUNT(up.`upvote_id`) AS `num_upvotes`
           LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
 $results = $db->query($query);
 
-if ($results && $results->num_rows) {
+if ($results) {
     $posts = array();
     while ($row = $results->fetch_assoc()) {
         $post = Post::get_by_id((int)$row['post_id']);
@@ -98,5 +98,5 @@ if ($results && $results->num_rows) {
         "posts" => $posts
     ));
 } else {
-    echo json_encode(array("error" => "Could not find any top posts."));
+    echo json_encode(array("error" => "There was an error processing your request."));
 }

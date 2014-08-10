@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Search Posts New
- * ================
+ * Search Posts Trending
+ * =====================
  * 
  * Authentication required.
- * Gives an array of posts sorted by most recent.
+ * Gives an array of posts sorted by how popular they are at the moment.
  * 
  * POST variables:
  * "page" (optional) The page number of the results, 1-based.
@@ -51,12 +51,15 @@ if ($tags) {
     );
 }
 
-$query = "SELECT DISTINCT(p.`post_id`)
+$query = "SELECT DISTINCT(p.`post_id`),
+              (COUNT(up.`upvote_id`) / (NOW() - p.`date_created`)) AS `score`
           FROM `posts` AS p
           ".($tags ? "JOIN `post_tags` AS t
-          ON t.`post_id` = p.`post_id`
-          WHERE t.`tag` IN (".implode(',', $safe_tags).")" : "")."
-          ORDER BY p.`date_created` DESC
+          ON t.`post_id` = p.`post_id`" : "")."
+          JOIN `upvotes` AS up
+          ON up.`post_id` = p.`post_id`
+          ".($tags ? "WHERE t.`tag` IN (".implode(',', $safe_tags).")" : "")."
+          ORDER BY `score` DESC
           LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
 $results = $db->query($query);
 
@@ -69,7 +72,7 @@ if ($results) {
         }
     }
     echo json_encode(array(
-        "success" => "Found some recent posts.",
+        "success" => "Found some trending posts.",
         "posts" => $posts
     ));
 } else {

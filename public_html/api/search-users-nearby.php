@@ -77,7 +77,7 @@ $query = "SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`, u.`email`, u.`bi
           LIMIT ".(($page_num - 1) * $num_users).", ".$num_users;
 $results = $db->query($query);
 
-if ($results && $results->num_rows) {
+if ($results) {
     $users = array();
     while ($row = $results->fetch_assoc()) {
         $user = User::create($row);
@@ -85,14 +85,10 @@ if ($results && $results->num_rows) {
             $users[] = $user;
         }
     }
-    if (count($users)) {
-        echo json_encode(array(
-            "success" => "Found some users nearby.",
-            "users" => $users
-        ));
-    } else {
-        echo json_encode(array("error" => "Could not find any users."));
-    }
+    echo json_encode(array(
+        "success" => "Found some users nearby.",
+        "users" => $users
+    ));
 } else {
     echo json_encode(array("error" => "There was an error processing your request."));
 }
