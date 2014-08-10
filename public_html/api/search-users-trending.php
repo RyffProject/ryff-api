@@ -2,7 +2,7 @@
 
 /**
  * Search Users Trending
- * ==================
+ * =====================
  * 
  * Authentication required.
  * 
