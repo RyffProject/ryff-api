@@ -54,8 +54,10 @@ switch ($time) {
 }
 $from_date = date("Y-m-d H:i:s", $from_time);
 
-$query = "SELECT t.`tag`, COUNT(t.`tag`) AS `score`
+$query = "SELECT t.`tag`, COUNT(up.`upvote_id`) AS `score`
           FROM `post_tags` AS t
+          JOIN `upvotes` AS up
+          ON up.`post_id` = t.`post_id`
           WHERE t.`date_created` >= '".$db->real_escape_string($from_date)."'
           GROUP BY t.`tag`
           ORDER BY `score` DESC
