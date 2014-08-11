@@ -5,10 +5,9 @@
  * =================
  * 
  * Authentication required.
- * Returns an array of post tags that are currently trending.
+ * Returns an array of no more than 10 post tags that are currently trending.
  * 
  * POST variables:
- * "limit" (optional) The maximum number of tags to return. Defaults to 15.
  * "time" (optional) Get the most trending of the day, week, month, or all time.
  *                   Options: "day", "week", "month", "all". Defaults to "day".
  * 
@@ -31,8 +30,6 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 require_once("global.php");
-
-$num_tags = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $time = isset($_POST['time']) ? $_POST['time'] : "day";
 if (!in_array($time, array("day", "week", "month", "all"))) {
@@ -61,7 +58,7 @@ $query = "SELECT t.`tag`, COUNT(up.`upvote_id`) AS `score`
           WHERE t.`date_created` >= '".$db->real_escape_string($from_date)."'
           GROUP BY t.`tag`
           ORDER BY `score` DESC
-          LIMIT $num_tags";
+          LIMIT 10";
 $results = $db->query($query);
 if ($results) {
     $tags = array();
