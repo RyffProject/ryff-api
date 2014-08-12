@@ -30,10 +30,22 @@ require_once("global.php");
 //Selects popular tags belonging to users the current user follows and their posts
 $query = "SELECT t.`tag`, COUNT(t.`tag`) AS `score`
           FROM (
+            -- Tags on posts the user has upvoted
             SELECT pt.`tag` AS `tag`
             FROM `post_tags` AS pt
             JOIN `posts` AS p
-            ON p.`post_id` = t.`post_id`
+            ON p.`post_id` = pt.`post_id`
+            JOIN `upvotes` AS up
+            ON up.`post_id` = p.`post_id`
+            WHERE up.`user_id` = ".$db->real_escape_string($CURRENT_USER->id)."
+            
+            UNION ALL
+            
+            -- Tags on posts by people the user follows
+            SELECT pt.`tag` AS `tag`
+            FROM `post_tags` AS pt
+            JOIN `posts` AS p
+            ON p.`post_id` = pt.`post_id`
             JOIN `users` AS u
             ON u.`user_id` = p.`user_id`
             JOIN `follows` AS f
@@ -42,10 +54,11 @@ $query = "SELECT t.`tag`, COUNT(t.`tag`) AS `score`
           
             UNION ALL
 
+            -- Tags on people the user follows
             SELECT ut.`tag` AS `tag`
             FROM `user_tags` AS ut
             JOIN `users` AS u
-            ON u.`user_id` = t.`user_id`
+            ON u.`user_id` = ut.`user_id`
             JOIN `follows` AS f
             ON f.`from_id` = u.`user_id`
             WHERE f.`from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
