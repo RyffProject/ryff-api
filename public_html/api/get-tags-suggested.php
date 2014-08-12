@@ -49,7 +49,7 @@ $query = "SELECT t.`tag`, COUNT(t.`tag`) AS `score`
             JOIN `users` AS u
             ON u.`user_id` = p.`user_id`
             JOIN `follows` AS f
-            ON f.`from_id` = p.`from_id`
+            ON f.`from_id` = p.`user_id`
             WHERE f.`from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
           
             UNION ALL
