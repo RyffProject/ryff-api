@@ -58,6 +58,23 @@ CREATE TABLE IF NOT EXISTS `locations` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `messages`
+--
+
+CREATE TABLE IF NOT EXISTS `messages` (
+  `message_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `to_id` int(10) unsigned NOT NULL,
+  `from_id` int(10) unsigned NOT NULL,
+  `content` text NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`message_id`),
+  KEY `to_id` (`to_id`),
+  KEY `from_id` (`from_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `post_families`
 --
 
@@ -188,6 +205,13 @@ ALTER TABLE `follows`
 --
 ALTER TABLE `locations`
   ADD CONSTRAINT `locations_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `messages_to_id_constr` FOREIGN KEY (`to_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `messages_from_id_constr` FOREIGN KEY (`from_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `post_families`
