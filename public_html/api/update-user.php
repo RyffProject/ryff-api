@@ -14,6 +14,7 @@
  * "password" (optional) The new password for the current user.
  * "latitude" (optional) The new latitude coordinate for the current user's location.
  * "longitude" (optional) The new longitude coordinate for the current user's location.
+ * "tags" (optional) An array or comma-separated string of tags to set for the user.
  * 
  * File uploads:
  * "avatar" (optional) An image for the current user in PNG format.
@@ -143,6 +144,39 @@ if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
         $results = $db->query($location_query);
         if (!$results) {
             echo json_encode(array("error" => "Could not update location."));
+            exit;
+        }
+    }
+}
+
+if (isset($_POST['tags'])) {
+    $new_tags = is_array($_POST['tags']) ? $_POST['tags'] : explode(',', $_POST['tags']);
+    $current_tags = $CURRENT_USER->tags;
+    
+    $tags_to_add = array_diff($new_tags, $current_tags);
+    foreach ($tags_to_add as $tag) {
+        $tag_add_query = "
+            INSERT INTO `user_tags` (`user_id`, `tag`)
+            VALUES (
+                ".$db->real_escape_string($CURRENT_USER->id).",
+                '".$db->real_escape_string($tag)."'
+            )";
+        $tag_add_result = $db->query($tag_add_query);
+        if (!$tag_add_result) {
+            echo json_encode(array("error" => "Could not add tag."));
+            exit;
+        }
+    }
+    
+    $tags_to_delete = array_diff($current_tags, $new_tags);
+    foreach ($tags_to_delete as $tag) {
+        $tag_delete_query = "
+            DELETE FROM `user_tags`
+            WHERE `user_id` = ".$db->real_escape_string($CURRENT_USER->id)."
+            AND `tag` = '".$db->real_escape_string($tag)."'";
+        $tag_delete_result = $db->query($tag_delete_query);
+        if (!$tag_delete_result) {
+            echo json_encode(array("error" => "Could not delete tag."));
             exit;
         }
     }
