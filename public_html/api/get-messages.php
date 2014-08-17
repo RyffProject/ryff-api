@@ -47,7 +47,7 @@ $page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $num_messages = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $query = "SELECT * FROM `messages`
-          WHERE 
+          WHERE
           (
               `from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
               AND `to_id` = ".$db->real_escape_string($recipient->id)."
