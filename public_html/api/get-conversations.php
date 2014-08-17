@@ -73,6 +73,5 @@ if ($results) {
         "conversations" => $conversations
     ));
 } else {
-    echo $db->error;
     echo json_encode(array("error" => "Error getting conversations."));
 }
