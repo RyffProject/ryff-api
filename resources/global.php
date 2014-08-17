@@ -4,11 +4,11 @@ header("Content-Type: application/json");
 
 require_once("connect-db.php");
 
-require_once("user.class.php");
-require_once("point.class.php");
-require_once("post.class.php");
-require_once("riff.class.php");
-require_once("message.class.php");
+require_once("models/user.class.php");
+require_once("models/point.class.php");
+require_once("models/post.class.php");
+require_once("models/riff.class.php");
+require_once("models/message.class.php");
 
 $ERRORS = 0;
 
