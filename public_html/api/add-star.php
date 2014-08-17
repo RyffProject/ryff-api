@@ -37,13 +37,7 @@ if (!$post) {
 }
 
 if (!$post->is_starred) {
-    $star_query = "INSERT INTO `stars` (`post_id`, `user_id`)
-                   VALUES (
-                     ".$db->real_escape_string($post->id).",
-                     ".$db->real_escape_string($CURRENT_USER->id)."
-                   )";
-    $star_results = $db->query($star_query);
-    if ($star_results) {
+    if (Star::add($post->id, $CURRENT_USER->id)) {
         $new_post = Post::get_by_id($post->id);
         if ($new_post) {
             echo json_encode(array(
