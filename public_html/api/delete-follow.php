@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Unfollow
- * ========
+ * Delete Follow
+ * =============
  * 
  * Authentication required.
  * 

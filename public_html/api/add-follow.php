@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Follow
- * ======
+ * Add Follow
+ * ==========
  * 
  * Authentication required.
  * 
