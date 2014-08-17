@@ -37,11 +37,7 @@ if (!$post) {
 }
 
 if ($post->is_upvoted) {
-    $upvote_query = "DELETE FROM `upvotes`
-                     WHERE `post_id`=".$db->real_escape_string($post->id)."
-                     AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-    $upvote_results = $db->query($upvote_query);
-    if ($upvote_results) {
+    if (Upvote::delete($post->id)) {
         $new_post = Post::get_by_id($post->id);
         if ($new_post) {
             echo json_encode(array(

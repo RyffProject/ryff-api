@@ -9,6 +9,7 @@ require_once("models/point.class.php");
 require_once("models/post.class.php");
 require_once("models/riff.class.php");
 require_once("models/star.class.php");
+require_once("models/upvote.class.php");
 require_once("models/user.class.php");
 
 $ERRORS = 0;

@@ -37,7 +37,7 @@ if (!$post) {
 }
 
 if ($post->is_starred) {
-    if (Star::delete($post->id, $CURRENT_USER->id)) {
+    if (Star::delete($post->id)) {
         $new_post = Post::get_by_id($post->id);
         if ($new_post) {
             echo json_encode(array(

@@ -1,6 +1,6 @@
 <?php
 
-class Star {
+class Upvote {
     public static function add($post_id, $user_id = 0) {
         global $db, $CURRENT_USER;
         
@@ -8,15 +8,15 @@ class Star {
             $user_id = $CURRENT_USER->id;
         }
         
-        $star_query = "
-            INSERT INTO `stars` (`post_id`, `user_id`)
+        $upvote_query = "
+            INSERT INTO `upvotes` (`post_id`, `user_id`)
             VALUES (
               ".$db->real_escape_string((int)$post_id).",
               ".$db->real_escape_string((int)$user_id)."
             )";
-        $star_results = $db->query($star_query);
+        $upvote_results = $db->query($upvote_query);
         
-        if ($star_results) {
+        if ($upvote_results) {
             return true;
         }
         return false;
@@ -29,13 +29,13 @@ class Star {
             $user_id = $CURRENT_USER->id;
         }
         
-        $star_query = "
-            DELETE FROM `stars`
+        $upvote_query = "
+            DELETE FROM `upvotes`
             WHERE `post_id`=".$db->real_escape_string((int)$post_id)."
             AND `user_id`=".$db->real_escape_string((int)$user_id);
-        $star_results = $db->query($star_query);
+        $upvote_results = $db->query($upvote_query);
         
-        if ($star_results) {
+        if ($upvote_results) {
             return true;
         }
         return false;
