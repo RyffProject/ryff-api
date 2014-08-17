@@ -65,6 +65,15 @@ $post_results = $db->query($post_query);
 if ($post_results) {
     $post_id = $db->insert_id;
     
+    //Add an upvote from the current user. Don't send an error on failure though.
+    $upvote_query = "
+        INSERT INTO `upvotes` (`post_id`, `user_id`)
+        VALUES (
+            ".$db->real_escape_string($post_id).",
+            ".$db->real_escape_string($CURRENT_USER->id)."
+        )";
+    $upvote_results = $db->query($upvote_query);
+    
     if (isset($_FILES['image']) && !$_FILES['image']['error'] && $_FILES['image']['type'] === "image/png") {
         $path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
         if (file_exists($path)) {
