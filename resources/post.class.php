@@ -9,6 +9,7 @@ class Post {
     
     public $upvotes;
     public $is_upvoted;
+    public $is_starred;
     public $image_url;
     
     protected function __construct($id, $user, $riff, $content, $date_created) {
@@ -20,6 +21,7 @@ class Post {
         
         $this->upvotes = $this->get_num_upvotes();
         $this->is_upvoted = $this->get_is_upvoted();
+        $this->is_starred = $this->get_is_starred();
         $this->image_url = $this->get_image_url();
     }
     
@@ -41,11 +43,27 @@ class Post {
         global $db, $CURRENT_USER;
         
         if ($CURRENT_USER) {
-            $upvotes_query = "SELECT * FROM `upvotes`
-                              WHERE `post_id`=".$db->real_escape_string($this->id)."
-                              AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-            $upvotes_results = $db->query($upvotes_query);
-            if ($upvotes_results && $upvotes_results->num_rows) {
+            $upvote_query = "SELECT * FROM `upvotes`
+                             WHERE `post_id`=".$db->real_escape_string($this->id)."
+                             AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
+            $upvote_results = $db->query($upvote_query);
+            if ($upvote_results && $upvote_results->num_rows > 0) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    protected function get_is_starred() {
+        global $db, $CURRENT_USER;
+        
+        if ($CURRENT_USER) {
+            $star_query = "SELECT * FROM `stars`
+                           WHERE `post_id`=".$db->real_escape_string($this->id)."
+                           AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
+            $star_results = $db->query($star_query);
+            if ($star_results && $star_results->num_rows > 0) {
                 return true;
             }
         }
