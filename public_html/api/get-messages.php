@@ -43,32 +43,14 @@ if (!$recipient) {
     exit;
 }
 
-$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-$num_messages = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$query = "SELECT * FROM `messages`
-          WHERE
-          (
-              `from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
-              AND `to_id` = ".$db->real_escape_string($recipient->id)."
-          )
-          OR
-          (
-              `from_id` = ".$db->real_escape_string($recipient->id)."
-              AND `to_id` = ".$db->real_escape_string($CURRENT_USER->id)."
-          )
-          ORDER BY `date_created` DESC
-          LIMIT ".(($page_num - 1) * $num_messages).", ".$num_messages;
-$results = $db->query($query);
-if ($results) {
-    $participants = array($CURRENT_USER, $recipient);
-    $messages = array();
-    while ($row = $results->fetch_assoc()) {
-        $messages[] = Message::create($row);
-    }
+$messages = Message::get_conversation($recipient->id, $page, $limit);
+if (is_array($messages)) {
     echo json_encode(array(
         "success" => "Messages retrieved successfully.",
-        "users" => $participants,
+        "users" => array($CURRENT_USER, $recipient),
         "messages" => $messages
     ));
 } else {

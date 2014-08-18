@@ -46,14 +46,7 @@ if (!$content) {
     exit;
 }
 
-$query = "INSERT INTO `messages` (`to_id`, `from_id`, `content`)
-          VALUES (
-              ".$db->real_escape_string($recipient->id).",
-              ".$db->real_escape_string($CURRENT_USER->id).",
-              '".$db->real_escape_string($content)."'
-          )";
-$results = $db->query($query);
-if ($results) {
+if (Message::send($content, $recipient->id)) {
     echo json_encode(array("success" => "Message sent successfully."));
 } else {
     echo json_encode(array("error" => "Error sending message."));

@@ -40,4 +40,105 @@ class Message {
         
         return null;
     }
+    
+    public static function send($content, $to_id, $from_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($from_id === null && $CURRENT_USER) {
+            $from_id = $CURRENT_USER->id;
+        }
+        
+        $query = "
+            INSERT INTO `messages` (`to_id`, `from_id`, `content`)
+            VALUES (
+                ".$db->real_escape_string((int)$to_id).",
+                ".$db->real_escape_string((int)$from_id).",
+                '".$db->real_escape_string($content)."'
+            )";
+        $results = $db->query($query);
+        
+        if ($results) {
+            return true;
+        }
+        return false;
+    }
+    
+    public static function get_conversation($to_id, $page, $limit, $from_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($from_id === null && $CURRENT_USER) {
+            $from_id = $CURRENT_USER->id;
+        }
+        
+        $query = "
+            SELECT * FROM `messages`
+            WHERE (
+                `from_id` = ".$db->real_escape_string((int)$from_id)."
+                AND `to_id` = ".$db->real_escape_string((int)$to_id)."
+            ) OR (
+                `from_id` = ".$db->real_escape_string((int)$to_id)."
+                AND `to_id` = ".$db->real_escape_string((int)$from_id)."
+            )
+            ORDER BY `date_created` DESC
+            LIMIT ".(($page - 1) * $limit).", ".$limit;
+        $results = $db->query($query);
+        
+        if ($results) {
+            $messages = array();
+            while ($row = $results->fetch_assoc()) {
+                $messages[] = Message::create($row);
+            }
+            return $messages;
+        }
+        return null;
+    }
+    
+    public static function get_conversations_recent($page, $limit, $from_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($from_id === null && $CURRENT_USER) {
+            $from_id = $CURRENT_USER->id;
+        }
+        
+        //Sanitize once. This will be handled better with the switch to PDO
+        //and prepared statements with named parameters.
+        $from_id = (int)$from_id;
+        
+        $query = "
+            SELECT m.*
+            FROM (
+                SELECT m1.*,
+                    IF(m1.`from_id`=$from_id,m1.`to_id`,m1.`from_id`) AS `user_id`
+                FROM `messages` AS m1
+                WHERE m1.`from_id` = $from_id
+                OR m1.`to_id` = $from_id
+            ) AS m
+            WHERE m.`date_created` = (
+                SELECT m2.`date_created` FROM `messages` AS m2
+                WHERE (
+                    m2.`from_id` = $from_id
+                    AND m2.`to_id` = m.`user_id`
+                ) OR (
+                    m2.`from_id` = m.`user_id`
+                    AND m2.`to_id` = $from_id
+                )
+                ORDER BY m2.`date_created` DESC
+                LIMIT 1
+            )
+            ORDER BY m.`date_created`
+            LIMIT ".(($page - 1) * $limit).", ".$limit;
+        $results = $db->query($query);
+        
+        if ($results) {
+            $conversations = array();
+            while ($row = $results->fetch_assoc()) {
+                $conversations[] = array(
+                    "user" => User::get_by_id($row['user_id']),
+                    "message" => Message::create($row)
+                );
+            }
+            return $conversations;
+        }
+        return null;
+    }
 }

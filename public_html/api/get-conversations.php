@@ -33,41 +33,11 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-$num_conversations = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$query = "
-    SELECT m.*
-    FROM (
-        SELECT m1.*,
-            IF(m1.`from_id`={$CURRENT_USER->id},m1.`to_id`,m1.`from_id`) AS `user_id`
-        FROM `messages` AS m1
-        WHERE m1.`from_id` = {$CURRENT_USER->id}
-        OR m1.`to_id` = {$CURRENT_USER->id}
-    ) AS m
-    WHERE m.`date_created` = (
-        SELECT m2.`date_created` FROM `messages` AS m2
-        WHERE (
-            m2.`from_id` = {$CURRENT_USER->id}
-            AND m2.`to_id` = m.`user_id`
-        ) OR (
-            m2.`from_id` = m.`user_id`
-            AND m2.`to_id` = {$CURRENT_USER->id}
-        )
-        ORDER BY m2.`date_created` DESC
-        LIMIT 1
-    )
-    ORDER BY m.`date_created`
-    LIMIT ".(($page_num - 1) * $num_conversations).", ".$num_conversations;
-$results = $db->query($query);
-if ($results) {
-    $conversations = array();
-    while ($row = $results->fetch_assoc()) {
-        $conversations[] = array(
-            "user" => User::get_by_id($row['user_id']),
-            "message" => Message::create($row)
-        );
-    }
+$conversations = Message::get_conversations_recent($page, $limit);
+if (is_array($conversations)) {
     echo json_encode(array(
         "success" => "Conversations retrieved successfully.",
         "conversations" => $conversations
