@@ -1,10 +1,10 @@
 <?php
 
 class Upvote {
-    public static function add($post_id, $user_id = 0) {
+    public static function add($post_id, $user_id = null) {
         global $db, $CURRENT_USER;
         
-        if (!$user_id && $CURRENT_USER) {
+        if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
         }
         
@@ -22,10 +22,10 @@ class Upvote {
         return false;
     }
     
-    public static function delete($post_id, $user_id = 0) {
+    public static function delete($post_id, $user_id = null) {
         global $db, $CURRENT_USER;
         
-        if (!$user_id && $CURRENT_USER) {
+        if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
         }
         
