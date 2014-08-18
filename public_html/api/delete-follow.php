@@ -11,7 +11,7 @@
  * 
  * Return on success:
  * "success" The success message.
- * "id" The id of the user that was unfollowed.
+ * "user" The updated user object that was unfollowed.
  * 
  * Return on error:
  * "error" The error message.
@@ -36,17 +36,15 @@ if (!$to_user) {
     exit;
 }
 
-$query = "DELETE FROM `follows`
-          WHERE `to_id`=".$db->real_escape_string($to_id)."
-          AND `from_id`=".$db->real_escape_string($CURRENT_USER->id);
-$results = $db->query($query);
-if ($results) {
-    echo json_encode(array(
-        "success" => "Successfully unfollowed {$to_user->username}",
-        "id" => $to_user->id
-    ));
-    exit;
+if ($to_user->is_following) {
+    if (Follow::delete($to_user->id)) {
+        echo json_encode(array(
+            "success" => "Successfully unfollowed {$to_user->username}.",
+            "user" => User::get_by_id($to_user->id)
+        ));
+    } else {
+        echo json_encode(array("error" => "Could not unfollow the user."));
+    }
 } else {
-    echo json_encode(array("error" => "Unable to unfollow {$to_user->username}."));
-    exit;
+    echo json_encode(array("error" => "This user is not being followed."));
 }

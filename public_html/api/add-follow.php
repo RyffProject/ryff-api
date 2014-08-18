@@ -11,7 +11,7 @@
  * 
  * Return on success:
  * "success" The success message.
- * "id" The id of the user that was followed.
+ * "user" The updated user object that was followed.
  * 
  * Return on error:
  * "error" The error message.
@@ -36,25 +36,15 @@ if (!$to_user) {
     exit;
 }
 
-$exists_query = "SELECT * FROM `follows`
-                 WHERE `to_id`=".$db->real_escape_string($to_id)."
-                 AND `from_id`=".$db->real_escape_string($CURRENT_USER->id);
-$exists_results = $db->query($exists_query);
-if ($exists_results && $exists_results->num_rows) {
-    echo json_encode(array("error" => "This user is already being followed."));
-    exit;
-}
-
-$query = "INSERT INTO `follows` (`to_id`, `from_id`)
-          VALUES (".$db->real_escape_string($to_id).",".$db->real_escape_string($CURRENT_USER->id).")";
-$results = $db->query($query);
-if (!$results) {
-    echo json_encode(array("error" => "Could not follow the user."));
-    exit;
+if (!$to_user->is_following) {
+    if (Follow::add($to_user->id)) {
+        echo json_encode(array(
+            "success" => "Successfully followed {$to_user->username}.",
+            "user" => User::get_by_id($to_user->id)
+        ));
+    } else {
+        echo json_encode(array("error" => "Could not follow the user."));
+    }
 } else {
-    echo json_encode(array(
-        "success" => "Successfully followed {$to_user->username}.",
-        "id" => $to_user->id
-    ));
-    exit;
+    echo json_encode(array("error" => "This user is already being followed."));
 }
