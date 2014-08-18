@@ -5,6 +5,7 @@
  * ===========
  * 
  * Authentication required.
+ * Returns user tags similar to the query.
  * 
  * POST variables:
  * "query" (required) The text that the returned tags should match.
@@ -35,22 +36,12 @@ if (!$query_str) {
     exit;
 }
 
-$query = "SELECT `tag` FROM `user_tags`
-          WHERE `tag` LIKE '%".$db->real_escape_string($query_str)."%'
-          GROUP BY `tag`
-          ORDER BY COUNT(*) DESC
-          LIMIT 10";
-$results = $db->query($query);
-if ($results) {
-    $tags = array();
-    while ($row = $results->fetch_assoc()) {
-        $tags[] = $row['tag'];
-    }
+$tags = Tag::search_users($query_str);
+if (is_array($tags)) {
     echo json_encode(array(
         "success" => "Retrieved tags successfully.",
         "tags" => $tags
     ));
-    exit;
+} else {
+    echo json_encode(array("error" => "Unable to retrieve tags."));
 }
-
-echo json_encode(array("error" => "Unable to retrieve tags."));

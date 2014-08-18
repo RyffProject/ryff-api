@@ -51,20 +51,8 @@ switch ($time) {
 }
 $from_date = date("Y-m-d H:i:s", $from_time);
 
-$query = "SELECT t.`tag`, COUNT(up.`upvote_id`) AS `score`
-          FROM `post_tags` AS t
-          JOIN `upvotes` AS up
-          ON up.`post_id` = t.`post_id`
-          WHERE t.`date_created` >= '".$db->real_escape_string($from_date)."'
-          GROUP BY t.`tag`
-          ORDER BY `score` DESC
-          LIMIT 10";
-$results = $db->query($query);
-if ($results) {
-    $tags = array();
-    while ($row = $results->fetch_assoc()) {
-        $tags[] = $row['tag'];
-    }
+$tags = Tag::get_trending($from_date);
+if (is_array($tags)) {
     echo json_encode(array(
         "success" => "Successfully retrieved trending tags.",
         "tags" => $tags

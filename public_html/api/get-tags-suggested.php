@@ -27,51 +27,8 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-//Selects popular tags belonging to users the current user follows and their posts
-$query = "SELECT t.`tag`, COUNT(t.`tag`) AS `score`
-          FROM (
-            -- Tags on posts the user has upvoted
-            SELECT pt.`tag` AS `tag`
-            FROM `post_tags` AS pt
-            JOIN `posts` AS p
-            ON p.`post_id` = pt.`post_id`
-            JOIN `upvotes` AS up
-            ON up.`post_id` = p.`post_id`
-            WHERE up.`user_id` = ".$db->real_escape_string($CURRENT_USER->id)."
-            
-            UNION ALL
-            
-            -- Tags on posts by people the user follows
-            SELECT pt.`tag` AS `tag`
-            FROM `post_tags` AS pt
-            JOIN `posts` AS p
-            ON p.`post_id` = pt.`post_id`
-            JOIN `users` AS u
-            ON u.`user_id` = p.`user_id`
-            JOIN `follows` AS f
-            ON f.`from_id` = p.`user_id`
-            WHERE f.`from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
-          
-            UNION ALL
-
-            -- Tags on people the user follows
-            SELECT ut.`tag` AS `tag`
-            FROM `user_tags` AS ut
-            JOIN `users` AS u
-            ON u.`user_id` = ut.`user_id`
-            JOIN `follows` AS f
-            ON f.`from_id` = u.`user_id`
-            WHERE f.`from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
-          ) AS t
-          GROUP BY t.`tag`
-          ORDER BY `score` DESC
-          LIMIT 10";
-$results = $db->query($query);
-if ($results) {
-    $tags = array();
-    while ($row = $results->fetch_assoc()) {
-        $tags[] = $row['tag'];
-    }
+$tags = Tag::get_suggested();
+if (is_array($tags)) {
     echo json_encode(array(
         "success" => "Successfully retrieved suggested tags.",
         "tags" => $tags
