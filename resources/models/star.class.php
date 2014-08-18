@@ -40,4 +40,27 @@ class Star {
         }
         return false;
     }
+    
+    public static function get_starred_posts($user_id) {
+        global $db, $CURRENT_USER;
+        
+        if ($user_id === null && $CURRENT_USER) {
+            $user_id = $CURRENT_USER->id;
+        }
+        
+        $starred_query = "
+            SELECT `post_id` FROM `stars`
+            WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
+            ORDER BY `date_created` DESC";
+        $starred_results = $db->query($starred_query);
+        
+        if ($starred_results) {
+            $posts = array();
+            while ($row = $starred_results->fetch_assoc()) {
+                $posts[] = Post::get_by_id((int)$row['post_id']);
+            }
+            return $posts;
+        }
+        return null;
+    }
 }

@@ -80,7 +80,7 @@ class Message {
                 AND `to_id` = ".$db->real_escape_string((int)$from_id)."
             )
             ORDER BY `date_created` DESC
-            LIMIT ".(($page - 1) * $limit).", ".$limit;
+            LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $results = $db->query($query);
         
         if ($results) {
@@ -126,7 +126,7 @@ class Message {
                 LIMIT 1
             )
             ORDER BY m.`date_created`
-            LIMIT ".(($page - 1) * $limit).", ".$limit;
+            LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $results = $db->query($query);
         
         if ($results) {

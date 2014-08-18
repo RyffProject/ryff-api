@@ -44,23 +44,11 @@ if (!$user) {
     exit;
 }
 
-$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-$num_users = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$query = "SELECT u.`user_id`, u.`name`, u.`username`, u.`email`, u.`bio`, u.`date_created`
-          FROM `users` AS u
-          JOIN `follows` AS f
-          ON f.`to_id`=u.`user_id`
-          AND f.`from_id`=".$db->real_escape_string($user->id)."
-          ORDER BY f.`date_created` ASC
-          LIMIT ".(($page_num - 1) * $num_users).", ".$num_users;
-$results = $db->query($query);
-
-if ($results) {
-    $following = array();
-    while ($row = $results->fetch_assoc()) {
-        $following[] = User::create($row);
-    }
+$following = Follow::get_users_following($page, $limit, $user->id);
+if (is_array($following)) {
     echo json_encode(array(
         "success" => "Retrieved users that {$user->username} is following successfully.",
         "users" => $following
