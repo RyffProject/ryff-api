@@ -1,6 +1,45 @@
 <?php
 
 class Tag {
+    public $tag;
+    public $num_users;
+    public $num_posts;
+
+    protected function __construct($tag) {
+        $this->tag = $tag;
+
+        $this->num_users = $this->get_num_users();
+        $this->num_posts = $this->get_num_posts();
+    }
+
+    protected function get_num_users() {
+        global $db;
+        
+        $users_query = "SELECT COUNT(*) AS `num_users` FROM `user_tags`
+                          WHERE `tag`=".$db->real_escape_string($this->tag);
+        $users_results = $db->query($users_query);
+        if ($users_results && $users_results->num_rows) {
+            $users_row = $users_results->fetch_assoc();
+            return (int)$users_row['num_users'];
+        }
+        
+        return 0;
+    }
+
+    protected function get_num_posts() {
+        global $db;
+        
+        $posts_query = "SELECT COUNT(*) AS `num_posts` FROM `post_tags`
+                          WHERE `tag`=".$db->real_escape_string($this->tag);
+        $posts_results = $db->query($posts_query);
+        if ($posts_results && $posts_results->num_rows) {
+            $posts_row = $posts_results->fetch_assoc();
+            return (int)$posts_row['num_posts'];
+        }
+        
+        return 0;
+    }
+
     public static function search_users($query_str) {
         global $db;
         
@@ -15,7 +54,8 @@ class Tag {
         if ($results) {
             $tags = array();
             while ($row = $results->fetch_assoc()) {
-                $tags[] = $row['tag'];
+                $newTag = Tag::get_by_tag($row['tag']);
+                $tags[] = $newTag;
             }
             return $tags;
         }
@@ -39,7 +79,8 @@ class Tag {
         if ($results) {
             $tags = array();
             while ($row = $results->fetch_assoc()) {
-                $tags[] = $row['tag'];
+                $newTag = Tag::get_by_tag($row['tag']);
+                $tags[] = $newTag;
             }
             return $tags;
         }
@@ -96,10 +137,15 @@ class Tag {
         if ($results) {
             $tags = array();
             while ($row = $results->fetch_assoc()) {
-                $tags[] = $row['tag'];
+                $newTag = Tag::get_by_tag($row['tag']);
+                $tags[] = $newTag;
             }
             return $tags;
         }
         return null;
+    }
+
+    public static function get_by_tag($tag) {
+        return new Tag($tag);
     }
 }
