@@ -28,27 +28,15 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$POST_ID = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-$post = Post::get_by_id($POST_ID);
+$post_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$post = Post::get_by_id($post_id);
 if (!$post) {
     echo json_encode(array("error" => "No post to delete!"));
     exit;
 }
 
-$query = "DELETE FROM `posts`
-          WHERE `post_id`='".$db->real_escape_string($POST_ID)."'
-          AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-$results = $db->query($query);
-if ($results) {
-    //If there is an .m4a file attached to this post, unlink the file
-    if ($post->riff && $post->riff->id) {
-        $path = MEDIA_ABSOLUTE_PATH."/riffs/{$post->riff->id}.m4a";
-        if (file_exists($path)) {
-            unlink($path);
-        }
-    }
+if (Post::delete($post->id)) {
     echo json_encode(array("success" => "Successfully deleted post from user."));
-    exit;
+} else {
+    echo json_encode(array("error" => "Error deleting post from user."));
 }
-
-echo json_encode(array("error" => "Error deleting post from user."));

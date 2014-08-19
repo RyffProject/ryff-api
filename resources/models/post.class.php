@@ -109,6 +109,101 @@ class Post {
         return $children;
     }
     
+    public static function add($content, $parent_ids, $img_tmp_path,
+            $title, $duration, $riff_tmp_path, $user_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($user_id === null && $CURRENT_USER) {
+            $user_id = $CURRENT_USER->id;
+        }
+        
+        $post_query = "INSERT INTO `posts` (`user_id`, `content`)
+                       VALUES (
+                           ".$db->real_escape_string((int)$user_id).",
+                           '".$db->real_escape_string($content)."'
+                       )";
+        $post_results = $db->query($post_query);
+        if ($post_results) {
+            $post_id = $db->insert_id;
+            
+            if ($parent_ids) {
+                if (!Post::add_parents($parent_ids)) {
+                    Post::delete($post_id);
+                    return null;
+                }
+            }
+            
+            if ($img_tmp_path) {
+                $img_new_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
+                if (!move_uploaded_file($img_tmp_path, $img_new_path)) {
+                    Post::delete($post_id);
+                    return null;
+                }
+            }
+            
+            if ($riff_tmp_path) {
+                if (!Riff::add($post_id, $title, $duration, $riff_tmp_path)) {
+                    Post::delete($post_id);
+                    return null;
+                }
+            }
+            
+            Tag::add_for_post($post_id, $content);
+            
+            return Post::get_by_id($post_id);
+        }
+        return null;
+    }
+    
+    public static function add_parents($post_id, $parent_ids) {
+        global $db;
+        
+        if (!is_array($parent_ids)) {
+            $parent_ids = explode(',', $parent_ids);
+        }
+        
+        $post_family_query = "INSERT INTO `post_families` (`parent_id`, `child_id`) VALUES ";
+        $post_family_query_pieces = array();
+        foreach ($parent_ids as $parent_id) {
+            $post_family_query_pieces[] = "(
+                ".$db->real_escape_string((int)$parent_id).",
+                ".$db->real_escape_string((int)$post_id)."
+            )";
+        }
+        $post_family_query .= implode(',', $post_family_query_pieces);
+        $post_family_results = $db->query($post_family_query);
+        if ($post_family_results) {
+            return true;
+        }
+        return false;
+    }
+    
+    public static function delete($post_id) {
+        global $db;
+        
+        $riff = Riff::get_by_post_id($post_id);
+        if ($riff) {
+            if (!Riff::delete($riff->id)) {
+                return false;
+            }
+        }
+        
+        $img_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
+        if (file_exists($img_path)) {
+            if (!unlink($img_path)) {
+                return false;
+            }
+        }
+        
+        $query = "
+            DELETE FROM `posts`
+            WHERE `post_id`=".$db->real_escape_string((int)$post_id);
+        if ($db->query($query)) {
+            return true;
+        }
+        return false;
+    }
+    
     public static function get_by_id($post_id) {
         global $db;
         

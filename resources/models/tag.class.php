@@ -39,6 +39,29 @@ class Tag {
         
         return 0;
     }
+    
+    public static function add_for_post($post_id, $content) {
+        global $db;
+        
+        $tags = array();
+        if (preg_match_all('/#([a-zA-Z0-9_]+)/', $content, $tags)) {
+            $post_tags_query = "INSERT INTO `post_tags` (`post_id`, `tag`) VALUES ";
+            $post_tags_query_pieces = array();
+            foreach ($tags[1] as $tag) {
+                $post_tags_query_pieces[] = "(
+                    ".$db->real_escape_string((int)$post_id).",
+                    '".$db->real_escape_string($tag)."'
+                )"; 
+            }
+            $post_tags_query .= implode(',', $post_tags_query_pieces);
+            if ($db->query($post_tags_query)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public static function search_users($query_str) {
         global $db;
