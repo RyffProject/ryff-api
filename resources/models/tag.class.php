@@ -16,7 +16,7 @@ class Tag {
         global $db;
         
         $users_query = "SELECT COUNT(*) AS `num_users` FROM `user_tags`
-                          WHERE `tag`=".$db->real_escape_string($this->tag);
+                          WHERE `tag`='".$db->real_escape_string($this->tag)."'";
         $users_results = $db->query($users_query);
         if ($users_results && $users_results->num_rows) {
             $users_row = $users_results->fetch_assoc();
@@ -30,7 +30,7 @@ class Tag {
         global $db;
         
         $posts_query = "SELECT COUNT(*) AS `num_posts` FROM `post_tags`
-                          WHERE `tag`=".$db->real_escape_string($this->tag);
+                          WHERE `tag`='".$db->real_escape_string($this->tag)."'";
         $posts_results = $db->query($posts_query);
         if ($posts_results && $posts_results->num_rows) {
             $posts_row = $posts_results->fetch_assoc();
