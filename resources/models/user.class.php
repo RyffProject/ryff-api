@@ -69,7 +69,7 @@ class User {
         $tag_results = $db->query($tag_query);
         if ($tag_results) {
             while ($tag_row = $tag_results->fetch_assoc()) {
-                $tags[] = $tag_row['tag'];
+                $tags[] = Tag::get_by_tag($tag_row['tag']);
             }
         }
         return $tags;
