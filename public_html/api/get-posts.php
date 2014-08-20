@@ -33,32 +33,20 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 if (isset($_POST['id'])) {
-    $USER_ID = (int)$_POST['id'];
+    $user_id = (int)$_POST['id'];
 } else {
-    $USER_ID = $CURRENT_USER->id;
+    $user_id = $CURRENT_USER->id;
 }
 
-$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$query = "SELECT * FROM `posts`
-          WHERE `user_id`=".$db->real_escape_string($USER_ID)."
-          ORDER BY `date_created` DESC
-          LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
-$results = $db->query($query);
-
-if ($results) {
-    $posts = array();
-    while ($row = $results->fetch_assoc()) {
-        $post = Post::get_by_id($row['post_id']);
-        if ($post) {
-            $posts[] = $post;
-        }
-    }
+$posts = PostFeed::get_by_user_latest($page, $limit);
+if (is_array($posts)) {
     echo json_encode(array(
         "success" => "Retrieved posts successfully.",
         "posts" => $posts
-        ));
+    ));
 } else {
     echo json_encode(array("error" => "There was an error getting the user's posts."));
 }
