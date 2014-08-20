@@ -252,6 +252,8 @@ class User {
             $user_id = $CURRENT_USER->id;
         }
         
+        MediaFiles::delete_from_user($user_id);
+        
         $query = "
             DELETE FROM `users`
             WHERE `user_id`=".$db->real_escape_string((int)$user_id);

@@ -181,6 +181,8 @@ class Post {
     public static function delete($post_id) {
         global $db;
         
+        MediaFiles::delete_from_post((int)$post_id);
+        
         $query = "
             DELETE FROM `posts`
             WHERE `post_id`=".$db->real_escape_string((int)$post_id);

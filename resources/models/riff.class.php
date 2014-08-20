@@ -40,6 +40,8 @@ class Riff {
     public static function delete($riff_id) {
         global $db;
         
+        MediaFiles::delete_riff_audio((int)$riff_id);
+        
         $query = "
             DELETE FROM `riffs`
             WHERE `riff_id` = ".$db->real_escape_string((int)$riff_id);

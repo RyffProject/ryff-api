@@ -6,6 +6,7 @@ require_once("connect-db.php");
 
 require_once("models/auth.class.php");
 require_once("models/follow.class.php");
+require_once("models/media-files.class.php");
 require_once("models/message.class.php");
 require_once("models/point.class.php");
 require_once("models/post.class.php");
