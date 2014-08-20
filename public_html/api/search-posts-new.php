@@ -32,8 +32,8 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
 $tags = array();
 if (isset($_POST['tags'])) {
@@ -44,30 +44,9 @@ if (isset($_POST['tags'])) {
         $tags = preg_replace($tag_pattern, "", explode(',', $_POST['tags']));
     }
 }
-if ($tags) {
-    $safe_tags = array_map(function($tag) use ($db) {
-            return "'".$db->real_escape_string($tag)."'";
-        }, $tags
-    );
-}
 
-$query = "SELECT DISTINCT(p.`post_id`)
-          FROM `posts` AS p
-          ".($tags ? "JOIN `post_tags` AS t
-          ON t.`post_id` = p.`post_id`
-          WHERE t.`tag` IN (".implode(',', $safe_tags).")" : "")."
-          ORDER BY p.`date_created` DESC
-          LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
-$results = $db->query($query);
-
-if ($results) {
-    $posts = array();
-    while ($row = $results->fetch_assoc()) {
-        $post = Post::get_by_id((int)$row['post_id']);
-        if ($post) {
-            $posts[] = $post;
-        }
-    }
+$posts = PostFeed::search_latest($tags, $page, $limit);
+if (is_array($posts)) {
     echo json_encode(array(
         "success" => "Found some recent posts.",
         "posts" => $posts
