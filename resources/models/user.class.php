@@ -139,6 +139,25 @@ class User {
         return null;
     }
     
+    public function set_location($x, $y) {
+        global $db;
+        
+        $location_query = "
+            INSERT INTO `locations` (`user_id`, `location`)
+            VALUES (
+                ".$db->real_escape_string($this->id).",
+                POINT(
+                    ".$db->real_escape_string((double)$x).",
+                    ".$db->real_escape_string((double)$y)."
+                )
+            )";
+        $results = $db->query($location_query);
+        if ($results) {
+            return true;
+        }
+        return false;
+    }
+    
     public function set_logged_in() {
         global $db;
         
@@ -199,6 +218,55 @@ class User {
             );
         }
         return null;
+    }
+    
+    public static function add($name, $username, $email, $bio, $password, $avatar_tmp_path) {
+        global $db;
+        
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $query = "
+            INSERT INTO `users` (
+                `name`, `username`, `email`,
+                `bio`, `password`, `date_updated`
+            ) VALUES (
+                '".$db->real_escape_string($name)."',
+                '".$db->real_escape_string($username)."',
+                '".$db->real_escape_string($email)."',
+                '".$db->real_escape_string($bio)."',
+                '".$db->real_escape_string($password_hash)."',
+                NOW()
+            )";
+        $results = $db->query($query);
+        if (!$results) {
+            return null;
+        }
+        
+        $user_id = $db->insert_id;
+        if ($avatar_tmp_path) {
+            $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
+            if (!move_uploaded_file($avatar_tmp_path, $avatar_new_path)) {
+                User::delete($user_id);
+                return null;
+            }
+        }
+        return User::get_by_id($user_id);
+    }
+    
+    public static function delete($user_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($user_id === null && $CURRENT_USER) {
+            $user_id = $CURRENT_USER->id;
+        }
+        
+        $query = "
+            DELETE FROM `users`
+            WHERE `user_id`=".$db->real_escape_string((int)$user_id);
+        $results = $db->query($query);
+        if ($results) {
+            return true;
+        }
+        return false;
     }
     
     public static function get_by_username($username) {

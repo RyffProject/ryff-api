@@ -28,10 +28,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$query = "DELETE FROM `users`
-          WHERE `user_id`=".$db->real_escape_string((int)$CURRENT_USER->id);
-$results = $db->query($query);
-if ($results) {
+if (User::delete()) {
     setcookie('user_id', '', time() - 3600);
     setcookie('auth_token', '', time() - 3600);
     echo json_encode(array("success" => "User deleted successfully."));

@@ -62,54 +62,38 @@ if (!$password) {
     echo json_encode(array("error" => "Missing password."));
     exit;
 }
-$username_results = $db->query("SELECT * FROM `users` WHERE `username`='".$db->real_escape_string($username)."'");
-if ($username_results && $username_results->num_rows) {
+$username_user = User::get_by_username($username);
+if ($username_user) {
     echo json_encode(array("error" => "Username already in use."));
     exit;
 }
 if ($email) {
-    $email_results = $db->query("SELECT * FROM `users` WHERE `email`='".$db->real_escape_string($email)."'");
-    if ($email_results && $email_results->num_rows) {
+    $email_user = User::get_by_email($email);
+    if ($email_user) {
         echo json_encode(array("error" => "Email already in use."));
         exit;
     }
 }
 
-$password_hash = password_hash($password, PASSWORD_DEFAULT);
-$query = "INSERT INTO `users`
-          (`name`, `username`, `email`, `bio`, `password`, `date_updated`)
-          VALUES ('".$db->real_escape_string($name)."','".$db->real_escape_string($username)."'
-          ,'".$db->real_escape_string($email)."','".$db->real_escape_string($bio)."'
-          ,'".$db->real_escape_string($password_hash)."',NOW())";
-$results = $db->query($query);
+if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
+    $avatar_tmp_path = $_FILES['avatar']['tmp_name'];
+} else {
+    $avatar_tmp_path = "";
+}
 
-if ($results) {
-    $user_id = $db->insert_id;
+$user = User::add($name, $username, $email, $bio, $password, $avatar_tmp_path);
+if ($user) {
     if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
         $latitude = (double)$_POST['latitude'];
         $longitude = (double)$_POST['longitude'];
         
-        if ($latitude && $longitude) {
-            $location_query = "INSERT INTO `locations` (`user_id`, `location`)
-                               VALUES (".$db->real_escape_string((int)$user_id).",
-                               POINT(".$db->real_escape_string($latitude).",".
-                               $db->real_escape_string($longitude)."))";
-            $results = $db->query($location_query);
-        }
-    }
-    if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
-        $path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
-        if (file_exists($path)) {
-            unlink($path);
-        }
-        move_uploaded_file($_FILES['avatar']['tmp_name'], $path);
+        $user->set_location($latitude, $longitude);
     }
     
-    $new_user = User::get_by_id($user_id);
-    if ($new_user->set_logged_in()) {
+    if ($user->set_logged_in()) {
         echo json_encode(array(
-            "success" => "You have successfully registered, $username.",
-            "user" => $new_user
+            "success" => "You have successfully registered, {$user->username}.",
+            "user" => $user
         ));
     } else {
         echo json_encode(array(
