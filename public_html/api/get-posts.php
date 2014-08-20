@@ -41,7 +41,7 @@ if (isset($_POST['id'])) {
 $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$posts = PostFeed::get_by_user_latest($page, $limit);
+$posts = PostFeed::get_user_latest($page, $limit);
 if (is_array($posts)) {
     echo json_encode(array(
         "success" => "Retrieved posts successfully.",

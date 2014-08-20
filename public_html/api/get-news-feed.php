@@ -31,25 +31,11 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$page_num = isset($_POST['page']) ? (int)$_POST['page'] : 1;
-$num_posts = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
+$limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$query = "SELECT a.* FROM `posts` AS a
-          JOIN `follows` AS b
-          ON b.`to_id` = a.`user_id`
-          AND b.`from_id` = ".$db->real_escape_string($CURRENT_USER->id)."
-          ORDER BY a.`date_created` DESC
-          LIMIT ".(($page_num - 1) * $num_posts).", ".$num_posts;
-$results = $db->query($query);
-
-if ($results) {
-    $posts = array();
-    while ($row = $results->fetch_assoc()) {
-        $post = Post::get_by_id($row['post_id']);
-        if ($post) {
-            $posts[] = $post;
-        }
-    }
+$posts = PostFeed::get_friends_latest($page, $limit);
+if (is_array($posts)) {
     echo json_encode(array(
         "success" => "Retrieved posts successfully.",
         "posts" => $posts
