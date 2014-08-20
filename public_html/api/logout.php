@@ -26,7 +26,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if ($CURRENT_USER->set_logged_out()) {
+if (Auth::set_logged_out()) {
     echo json_encode(array("success" => "Successfully logged out."));
 } else {
     echo json_encode(array("error" => "There was an error logging out."));

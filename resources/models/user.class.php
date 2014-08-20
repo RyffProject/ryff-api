@@ -158,54 +158,6 @@ class User {
         return false;
     }
     
-    public function set_logged_in() {
-        global $db;
-        
-        $expiration = time() + COOKIE_LIFESPAN;
-        $expiration_date = date('Y-m-d H:i:s', $expiration);
-        $auth_token = bin2hex(openssl_random_pseudo_bytes(32));
-        
-        $insert_auth_query = "
-            INSERT INTO `auth_tokens` (`user_id`, `token`, `date_expires`)
-            VALUES
-            (
-                ".$db->real_escape_string($this->id).",
-                '".$db->real_escape_string($auth_token)."',
-                '".$db->real_escape_string($expiration_date)."'
-            )";
-        
-        if (!$db->query($insert_auth_query)) {
-            return false;
-        }
-        
-        setcookie('user_id', $this->id, $expiration);
-        setcookie('auth_token', $auth_token, $expiration);
-        
-        return true;
-    }
-    
-    public function set_logged_out() {
-        global $db, $AUTH_TOKEN;
-        
-        $expiration = time() - 3600;
-        $expiration_date = date('Y-m-d H:i:s', $expiration);
-        
-        $update_auth_query = "
-            UPDATE `auth_tokens`
-            SET `date_expires`='".$db->real_escape_string($expiration_date)."'
-            WHERE `user_id`=".$db->real_escape_string($this->id)."
-            AND `token`='".$db->real_escape_string($AUTH_TOKEN)."'";
-        
-        if (!$db->query($update_auth_query)) {
-            return false;
-        }
-        
-        setcookie('user_id', '', $expiration);
-        setcookie('auth_token', '', $expiration);
-        
-        return true;
-    }
-    
     protected function set_attribute($key, $value) {
         global $db;
         $query = "UPDATE `users` SET `$key`='".$db->real_escape_string($value)."'
@@ -350,22 +302,5 @@ class User {
         }
         
         return null;
-    }
-    
-    public static function is_login_valid($username, $password) {
-        global $db;
-
-        $query = "SELECT `password` FROM `users`
-                  WHERE `username`='".$db->real_escape_string($username)."'";
-        $results = $db->query($query);
-        if ($results && $results->num_rows > 0) {
-            $row = $results->fetch_assoc();
-            $password_hash = $row['password'];
-            if (password_verify($password, $password_hash)) {
-                return true;
-            }
-        }
-        
-        return false;
     }
 }

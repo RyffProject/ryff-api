@@ -49,9 +49,9 @@ if ($ERRORS) {
     exit;
 }
 
-if (User::is_login_valid($username, $password)) {
+if (Auth::is_login_valid($username, $password)) {
     $CURRENT_USER = User::get_by_username($username);
-    if ($CURRENT_USER->set_logged_in()) {
+    if (Auth::set_logged_in()) {
         echo json_encode(array(
             "success" => "You have logged in successfully.",
             "user" => $CURRENT_USER

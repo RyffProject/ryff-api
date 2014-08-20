@@ -90,7 +90,7 @@ if ($user) {
         $user->set_location($latitude, $longitude);
     }
     
-    if ($user->set_logged_in()) {
+    if (Auth::set_logged_in($user->id)) {
         echo json_encode(array(
             "success" => "You have successfully registered, {$user->username}.",
             "user" => $user
