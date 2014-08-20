@@ -40,13 +40,6 @@ class Riff {
     public static function delete($riff_id) {
         global $db;
         
-        $riff_path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
-        if (file_exists($riff_path)) {
-            if (!unlink($riff_path)) {
-                return false;
-            }
-        }
-        
         $query = "
             DELETE FROM `riffs`
             WHERE `riff_id` = ".$db->real_escape_string((int)$riff_id);

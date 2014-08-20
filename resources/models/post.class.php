@@ -181,20 +181,6 @@ class Post {
     public static function delete($post_id) {
         global $db;
         
-        $riff = Riff::get_by_post_id($post_id);
-        if ($riff) {
-            if (!Riff::delete($riff->id)) {
-                return false;
-            }
-        }
-        
-        $img_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
-        if (file_exists($img_path)) {
-            if (!unlink($img_path)) {
-                return false;
-            }
-        }
-        
         $query = "
             DELETE FROM `posts`
             WHERE `post_id`=".$db->real_escape_string((int)$post_id);
