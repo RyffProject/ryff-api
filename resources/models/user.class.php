@@ -206,6 +206,47 @@ class User {
         return true;
     }
     
+    protected function set_attribute($key, $value) {
+        global $db;
+        $query = "UPDATE `users` SET `$key`='".$db->real_escape_string($value)."'
+                  WHERE `user_id`=".$db->real_escape_string($this->id);
+        if ($db->query($query)) {
+            $this->$key = $value;
+            return true;
+        }
+        return false;
+    }
+    public function set_name($name) {
+        return $this->set_attribute('name', $name);
+    }
+    public function set_username($username) {
+        return $this->set_attribute('username', $username);
+    }
+    public function set_email($email) {
+        return $this->set_attribute('email', $email);
+    }
+    public function set_bio($bio) {
+        return $this->set_attribute('bio', $bio);
+    }
+    public function set_password($password) {
+        global $db;
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $query = "UPDATE `users` SET `password`='".$db->real_escape_string($password_hash)."'
+                  WHERE `user_id`=".$db->real_escape_string($this->id);
+        if ($db->query($query)) {
+            return true;
+        }
+        return false;
+    }
+    public function set_avatar($avatar_tmp_path) {
+        $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/{$CURRENT_USER->id}.png";
+        if (move_uploaded_file($avatar_tmp_path, $avatar_new_path)) {
+            $this->avatar = $this->get_avatar_url();
+            return true;
+        }
+        return false;
+    }
+    
     public static function create($row) {
         $required_keys = array(
             'user_id' => 0, 'name' => 0, 'username' => 0, 

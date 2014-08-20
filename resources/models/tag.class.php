@@ -62,6 +62,42 @@ class Tag {
         }
         return true;
     }
+    
+    public static function add_for_user($tag, $user_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($user_id === null && $CURRENT_USER) {
+            $user_id = $CURRENT_USER->id;
+        }
+        
+        $query = "
+            INSERT INTO `user_tags` (`user_id`, `tag`)
+            VALUES (
+                ".$db->real_escape_string((int)$user_id).",
+                '".$db->real_escape_string($tag)."'
+            )";
+        if ($db->query($query)) {
+            return true;
+        }
+        return false;
+    }
+    
+    public static function delete_from_user($tag, $user_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($user_id === null && $CURRENT_USER) {
+            $user_id = $CURRENT_USER->id;
+        }
+        
+        $query = "
+            DELETE FROM `user_tags`
+            WHERE `user_id` = ".$db->real_escape_string((int)$user_id)."
+            AND `tag` = '".$db->real_escape_string($tag)."'";
+        if ($db->query($query)) {
+            return true;
+        }
+        return false;
+    }
 
     public static function search_users($query_str) {
         global $db;

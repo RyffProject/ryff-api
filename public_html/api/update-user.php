@@ -45,10 +45,7 @@ if (isset($_POST['name'])) {
         echo json_encode(array("error" => "Name cannot be more than 255 characters."));
         exit;
     }
-    $query = "UPDATE `users` SET `name`='".$db->real_escape_string($name)."'
-              WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-    $results = $db->query($query);
-    if (!$results) {
+    if (!$CURRENT_USER->set_name($name)) {
         echo json_encode(array("error" => "Could not update name."));
         exit;
     }
@@ -64,10 +61,7 @@ if (isset($_POST['username']) && $_POST['username']) {
         echo json_encode(array("error" => "Username cannot be more than 32 characters."));
         exit;
     }
-    $query = "UPDATE `users` SET `username`='".$db->real_escape_string($username)."'
-              WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-    $results = $db->query($query);
-    if (!$results) {
+    if (!$CURRENT_USER->set_username($username)) {
         echo json_encode(array("error" => "Could not update username."));
         exit;
     }
@@ -83,10 +77,7 @@ if (isset($_POST['email'])) {
         echo json_encode(array("error" => "Email cannot be more than 255 characters."));
         exit;
     }
-    $query = "UPDATE `users` SET `email`='".$db->real_escape_string($email)."'
-              WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-    $results = $db->query($query);
-    if (!$results) {
+    if (!$CURRENT_USER->set_email($email)) {
         echo json_encode(array("error" => "Could not update email."));
         exit;
     }
@@ -94,10 +85,7 @@ if (isset($_POST['email'])) {
 
 if (isset($_POST['bio'])) {
     $bio = $_POST['bio'];
-    $query = "UPDATE `users` SET `bio`='".$db->real_escape_string($bio)."'
-              WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-    $results = $db->query($query);
-    if (!$results) {
+    if (!$CURRENT_USER->set_bio($bio)) {
         echo json_encode(array("error" => "Could not update bio."));
         exit;
     }
@@ -105,11 +93,7 @@ if (isset($_POST['bio'])) {
 
 if (isset($_POST['password']) && $_POST['password']) {
     $password = $_POST['password'];
-    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-    $query = "UPDATE `users` SET `password`='".$db->real_escape_string($password_hash)."'
-              WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-    $results = $db->query($query);
-    if (!$results) {
+    if (!$CURRENT_USER->set_password($password)) {
         echo json_encode(array("error" => "Could not update password."));
         exit;
     }
@@ -123,11 +107,9 @@ if (isset($_FILES['avatar'])) {
         echo json_encode(array("error" => "Your avatar must be in PNG format."));
         exit;
     }
-    $path = MEDIA_ABSOLUTE_PATH."/avatars/{$CURRENT_USER->id}.png";
-    if (file_exists($path)) {
-        unlink($path);
-    }
-    if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $path)) {
+    
+    $avatar_tmp_path = $_FILES['avatar']['tmp_name'];
+    if (!$CURRENT_USER->set_avatar($avatar_tmp_path)) {
         echo json_encode(array("error" => "Unable to upload avatar."));
         exit;
     }
@@ -136,33 +118,20 @@ if (isset($_FILES['avatar'])) {
 if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
     $latitude = (double)$_POST['latitude'];
     $longitude = (double)$_POST['longitude'];
-    if ($latitude && $longitude) {
-        $location_query = "INSERT INTO `locations` (`user_id`, `location`)
-                           VALUES (".$db->real_escape_string($CURRENT_USER->id).",
-                           POINT(".$db->real_escape_string($latitude).",".
-                           $db->real_escape_string($longitude)."))";
-        $results = $db->query($location_query);
-        if (!$results) {
-            echo json_encode(array("error" => "Could not update location."));
-            exit;
-        }
+    
+    if (!$CURRENT_USER->set_location($latitude, $longitude)) {
+        echo json_encode(array("error" => "Could not update location."));
+        exit;
     }
 }
 
 if (isset($_POST['tags'])) {
     $new_tags = is_array($_POST['tags']) ? $_POST['tags'] : explode(',', $_POST['tags']);
-    $current_tags = $CURRENT_USER->tags;
+    $current_tags = array_map(function($tag) { return $tag->tag; }, $CURRENT_USER->tags);
     
     $tags_to_add = array_diff($new_tags, $current_tags);
     foreach ($tags_to_add as $tag) {
-        $tag_add_query = "
-            INSERT INTO `user_tags` (`user_id`, `tag`)
-            VALUES (
-                ".$db->real_escape_string($CURRENT_USER->id).",
-                '".$db->real_escape_string($tag)."'
-            )";
-        $tag_add_result = $db->query($tag_add_query);
-        if (!$tag_add_result) {
+        if (!Tag::add_for_user($tag)) {
             echo json_encode(array("error" => "Could not add tag."));
             exit;
         }
@@ -170,12 +139,7 @@ if (isset($_POST['tags'])) {
     
     $tags_to_delete = array_diff($current_tags, $new_tags);
     foreach ($tags_to_delete as $tag) {
-        $tag_delete_query = "
-            DELETE FROM `user_tags`
-            WHERE `user_id` = ".$db->real_escape_string($CURRENT_USER->id)."
-            AND `tag` = '".$db->real_escape_string($tag)."'";
-        $tag_delete_result = $db->query($tag_delete_query);
-        if (!$tag_delete_result) {
+        if (!Tag::delete_from_user($tag)) {
             echo json_encode(array("error" => "Could not delete tag."));
             exit;
         }
