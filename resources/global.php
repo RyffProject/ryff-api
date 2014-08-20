@@ -14,6 +14,7 @@ require_once("models/star.class.php");
 require_once("models/tag.class.php");
 require_once("models/upvote.class.php");
 require_once("models/user.class.php");
+require_once("models/user-feed.class.php");
 
 $ERRORS = 0;
 
