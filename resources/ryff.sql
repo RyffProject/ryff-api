@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `message_obj_id` int(10) unsigned DEFAULT NULL,
   `post_obj_id` int(10) unsigned DEFAULT NULL,
   `user_obj_id` int(10) unsigned DEFAULT NULL,
-  `notification` varchar(255) NOT NULL,
+  `text` varchar(255) NOT NULL,
   `read` int(1) NOT NULL DEFAULT 0,
   `date_read` timestamp DEFAULT 0,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
