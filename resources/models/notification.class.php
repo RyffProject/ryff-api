@@ -22,10 +22,7 @@ class Notification {
     protected static function create($row) {
         $object = null;
         $type = "object";
-        if ($row['message_obj_id']) {
-            $object = Message::get_by_id((int)$row['message_obj_id']);
-            $type = "message";
-        } else if ($row['post_obj_id']) {
+        if ($row['post_obj_id']) {
             $object = Post::get_by_id((int)$row['post_obj_id']);
             $type = "post";
         } else if ($row['user_obj_id']) {
@@ -58,8 +55,8 @@ class Notification {
         }
         
         $query = "
-            SELECT `notification_id`, `message_obj_id`, `post_obj_id`,
-                `user_obj_id`, `text`, `read`, `date_read`, `date_created`
+            SELECT `notification_id`, `post_obj_id`, `user_obj_id`,
+                `text`, `read`, `date_read`, `date_created`
             FROM `notifications`
             WHERE `notification_id`=".$db->real_escape_string((int)$notification_id)."
             AND `user_id`=".$db->real_escape_string((int)$user_id);
@@ -79,8 +76,8 @@ class Notification {
         }
         
         $query = "
-            SELECT `notification_id`, `message_obj_id`, `post_obj_id`,
-                `user_obj_id`, `text`, `read`, `date_read`, `date_created`
+            SELECT `notification_id`, `post_obj_id`, `user_obj_id`,
+                `text`, `read`, `date_read`, `date_created`
             FROM `notifications`
             WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id)."
             ORDER BY `date_created` DESC

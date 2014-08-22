@@ -81,7 +81,6 @@ CREATE TABLE IF NOT EXISTS `messages` (
 CREATE TABLE IF NOT EXISTS `notifications` (
   `notification_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
-  `message_obj_id` int(10) unsigned DEFAULT NULL,
   `post_obj_id` int(10) unsigned DEFAULT NULL,
   `user_obj_id` int(10) unsigned DEFAULT NULL,
   `text` varchar(255) NOT NULL,
@@ -90,7 +89,6 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
   KEY `user_id` (`user_id`),
-  KEY `message_obj_id` (`message_obj_id`),
   KEY `post_obj_id` (`post_obj_id`),
   KEY `user_obj_id` (`user_obj_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -257,14 +255,12 @@ ALTER TABLE `messages`
 --
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `notifications_message_obj_id_constr` FOREIGN KEY (`message_obj_id`) REFERENCES `messages` (`message_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `notifications_post_obj_id_constr` FOREIGN KEY (`post_obj_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `notifications_user_obj_id_constr` FOREIGN KEY (`user_obj_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `post_families`
 --
-
 ALTER TABLE `post_families`
   ADD CONSTRAINT `post_families_parent_id_constr` FOREIGN KEY (`parent_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `post_families_child_id_constr` FOREIGN KEY (`child_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE;
