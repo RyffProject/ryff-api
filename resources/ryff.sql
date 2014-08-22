@@ -75,6 +75,29 @@ CREATE TABLE IF NOT EXISTS `messages` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `notification_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `message_obj_id` int(10) unsigned DEFAULT NULL,
+  `post_obj_id` int(10) unsigned DEFAULT NULL,
+  `user_obj_id` int(10) unsigned DEFAULT NULL,
+  `notification` varchar(255) NOT NULL,
+  `read` int(1) NOT NULL DEFAULT 0,
+  `date_read` timestamp DEFAULT 0,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`notification_id`),
+  KEY `user_id` (`user_id`),
+  KEY `message_obj_id` (`message_obj_id`),
+  KEY `post_obj_id` (`post_obj_id`),
+  KEY `user_obj_id` (`user_obj_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `post_families`
 --
 
@@ -228,6 +251,15 @@ ALTER TABLE `locations`
 ALTER TABLE `messages`
   ADD CONSTRAINT `messages_to_id_constr` FOREIGN KEY (`to_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `messages_from_id_constr` FOREIGN KEY (`from_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notifications_message_obj_id_constr` FOREIGN KEY (`message_obj_id`) REFERENCES `messages` (`message_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notifications_post_obj_id_constr` FOREIGN KEY (`post_obj_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notifications_user_obj_id_constr` FOREIGN KEY (`user_obj_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `post_families`
