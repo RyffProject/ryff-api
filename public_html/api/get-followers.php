@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Get Following
+ * Get Followers
  * =============
  * 
  * Authentication required.
- * Gets the users that the given user follows.
+ * Gets the users that follow a given user.
  * 
  * POST variables:
  * "id" (optional) Defaults to the current user.
@@ -14,7 +14,7 @@
  * 
  * Return on success:
  * "success" The success message.
- * "users" An array of user objects that are followed by the requested user.
+ * "users" An array of user objects that follow the requested user.
  * 
  * Return on error:
  * "error" The error message.
@@ -47,12 +47,12 @@ if (!$user) {
 $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
 
-$following = Follow::get_following($page, $limit, $user->id);
-if (is_array($following)) {
+$followers = Follow::get_followers($page, $limit, $user->id);
+if (is_array($followers)) {
     echo json_encode(array(
-        "success" => "Retrieved users that {$user->username} is following successfully.",
-        "users" => $following
+        "success" => "Retrieved followers for {$user->username} successfully.",
+        "users" => $followers
     ));
 } else {
-    echo json_encode(array("error" => "There was an error getting the users that {$user->username} follows."));
+    echo json_encode(array("error" => "There was an error getting followers for {$user->username}."));
 }
