@@ -17,6 +17,7 @@ class Follow {
         $follow_results = $db->query($follow_query);
         
         if ($follow_results) {
+            Notification::add($to_id, "follow", null, null, null, $from_id);
             return true;
         }
         return false;
@@ -36,6 +37,7 @@ class Follow {
         $follow_results = $db->query($follow_query);
         
         if ($follow_results) {
+            Notification::delete($to_id, "follow", null, null, null, $from_id);
             return true;
         }
         return false;
