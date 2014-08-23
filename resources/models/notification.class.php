@@ -62,6 +62,61 @@ class Notification {
         );
     }
     
+    public static function add($user_id, $type, $base_post_obj_id,
+            $base_user_obj_id, $leaf_post_obj_id, $leaf_user_obj_id) {
+        global $db;
+        
+        $stack_query = "
+            SELECT `notification_id` FROM `notifications`
+            WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
+            AND `type`='".$db->real_escape_string($type)."'
+            AND `post_obj_id`".($base_post_obj_id ? "=".$db->real_escape_string((int)$base_post_obj_id) : " IS NULL")."
+            AND `user_obj_id`".($base_user_obj_id ? "=".$db->real_escape_string((int)$base_user_obj_id) : " IS NULL")."
+            AND `date_updated` > (NOW() - ".NOTIFICATION_TIMEOUT." SECONDS)";
+        $stack_results = $db->query($stack_query);
+        if (!$stack_results) {
+            return null;
+        }
+        if ($stack_results->num_rows) {
+            $stack_row = $stack_results->fetch_assoc();
+            $notification_id = (int)$stack_row['notification_id'];
+            $base_query = "
+                UPDATE `notifications`
+                SET `read`=0, `date_read`=0, `date_updated`=NOW()
+                WHERE `notification_id`=".$db->real_escape_string($notification_id);
+            if (!$db->query($base_query)) {
+                return null;
+            }
+        } else {
+            $base_query = "
+                INSERT INTO `notifications` (
+                    `user_id`, `type`, `post_obj_id`, `user_obj_id`, `date_updated`
+                ) VALUES (
+                    ".$db->real_escape_string((int)$user_id).",
+                    '".$db->real_escape_string($type)."',
+                    ".($base_post_obj_id ? $db->real_escape_string((int)$base_post_obj_id) : "NULL").",
+                    ".($base_user_obj_id ? $db->real_escape_string((int)$base_user_obj_id) : "NULL").",
+                    NOW()
+                )";
+            if (!$db->query($base_query)) {
+                return null;
+            }
+            $notification_id = $db->insert_id;
+        }
+        
+        $leaf_query = "
+            INSERT INTO `notification_objects` (
+                `notification_id`, `post_obj_id`, `user_obj_id`
+            ) VALUES (
+                ".$db->real_escape_string($notification_id).",
+                ".($leaf_post_obj_id ? $db->real_escape_string((int)$leaf_post_obj_id) : "NULL").",
+                ".($leaf_user_obj_id ? $db->real_escape_string((Int)$leaf_user_obj_id) : "NULL")."
+            )";
+        if ($db->query($leaf_query)) {
+            return Notification::get_by_id($notification_id, $user_id);
+        }
+    }
+    
     public static function set_read($notification_id) {
         global $db;
         $query = "
