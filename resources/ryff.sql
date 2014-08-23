@@ -75,6 +75,24 @@ CREATE TABLE IF NOT EXISTS `messages` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notification_objects`
+--
+
+CREATE TABLE IF NOT EXISTS `notification_objects` (
+  `notification_object_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `notification_id` int(10) unsigned NOT NULL,
+  `post_obj_id` int(10) unsigned DEFAULT NULL,
+  `user_obj_id` int(10) unsigned DEFAULT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`notification_object_id`),
+  KEY `notification_id` (`notification_id`),
+  KEY `post_obj_id` (`post_obj_id`),
+  KEY `user_obj_id` (`user_obj_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `notifications`
 --
 
@@ -83,9 +101,10 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `user_id` int(10) unsigned NOT NULL,
   `post_obj_id` int(10) unsigned DEFAULT NULL,
   `user_obj_id` int(10) unsigned DEFAULT NULL,
-  `text` varchar(255) NOT NULL,
+  `type` varchar(32) NOT NULL,
   `read` int(1) NOT NULL DEFAULT 0,
   `date_read` timestamp DEFAULT 0,
+  `date_updated` timestamp DEFAULT 0,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`notification_id`),
   KEY `user_id` (`user_id`),
@@ -249,6 +268,14 @@ ALTER TABLE `locations`
 ALTER TABLE `messages`
   ADD CONSTRAINT `messages_to_id_constr` FOREIGN KEY (`to_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `messages_from_id_constr` FOREIGN KEY (`from_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `notification_objects`
+--
+ALTER TABLE `notification_objects`
+  ADD CONSTRAINT `notification_id_constr` FOREIGN KEY (`notification_id`) REFERENCES `notifications` (`notification_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notification_objects_post_obj_id_constr` FOREIGN KEY (`post_obj_id`) REFERENCES `posts` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `notification_objects_user_obj_id_constr` FOREIGN KEY (`user_obj_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `notifications`
