@@ -40,6 +40,8 @@ class Upvote {
         $upvote_results = $db->query($upvote_query);
         
         if ($upvote_results) {
+            $post = Post::get_by_id($post_id);
+            Notification::delete($post->user->id, "upvote", $post->id, null, null, $user_id);
             return true;
         }
         return false;

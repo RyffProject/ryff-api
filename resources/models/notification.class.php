@@ -41,7 +41,8 @@ class Notification {
         
         $leaves_query = "
             SELECT `user_obj_id`, `post_obj_id` FROM `notification_objects`
-            WHERE `notification_id`=".$db->real_escape_string($this->id);
+            WHERE `notification_id`=".$db->real_escape_string($this->id)."
+            ORDER BY `date_created` DESC";
         $leaves_results = $db->query($leaves_query);
         if ($leaves_results) {
             while ($leaf_row = $leaves_results->fetch_assoc()) {
@@ -118,6 +119,25 @@ class Notification {
         return null;
     }
     
+    public static function delete($user_id, $type, $base_post_obj_id,
+            $base_user_obj_id, $leaf_post_obj_id, $leaf_user_obj_id) {
+        global $db;
+        
+        $query = "
+            DELETE obj FROM `notification_objects` AS obj
+            JOIN `notifications` AS n ON n.`notification_id`=obj.`notification_id`
+            WHERE n.`user_id`=".$db->real_escape_string((int)$user_id)."
+            AND n.`type`='".$db->real_escape_string($type)."'
+            AND n.`post_obj_id`".($base_post_obj_id ? "=".((int)$base_post_obj_id) : " IS NULL")."
+            AND n.`user_obj_id`".($base_user_obj_id ? "=".((int)$base_user_obj_id) : " IS NULL")."
+            AND obj.`post_obj_id`".($leaf_post_obj_id ? "=".((int)$leaf_post_obj_id) : " IS NULL")."
+            AND obj.`user_obj_id`".($leaf_user_obj_id ? "=".((int)$leaf_user_obj_id) : " IS NULL");
+        if ($db->query($query)) {
+            return true;
+        }
+        return false;
+    }
+    
     public static function add_mentions($post_id, $content) {
         $usernames = array();
         if (preg_match_all('/@([a-zA-Z0-9_]+)/', $content, $usernames)) {
@@ -176,11 +196,14 @@ class Notification {
         }
         
         $query = "
-            SELECT `notification_id`, `type`, `read`,
-                `date_read`, `date_updated`, `date_created`
-            FROM `notifications`
-            WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id)."
-            ORDER BY `date_updated` DESC
+            SELECT n.`notification_id`, n.`type`, n.`read`,
+                n.`date_read`, n.`date_updated`, n.`date_created`
+            FROM `notifications` AS n
+            JOIN `notification_objects` AS obj
+            ON obj.`notification_id`=n.`notification_id`
+            WHERE n.`user_id`=".$db->real_escape_string($CURRENT_USER->id)."
+            GROUP BY obj.`notification_id`
+            ORDER BY n.`date_updated` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $results = $db->query($query);
         if ($results) {
