@@ -191,6 +191,7 @@ class User {
         return false;
     }
     public function set_avatar($avatar_tmp_path) {
+        global $CURRENT_USER;
         $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/{$CURRENT_USER->id}.png";
         if (move_uploaded_file($avatar_tmp_path, $avatar_new_path)) {
             $this->avatar = $this->get_avatar_url();
