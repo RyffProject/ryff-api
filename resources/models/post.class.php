@@ -131,6 +131,12 @@ class Post {
                     Post::delete($post_id);
                     return null;
                 }
+                foreach ($parent_ids as $parent_id) {
+                    $parent_post = Post::get_by_id($parent_id);
+                    if ($parent_post->user->id !== (int)$user_id) {
+                        Notification::add($parent_post->user->id, "remix", $parent_post->id, null, $post_id, null);
+                    }
+                }
             }
             
             if ($img_tmp_path) {
@@ -149,6 +155,7 @@ class Post {
             }
             
             Tag::add_for_post($post_id, $content);
+            Notification::add_mentions($post_id, $content);
             
             return Post::get_by_id($post_id);
         }

@@ -17,6 +17,10 @@ class Upvote {
         $upvote_results = $db->query($upvote_query);
         
         if ($upvote_results) {
+            $post = Post::get_by_id($post_id);
+            if ($post->user->id !== (int)$user_id) {
+                Notification::add($post->user->id, "upvote", $post->id, null, null, $user_id);
+            }
             return true;
         }
         return false;

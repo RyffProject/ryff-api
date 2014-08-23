@@ -72,7 +72,7 @@ class Notification {
             AND `type`='".$db->real_escape_string($type)."'
             AND `post_obj_id`".($base_post_obj_id ? "=".$db->real_escape_string((int)$base_post_obj_id) : " IS NULL")."
             AND `user_obj_id`".($base_user_obj_id ? "=".$db->real_escape_string((int)$base_user_obj_id) : " IS NULL")."
-            AND `date_updated` > (NOW() - ".NOTIFICATION_TIMEOUT." SECONDS)";
+            AND `date_updated` > (NOW() -".NOTIFICATION_TIMEOUT.")";
         $stack_results = $db->query($stack_query);
         if (!$stack_results) {
             return null;
@@ -115,6 +115,24 @@ class Notification {
         if ($db->query($leaf_query)) {
             return Notification::get_by_id($notification_id, $user_id);
         }
+        return null;
+    }
+    
+    public static function add_mentions($post_id, $content) {
+        $usernames = array();
+        if (preg_match_all('/@([a-zA-Z0-9_]+)/', $content, $usernames)) {
+            $post = Post::get_by_id($post_id);
+            foreach (array_unique($usernames[1]) as $username) {
+                $user = User::get_by_username($username);
+                if (!$user || $user->id === $post->user->id) {
+                    continue;
+                }
+                if (!Notification::add($user->id, "mention", null, null, $post->id, null)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     
     public static function set_read($notification_id) {
@@ -162,7 +180,7 @@ class Notification {
                 `date_read`, `date_updated`, `date_created`
             FROM `notifications`
             WHERE `user_id`=".$db->real_escape_string($CURRENT_USER->id)."
-            ORDER BY `date_created` DESC
+            ORDER BY `date_updated` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $results = $db->query($query);
         if ($results) {
