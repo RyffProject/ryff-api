@@ -329,3 +329,17 @@ ALTER TABLE `upvotes`
 --
 ALTER TABLE `user_tags`
   ADD CONSTRAINT `tags_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Triggers for dumped tables
+--
+DELIMITER $$
+
+-- Removes notification if last notification_object child is deleted
+CREATE TRIGGER `after_delete_notification_object`
+  AFTER DELETE ON `notification_objects` FOR EACH ROW
+  BEGIN
+    IF (SELECT COUNT(*) FROM `notification_objects` WHERE `notification_id`=OLD.`notification_id`) = 0 THEN
+      DELETE FROM `notifications` WHERE `notification_id`=OLD.`notification_id`;
+    END IF;
+  END
