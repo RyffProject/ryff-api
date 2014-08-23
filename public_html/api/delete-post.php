@@ -35,6 +35,11 @@ if (!$post) {
     exit;
 }
 
+if ($post->user->id !== $CURRENT_USER->id) {
+    echo json_encode(array("error" => "You can only delete your own posts."));
+    exit;
+}
+
 if (Post::delete($post->id)) {
     echo json_encode(array("success" => "Successfully deleted post from user."));
 } else {
