@@ -4,24 +4,29 @@ class Message {
     public $id;
     public $user_id;
     public $content;
+    public $is_read;
     public $date_created;
     
-    protected function __construct($id, $user_id, $content, $date_created) {
+    protected function __construct($id, $user_id, $content, $is_read, $date_read, $date_created) {
         $this->id = (int)$id;
         $this->user_id = (int)$user_id;
         $this->content = $content;
+        $this->is_read = (bool)$is_read;
+        if ($this->is_read) {
+            $this->date_read = $date_read;
+        }
         $this->date_created = $date_created;
     }
     
     public static function create($row) {
         $required_keys = array(
-            'message_id' => 0, 'from_id' => 0,
-            'content' => 0, 'date_created' => 0
+            'message_id' => 0, 'from_id' => 0, 'content' => 0,
+            'read' => 0, 'date_read' => 0, 'date_created' => 0
         );
         if (empty(array_diff_key($required_keys, $row))) {
             return new Message(
-                $row['message_id'], $row['from_id'],
-                $row['content'], $row['date_created']
+                $row['message_id'], $row['from_id'], $row['content'],
+                $row['read'], $row['date_read'], $row['date_created']
             );
         }
         return null;
@@ -70,15 +75,26 @@ class Message {
             $from_id = $CURRENT_USER->id;
         }
         
-        $query = "
-            SELECT * FROM `messages`
+        $where = "
             WHERE (
                 `from_id` = ".$db->real_escape_string((int)$from_id)."
                 AND `to_id` = ".$db->real_escape_string((int)$to_id)."
             ) OR (
                 `from_id` = ".$db->real_escape_string((int)$to_id)."
                 AND `to_id` = ".$db->real_escape_string((int)$from_id)."
-            )
+            )";
+        
+        $set_read_query = "
+            UPDATE `messages`
+            SET `read`=1, `date_read`=NOW()
+            ".$where;
+        if (!$db->query($set_read_query)) {
+            return null;
+        }
+        
+        $query = "
+            SELECT * FROM `messages`
+            ".$where."
             ORDER BY `date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $results = $db->query($query);
