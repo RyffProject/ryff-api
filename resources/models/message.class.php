@@ -109,7 +109,7 @@ class Message {
         return null;
     }
     
-    public static function get_conversations_recent($page, $limit, $to_id = null) {
+    public static function get_conversations_recent($page, $limit, $unread = false, $to_id = null) {
         global $db, $CURRENT_USER;
         
         if ($to_id === null && $CURRENT_USER) {
@@ -141,6 +141,7 @@ class Message {
                 ORDER BY m2.`date_created` DESC
                 LIMIT 1
             )
+            ".($unread ? "AND m.`user_id` != $to_id AND m.`read`=0" : "")."
             ORDER BY m.`date_created`
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $results = $db->query($query);
