@@ -68,33 +68,33 @@ class Message {
         return false;
     }
     
-    public static function get_conversation($to_id, $page, $limit, $from_id = null) {
+    public static function get_conversation($from_id, $page, $limit, $to_id = null) {
         global $db, $CURRENT_USER;
         
-        if ($from_id === null && $CURRENT_USER) {
-            $from_id = $CURRENT_USER->id;
+        if ($to_id === null && $CURRENT_USER) {
+            $to_id = $CURRENT_USER->id;
         }
-        
-        $where = "
-            WHERE (
-                `from_id` = ".$db->real_escape_string((int)$from_id)."
-                AND `to_id` = ".$db->real_escape_string((int)$to_id)."
-            ) OR (
-                `from_id` = ".$db->real_escape_string((int)$to_id)."
-                AND `to_id` = ".$db->real_escape_string((int)$from_id)."
-            )";
         
         $set_read_query = "
             UPDATE `messages`
             SET `read`=1, `date_read`=NOW()
-            ".$where;
+            WHERE (
+                `from_id` = ".$db->real_escape_string((int)$from_id)."
+                AND `to_id` = ".$db->real_escape_string((int)$to_id)."
+            )";
         if (!$db->query($set_read_query)) {
             return null;
         }
         
         $query = "
             SELECT * FROM `messages`
-            ".$where."
+            WHERE (
+                `from_id` = ".$db->real_escape_string((int)$from_id)."
+                AND `to_id` = ".$db->real_escape_string((int)$to_id)."
+            ) OR (
+                `from_id` = ".$db->real_escape_string((int)$to_id)."
+                AND `to_id` = ".$db->real_escape_string((int)$from_id)."
+            )
             ORDER BY `date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $results = $db->query($query);
@@ -109,34 +109,34 @@ class Message {
         return null;
     }
     
-    public static function get_conversations_recent($page, $limit, $from_id = null) {
+    public static function get_conversations_recent($page, $limit, $to_id = null) {
         global $db, $CURRENT_USER;
         
-        if ($from_id === null && $CURRENT_USER) {
-            $from_id = $CURRENT_USER->id;
+        if ($to_id === null && $CURRENT_USER) {
+            $to_id = $CURRENT_USER->id;
         }
         
         //Sanitize once. This will be handled better with the switch to PDO
         //and prepared statements with named parameters.
-        $from_id = (int)$from_id;
+        $to_id = (int)$to_id;
         
         $query = "
             SELECT m.*
             FROM (
                 SELECT m1.*,
-                    IF(m1.`from_id`=$from_id,m1.`to_id`,m1.`from_id`) AS `user_id`
+                    IF(m1.`from_id`=$to_id,m1.`to_id`,m1.`from_id`) AS `user_id`
                 FROM `messages` AS m1
-                WHERE m1.`from_id` = $from_id
-                OR m1.`to_id` = $from_id
+                WHERE m1.`from_id` = $to_id
+                OR m1.`to_id` = $to_id
             ) AS m
             WHERE m.`date_created` = (
                 SELECT m2.`date_created` FROM `messages` AS m2
                 WHERE (
-                    m2.`from_id` = $from_id
+                    m2.`from_id` = $to_id
                     AND m2.`to_id` = m.`user_id`
                 ) OR (
                     m2.`from_id` = m.`user_id`
-                    AND m2.`to_id` = $from_id
+                    AND m2.`to_id` = $to_id
                 )
                 ORDER BY m2.`date_created` DESC
                 LIMIT 1
@@ -148,9 +148,17 @@ class Message {
         if ($results) {
             $conversations = array();
             while ($row = $results->fetch_assoc()) {
+                $user = User::get_by_id($row['user_id']);
+                $message = Message::create($row);
+                if ($message->user_id === $user->id && !$message->is_read) {
+                    $is_read = false;
+                } else {
+                    $is_read = true;
+                }
                 $conversations[] = array(
-                    "user" => User::get_by_id($row['user_id']),
-                    "message" => Message::create($row)
+                    "user" => $user,
+                    "message" => $message,
+                    "is_read" => $is_read
                 );
             }
             return $conversations;
