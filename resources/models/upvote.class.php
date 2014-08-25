@@ -1,6 +1,24 @@
 <?php
 
+/**
+ * @class Upvote
+ * =============
+ * 
+ * Provides static functions related to upvoting posts.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Upvote {
+    /**
+     * Upvotes a post for the given user.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $post_id
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function add($post_id, $user_id = null) {
         global $db, $CURRENT_USER;
         
@@ -26,6 +44,15 @@ class Upvote {
         return false;
     }
     
+    /**
+     * Removes the given user's upvote from the post.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $post_id
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function delete($post_id, $user_id = null) {
         global $db, $CURRENT_USER;
         

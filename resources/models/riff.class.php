@@ -1,11 +1,51 @@
 <?php
 
+/**
+ * @class Riff
+ * ===========
+ * 
+ * Provides a class for Riff objects and static functions related to riffs.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Riff {
+    /**
+     * The riff_id.
+     * 
+     * @var int
+     */
     public $id;
+    
+    /**
+     * The title of the riff.
+     * 
+     * @var string
+     */
     public $title;
+    
+    /**
+     * The duration of the riff in seconds.
+     * 
+     * @var int
+     */
     public $duration;
+    
+    /**
+     * The URL to the riff's audio.
+     * 
+     * @var string 
+     */
     public $link;
     
+    /**
+     * Constructs a new Riff instance with the given member variable values.
+     * 
+     * @param int $id
+     * @param string $title
+     * @param int $duration
+     * @param string $link
+     */
     protected function __construct($id, $title, $duration, $link) {
         $this->id = (int)$id;
         $this->title = $title;
@@ -13,6 +53,16 @@ class Riff {
         $this->link = $link;
     }
     
+    /**
+     * Adds a new Riff.
+     * 
+     * @global mysqli $db
+     * @param int $post_id
+     * @param string $title
+     * @param int $duration
+     * @param string $riff_tmp_path
+     * @return Riff|null The new Riff object, or null on failure.
+     */
     public static function add($post_id, $title, $duration, $riff_tmp_path) {
         global $db;
         
@@ -37,6 +87,13 @@ class Riff {
         return null;
     }
     
+    /**
+     * Deletes a Riff object with the given riff_id.
+     * 
+     * @global mysqli $db
+     * @param int $riff_id
+     * @return boolean
+     */
     public static function delete($riff_id) {
         global $db;
         
@@ -51,6 +108,13 @@ class Riff {
         return false;
     }
     
+    /**
+     * Returns the Riff object attached to the given post_id, if there is one.
+     * 
+     * @global mysqli $db
+     * @param int $post_id
+     * @return Riff|null The Riff object, or null if it doesn't exist.
+     */
     public static function get_by_post_id($post_id) {
         global $db;
         

@@ -1,17 +1,87 @@
 <?php
 
+/**
+ * @class Post
+ * ===========
+ * 
+ * Provides a class for Post objects and static functions related to posts.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Post {
+    /**
+     * The post_id.
+     * 
+     * @var int
+     */
     public $id;
+    
+    /**
+     * The User object that posted this post.
+     * 
+     * @var User
+     */
     public $user;
+    
+    /**
+     * The Riff object associated with this post, or null if not found.
+     * 
+     * @var Riff|null
+     */
     public $riff;
+    
+    /**
+     * The text of the post.
+     * 
+     * @var string
+     */
     public $content;
+    
+    /**
+     * The date this post was created.
+     * 
+     * @var string
+     */
     public $date_created;
     
+    /**
+     * The number of upvotes this post has.
+     * 
+     * @var int
+     */
     public $upvotes;
+    
+    /**
+     * If this post is upvoted by the current user.
+     * 
+     * @var boolean
+     */
     public $is_upvoted;
+    
+    /**
+     * If this post is starred by the current user.
+     * 
+     * @var boolean
+     */
     public $is_starred;
+    
+    /**
+     * The URL for this post's associated image, or "" if no image is found.
+     * 
+     * @var string
+     */
     public $image_url;
     
+    /**
+     * Constructs a new Post instance with the given member variable values.
+     * 
+     * @param int $id
+     * @param User $user
+     * @param Riff $riff
+     * @param string $content
+     * @param string $date_created
+     */
     protected function __construct($id, $user, $riff, $content, $date_created) {
         $this->id = (int)$id;
         $this->user = $user;
@@ -25,6 +95,12 @@ class Post {
         $this->image_url = $this->get_image_url();
     }
     
+    /**
+     * Helper function that returns the number of upvotes this post has.
+     * 
+     * @global mysqli $db
+     * @return int The number of upvotes.
+     */
     protected function get_num_upvotes() {
         global $db;
         
@@ -39,6 +115,14 @@ class Post {
         return 0;
     }
     
+    /**
+     * Helper function that returns whether this post is upvoted by the
+     * current user.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @return boolean If this post is upvoted by the current user.
+     */
     protected function get_is_upvoted() {
         global $db, $CURRENT_USER;
         
@@ -55,6 +139,14 @@ class Post {
         return false;
     }
     
+    /**
+     * Helper function that returns whether this post is starred by the
+     * current user.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @return boolean If this post is starred by the current user.
+     */
     protected function get_is_starred() {
         global $db, $CURRENT_USER;
         
@@ -71,6 +163,11 @@ class Post {
         return false;
     }
     
+    /**
+     * Helper function that returns the URL of this post's associated image.
+     * 
+     * @return string The image URL or "" if not found.
+     */
     protected function get_image_url() {
         $image_path = MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
         if (file_exists($image_path)) {
@@ -79,6 +176,12 @@ class Post {
         return "";
     }
     
+    /**
+     * Gets the post objects that are parents of this post.
+     * 
+     * @global mysqli $db
+     * @return array An array of Post objects
+     */
     public function get_parents() {
         global $db;
         
@@ -94,6 +197,12 @@ class Post {
         return $parents;
     }
     
+    /**
+     * Gets the post objects that are children of this post.
+     * 
+     * @global mysqli $db
+     * @return array An array of Post objects
+     */
     public function get_children() {
         global $db;
         
@@ -109,6 +218,20 @@ class Post {
         return $children;
     }
     
+    /**
+     * Adds a new Post.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param string $content The text of the post.
+     * @param array $parent_ids The array of parent ids, array() for none.
+     * @param type $img_tmp_path The path to the post image, "" for none.
+     * @param type $title The title of the associated Riff, "" for none.
+     * @param type $duration The duration of the associated Riff, 0 for none.
+     * @param type $riff_tmp_path The path to the riff audio, "" for none.
+     * @param type $user_id [optional] Defaults to the current user.
+     * @return Post|null The added Post object or null on failure.
+     */
     public static function add($content, $parent_ids, $img_tmp_path,
             $title, $duration, $riff_tmp_path, $user_id = null) {
         global $db, $CURRENT_USER;
@@ -162,6 +285,15 @@ class Post {
         return null;
     }
     
+    /**
+     * Adds the $parent_ids as parents of $post_id. The $parent_ids can be
+     * either a comma-separated string or an array of ids.
+     * 
+     * @global mysqli $db
+     * @param int $post_id
+     * @param string|array $parent_ids
+     * @return boolean
+     */
     public static function add_parents($post_id, $parent_ids) {
         global $db;
         
@@ -185,6 +317,13 @@ class Post {
         return false;
     }
     
+    /**
+     * Deletes the given post.
+     * 
+     * @global mysqli $db
+     * @param int $post_id
+     * @return boolean
+     */
     public static function delete($post_id) {
         global $db;
         
@@ -199,6 +338,13 @@ class Post {
         return false;
     }
     
+    /**
+     * Gets the post object with the given $post_id, if it exists.
+     * 
+     * @global mysqli $db
+     * @param int $post_id
+     * @return Post|null
+     */
     public static function get_by_id($post_id) {
         global $db;
         

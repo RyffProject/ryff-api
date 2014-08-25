@@ -1,6 +1,25 @@
 <?php
 
+/**
+ * @class Auth
+ * ===========
+ * 
+ * Provides static functions for logging in, logging out, and verifying
+ * login credentials.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Auth {
+    /**
+     * Creates a new auth token for the user and sets both the user_id and
+     * auth token cookies.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function set_logged_in($user_id = null) {
         global $db, $CURRENT_USER;
         
@@ -31,6 +50,16 @@ class Auth {
         return true;
     }
     
+    /**
+     * Expires the user's auth token in the database and sets
+     * login cookies to expire.
+     * 
+     * @global mysqli $db
+     * @global string $AUTH_TOKEN
+     * @global User $CURRENT_USER
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function set_logged_out($user_id = null) {
         global $db, $AUTH_TOKEN, $CURRENT_USER;
         
@@ -57,6 +86,14 @@ class Auth {
         return true;
     }
     
+    /**
+     * Verifies that the username/password combination is valid.
+     * 
+     * @global mysqli $db
+     * @param string $username
+     * @param string $password
+     * @return boolean
+     */
     public static function is_login_valid($username, $password) {
         global $db;
 

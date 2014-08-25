@@ -1,6 +1,21 @@
 <?php
 
+/**
+ * @class UserFeed
+ * ===============
+ * 
+ * Provides static functions for getting a feed of users.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class UserFeed {
+    /**
+     * Helper function that gets an array of users from a mysqli_result object.
+     * 
+     * @param mysqli_result $query_results
+     * @return array|null An array of User objects or null on failure.
+     */
     protected static function get_user_array($query_results) {
         if ($query_results) {
             $users = array();
@@ -12,6 +27,13 @@ class UserFeed {
         return null;
     }
     
+    /**
+     * Helper function that gets a timestamp that represents one day ago, or
+     * one week ago, etc.
+     * 
+     * @param string $time One of "day", "week", "month", or "all".
+     * @return string The timestamp.
+     */
     protected static function get_from_date($time) {
         switch ($time) {
             case "day":
@@ -31,6 +53,20 @@ class UserFeed {
         return date("Y-m-d H:i:s", $from_time);
     }
     
+    /**
+     * Returns an array of User objects sorted by proximity to the given user.
+     * The users can optionally match an array of tags.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param Point $location The latitude and longitude coordinates that are
+     *                        being queried.
+     * @param array $tags [optional] Tags that the returned users should match.
+     * @param int $page [optional] The page number of results, defaults to 1.
+     * @param int $limit [optional] The number of results per page, defaults to 15.
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return array|null An array of User objects, or null on failure.
+     */
     public static function search_nearby(Point $location, $tags = array(),
             $page = 1, $limit = 15, $user_id = null) {
         global $db, $CURRENT_USER;
@@ -66,6 +102,17 @@ class UserFeed {
         return UserFeed::get_user_array($results);
     }
     
+    /**
+     * Gets User objects with the most karma in the given time frame,
+     * optionally matching the given tags.
+     * 
+     * @global mysqli $db
+     * @param string $time [optional] "day", "week" (default), "month", or "all".
+     * @param array $tags [optional]
+     * @param int $page [optional] The page number of results, defaults to 1.
+     * @param int $limit [optional] The number of results per page defaults to 15.
+     * @return array|null An array of User objects, or null on failure.
+     */
     public static function search_trending($time = "week", $tags = array(), $page = 1, $limit = 15) {
         global $db;
         

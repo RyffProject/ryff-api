@@ -1,6 +1,24 @@
 <?php
 
+/**
+ * @class Follow
+ * =============
+ * 
+ * Provides static functions related to following users.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Follow {
+    /**
+     * Adds a follow from $to_id to $from_id.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $to_id
+     * @param int $from_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function add($to_id, $from_id = null) {
         global $db, $CURRENT_USER;
         
@@ -23,6 +41,15 @@ class Follow {
         return false;
     }
     
+    /**
+     * Deletes the follow from $to_id to $from_id.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $to_id
+     * @param int $from_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function delete($to_id, $from_id = null) {
         global $db, $CURRENT_USER;
         
@@ -43,6 +70,16 @@ class Follow {
         return false;
     }
     
+    /**
+     * Gets an array of User objects that follow the given user.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $page The current page number.
+     * @param int $limit The number of results per page.
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return array An array of User objects or null on error.
+     */
     public static function get_followers($page, $limit, $user_id = null) {
         global $db, $CURRENT_USER;
         
@@ -67,6 +104,17 @@ class Follow {
         }
         return null;
     }
+    
+    /**
+     * Gets an array of User objects that the given user follows.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $page The current page number.
+     * @param int $limit The number of results per page.
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return array|null An array of User objects or null on error.
+     */
     public static function get_following($page, $limit, $user_id = null) {
         global $db, $CURRENT_USER;
         

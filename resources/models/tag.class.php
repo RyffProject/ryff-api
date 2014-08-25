@@ -1,10 +1,41 @@
 <?php
 
+/**
+ * @class Tag
+ * ==========
+ * 
+ * Provides a class for Tag objects and static functions related to tags.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Tag {
+    /**
+     * The tag.
+     * 
+     * @var string
+     */
     public $tag;
+    
+    /**
+     * The number of users that have this tag.
+     * 
+     * @var int
+     */
     public $num_users;
+    
+    /**
+     * The number of posts that have this tag.
+     * 
+     * @var int
+     */
     public $num_posts;
 
+    /**
+     * Constructs a new Tag object.
+     * 
+     * @param string $tag
+     */
     protected function __construct($tag) {
         $this->tag = $tag;
 
@@ -12,6 +43,12 @@ class Tag {
         $this->num_posts = $this->get_num_posts();
     }
 
+    /**
+     * Helper function that returns the number of users who have this tag.
+     * 
+     * @global mysqli $db
+     * @return int The number of users who have this tag.
+     */
     protected function get_num_users() {
         global $db;
         
@@ -26,6 +63,12 @@ class Tag {
         return 0;
     }
 
+    /**
+     * Helper function that returns the number of posts that have this tag.
+     * 
+     * @global mysqli $db
+     * @return int The number of posts that have this tag.
+     */
     protected function get_num_posts() {
         global $db;
         
@@ -40,6 +83,14 @@ class Tag {
         return 0;
     }
     
+    /**
+     * Parses a post's content and adds tags that are preceded by a #.
+     * 
+     * @global mysqli $db
+     * @param int $post_id
+     * @param string $content
+     * @return boolean
+     */
     public static function add_for_post($post_id, $content) {
         global $db;
         
@@ -63,6 +114,15 @@ class Tag {
         return true;
     }
     
+    /**
+     * Adds a single tag to the given user.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param string $tag
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function add_for_user($tag, $user_id = null) {
         global $db, $CURRENT_USER;
         
@@ -82,6 +142,15 @@ class Tag {
         return false;
     }
     
+    /**
+     * Deletes a single tag from the given user.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param string $tag
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function delete_from_user($tag, $user_id = null) {
         global $db, $CURRENT_USER;
         
@@ -99,6 +168,14 @@ class Tag {
         return false;
     }
 
+    /**
+     * Returns an array of the 10 most popular user Tag objects that match the
+     * given query.
+     * 
+     * @global mysqli $db
+     * @param string $query_str The text that the matched tags should contain.
+     * @return array|null An array of Tag objects, or null on failure.
+     */
     public static function search_users($query_str) {
         global $db;
         
@@ -121,6 +198,15 @@ class Tag {
         return null;
     }
     
+    /**
+     * Returns an array of the 10 most popular post Tag objects since a given
+     * date. Popularity is measured by number of upvotes on posts with that tag
+     * attached.
+     * 
+     * @global mysqli $db
+     * @param string $from_date
+     * @return array|null An array of Tag objects, or null on failure.
+     */
     public static function get_trending($from_date) {
         global $db;
         
@@ -146,6 +232,15 @@ class Tag {
         return null;
     }
     
+    /**
+     * Returns an array of up to 10 tags that the given user would want to see
+     * based on their current tags, their posts, posts they've upvoted, etc.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return array|null An array of Tag objects, or null on failure.
+     */
     public static function get_suggested($user_id = null) {
         global $db, $CURRENT_USER;
         
@@ -204,6 +299,12 @@ class Tag {
         return null;
     }
 
+    /**
+     * Returns a Tag object with the given tag.
+     * 
+     * @param string $tag
+     * @return Tag
+     */
     public static function get_by_tag($tag) {
         return new Tag($tag);
     }

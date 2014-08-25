@@ -1,12 +1,61 @@
 <?php
 
+/**
+ * @class Message
+ * ==============
+ * 
+ * Provides a class for Message objects and static functions for sending
+ * and receiving messages.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Message {
+    /**
+     * The message_id.
+     * 
+     * @var int
+     */
     public $id;
+    
+    /**
+     * The sender's user_id.
+     * 
+     * @var int
+     */
     public $user_id;
+    
+    /**
+     * The message text.
+     * 
+     * @var string
+     */
     public $content;
+    
+    /**
+     * Whether the message is read.
+     * 
+     * @var boolean
+     */
     public $is_read;
+    
+    /**
+     * The date the message was sent.
+     * 
+     * @var string
+     */
     public $date_created;
     
+    /**
+     * Constructs a new Message instance with the given member variable values.
+     * 
+     * @param int $id
+     * @param int $user_id
+     * @param string $content
+     * @param boolean $is_read
+     * @param string $date_read
+     * @param string $date_created
+     */
     protected function __construct($id, $user_id, $content, $is_read, $date_read, $date_created) {
         $this->id = (int)$id;
         $this->user_id = (int)$user_id;
@@ -18,6 +67,12 @@ class Message {
         $this->date_created = $date_created;
     }
     
+    /**
+     * Constructs and returns a Message instance from a database row.
+     * 
+     * @param array $row
+     * @return Message|null
+     */
     public static function create($row) {
         $required_keys = array(
             'message_id' => 0, 'from_id' => 0, 'content' => 0,
@@ -32,6 +87,13 @@ class Message {
         return null;
     }
     
+    /**
+     * Returns the message object with the given id, or null if it does not exist.
+     * 
+     * @global mysqli $db
+     * @param int $message_id
+     * @return Message|null
+     */
     public static function get_by_id($message_id) {
         global $db;
 
@@ -46,6 +108,16 @@ class Message {
         return null;
     }
     
+    /**
+     * Sends a message from one user to another.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param string $content
+     * @param int $to_id
+     * @param int $from_id [optional] Defaults to the current user.
+     * @return boolean
+     */
     public static function send($content, $to_id, $from_id = null) {
         global $db, $CURRENT_USER;
         
@@ -68,6 +140,18 @@ class Message {
         return false;
     }
     
+    /**
+     * Gets messages in a conversation between two users and marks messages as
+     * read for the user who is requesting them.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $from_id
+     * @param int $page The page number of results.
+     * @param int $limit The number of results per page.
+     * @param int $to_id [optional] Defaults to the current user.
+     * @return array|null An array of Message objects or null on failure.
+     */
     public static function get_conversation($from_id, $page, $limit, $to_id = null) {
         global $db, $CURRENT_USER;
         
@@ -109,6 +193,20 @@ class Message {
         return null;
     }
     
+    /**
+     * Gets the most recent conversations that a user is involved in. Each
+     * conversation has the User involved, the most recent Message, and whether
+     * the conversation is read. If $unread is true, only returns unread
+     * conversations.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $page The page number of results.
+     * @param int $limit The number of results per page.
+     * @param boolean $unread [optional] Defaults to false.
+     * @param int $to_id [optional] Defaults to the current user.
+     * @return array|null An array of conversations or null on failure.
+     */
     public static function get_conversations_recent($page, $limit, $unread = false, $to_id = null) {
         global $db, $CURRENT_USER;
         

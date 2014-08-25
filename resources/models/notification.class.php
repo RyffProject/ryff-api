@@ -1,12 +1,70 @@
 <?php
 
+/**
+ * @class Notification
+ * ===================
+ * 
+ * Provides a class for Notification objects and static functions related to
+ * notifications.
+ * 
+ * Each notification object optionally has one or more of the following
+ * member variables: user, post, users, and posts. For notifications of type
+ * "follow", users is an array of User objects that did the following. For type
+ * "upvote", post is the Post object that was upvoted and users is an array
+ * of the User objects that did the upvoting. For type "mention", posts is an
+ * array of Post objects that the user was mentioned in. For type "remix", posts
+ * is an array of Post objects that used one of the user's posts as a parent.
+ * 
+ * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Released under the Apache License 2.0.
+ */
 class Notification {
+    /**
+     * The notification_id.
+     * 
+     * @var int
+     */
     public $id;
+    
+    /**
+     * The type of notifcation.
+     * 
+     * @var string
+     */
     public $type;
+    
+    /**
+     * Whether the notification has been read.
+     * 
+     * @var boolean
+     */
     public $is_read;
+    
+    /**
+     * The date that the notification was updated. Notifications are updated
+     * when a similar notification stacks onto them.
+     * 
+     * @var string
+     */
     public $date_updated;
+    
+    /**
+     * The date the notification was created.
+     * 
+     * @var string
+     */
     public $date_created;
     
+    /**
+     * Constructs a new Notification instance with the given member variable values.
+     * 
+     * @param int $id
+     * @param string $type
+     * @param boolean $is_read
+     * @param string $date_read
+     * @param string $date_updated
+     * @param string $date_created
+     */
     protected function __construct($id, $type, $is_read,
             $date_read, $date_updated, $date_created) {
         
@@ -22,6 +80,12 @@ class Notification {
         $this->get_objects();
     }
     
+    /**
+     * Helper function for constructor that optionally attaches user, post,
+     * users, and posts as member variables.
+     * 
+     * @global mysqli $db
+     */
     protected function get_objects() {
         global $db;
         
@@ -56,13 +120,41 @@ class Notification {
         }
     }
     
+    /**
+     * Constructs and returns a Notification instance from a database row.
+     * 
+     * @param array $row
+     * @return Notification|null
+     */
     protected static function create($row) {
-        return new Notification(
-            $row['notification_id'], $row['type'], $row['read'],
-            $row['date_read'], $row['date_updated'], $row['date_created']
+        $required_keys = array(
+            'notification_id' => 0, 'type' => 0, 'read' => 0,
+            'date_read' => 0, 'date_updated' => 0, 'date_created' => 0
         );
+        if (empty(array_diff_key($required_keys, $row))) {
+            return new Notification(
+                $row['notification_id'], $row['type'], $row['read'],
+                $row['date_read'], $row['date_updated'], $row['date_created']
+            );
+        }
+        return null;
     }
     
+    /**
+     * Adds a notification for the given user. If the $user_id, $type,
+     * $base_post_obj_id, and $base_user_obj_id match a notification that has
+     * been updated less than NOTIFICATION_TIMEOUT seconds ago, the new
+     * notification will be stacked onto the matching one.
+     * 
+     * @global mysqli $db
+     * @param int $user_id The user who will receive the notification.
+     * @param string $type
+     * @param int $base_post_obj_id The optional "post", or null.
+     * @param int $base_user_obj_id The optional "user", or null.
+     * @param int $leaf_post_obj_id One of the optional "posts", or null.
+     * @param int $leaf_user_obj_id One of the optional "users", or null.
+     * @return Notification|null
+     */
     public static function add($user_id, $type, $base_post_obj_id,
             $base_user_obj_id, $leaf_post_obj_id, $leaf_user_obj_id) {
         global $db;
@@ -119,6 +211,21 @@ class Notification {
         return null;
     }
     
+    /**
+     * Deletes a notification. On unfollow, the follow notification has to be
+     * removed, and on delete-upvote, the upvote notification has to be removed.
+     * For notifications of type "mention" and "remix" the notification row
+     * will be automatically deleted due to foreign keys.
+     * 
+     * @global mysqli $db
+     * @param int $user_id The user who will receive the notification.
+     * @param string $type
+     * @param int $base_post_obj_id The optional "post", or null.
+     * @param int $base_user_obj_id The optional "user", or null.
+     * @param int $leaf_post_obj_id One of the optional "posts", or null.
+     * @param int $leaf_user_obj_id One of the optional "users", or null.
+     * @return boolean
+     */
     public static function delete($user_id, $type, $base_post_obj_id,
             $base_user_obj_id, $leaf_post_obj_id, $leaf_user_obj_id) {
         global $db;
@@ -138,6 +245,14 @@ class Notification {
         return false;
     }
     
+    /**
+     * Adds "mention" notifications for users who are mentioned in a post with
+     * an @ preceding them.
+     * 
+     * @param int $post_id
+     * @param string $content
+     * @return boolean
+     */
     public static function add_mentions($post_id, $content) {
         $usernames = array();
         if (preg_match_all('/@([a-zA-Z0-9_]+)/', $content, $usernames)) {
@@ -155,6 +270,13 @@ class Notification {
         return true;
     }
     
+    /**
+     * Marks the given notification as read.
+     * 
+     * @global mysqli $db
+     * @param int $notification_id
+     * @return boolean
+     */
     public static function set_read($notification_id) {
         global $db;
         $query = "
@@ -167,6 +289,16 @@ class Notification {
         return false;
     }
     
+    /**
+     * Gets the Notification object with the given notification_id, if its
+     * recipient is the given user_id.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $notification_id
+     * @param int $user_id
+     * @return Notification|null
+     */
     public static function get_by_id($notification_id, $user_id = null) {
         global $db, $CURRENT_USER;
         
@@ -189,6 +321,15 @@ class Notification {
         return null;
     }
     
+    /**
+     * Gets an array of Notification objects for the current user.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $page [optional] The current page of results, defaults to 1.
+     * @param int $limit [optional] The number of results per page, defaults to 15.
+     * @return array|null An array of Notification objects or null on failure.
+     */
     public static function get_latest($page = 1, $limit = 15) {
         global $db, $CURRENT_USER;
         if (!$CURRENT_USER) {
