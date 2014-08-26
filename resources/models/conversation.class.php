@@ -205,6 +205,32 @@ class Conversation {
     }
     
     /**
+     * Removes a member with the given user_id from the given conversation.
+     * 
+     * @global mysqli $db
+     * @global User $CURRENT_USER
+     * @param int $conversation_id
+     * @param int $user_id [optional] Defaults to the current user.
+     * @return boolean
+     */
+    public static function delete_member($conversation_id, $user_id = null) {
+        global $db, $CURRENT_USER;
+        
+        if ($user_id === null && $CURRENT_USER) {
+            $user_id = $CURRENT_USER->id;
+        }
+        
+        $query = "
+            DELETE FROM `conversation_members`
+            WHERE `conversation_id` = ".((int)$conversation_id)."
+            AND `user_id` = ".((int)$user_id);
+        if ($db->query($query)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
      * Sets the conversation as read for the given user.
      * 
      * @global mysqli $db
@@ -237,6 +263,7 @@ class Conversation {
      * 
      * @global mysqli $db
      * @param int $conversation_id
+     * @param int $user_id [optional] Defaults to the current user.
      * @return Conversation|null
      */
     public static function get_by_id($conversation_id, $user_id = null) {
@@ -257,42 +284,6 @@ class Conversation {
             return new Conversation($conversation_id);
         }
         return null;
-    }
-    
-    /**
-     * Gets the existing Conversation object between the two users, or creates
-     * and returns one if it doesn't already exist.
-     * 
-     * @global mysqli $db
-     * @global User $CURRENT_USER
-     * @param int $to_id The first user's id.
-     * @param int $from_id [optional] The second user's id, defaults to the current user.
-     * @return Conversation|null The Conversation object, or null on failure.
-     */
-    public static function get_for_user($to_id, $from_id = null) {
-        global $db, $CURRENT_USER;
-        
-        if ($from_id === null && $CURRENT_USER) {
-            $from_id = $CURRENT_USER->id;
-        }
-        
-        $query = "
-            SELECT c.`conversation_id` FROM `conversations` AS c
-            JOIN `conversation_members` AS m
-            ON m.`conversation_id` = c.`conversation_id`
-            WHERE COUNT(m.`user_id`) = 2
-            AND (
-                m.`user_id` = ".((int)$to_id)."
-                OR m.`user_id` = ".((int)$from_id)."
-            )
-            GROUP BY m.`conversation_id`";
-        $results = $db->query($query);
-        if ($results && $results->num_rows) {
-            $row = $results->fetch_assoc();
-            return new Conversation((int)$row['conversation_id']);
-        } else {
-            return Conversation::add(array($to_id, $from_id));
-        }
     }
     
     /**

@@ -46,8 +46,8 @@ $user_ids = array_filter(
     }
 );
 
-if (count($user_ids) < 3) {
-    echo json_encode(array("error" => "There must be at least three valid participant ids."));
+if (count($user_ids) < 2) {
+    echo json_encode(array("error" => "There must be at least two valid participant ids."));
     exit;
 }
 
