@@ -7,11 +7,12 @@
  * Authentication required.
  * 
  * POST variables:
- * "id" (optional) The id of the user you want to get. Defaults to the current user.
+ * "id" (optional) The id of the user you want to get.
+ * "username" (optional) The username of the user to get.
  * 
  * Return on success:
  * "success" The success message.
- * "user" The user object.
+ * "user" The user object. Defaults to the current user if no id or username provided.
  * 
  * Return on error:
  * "error" The error message.
@@ -38,7 +39,15 @@ if (isset($_POST['id'])) {
     } else {
         echo json_encode(array("error" => "Invalid user id."));
     }
+} else if (isset($_POST['username'])) {
+    $username = $_POST['username'];
+
+    $user = User::get_by_username($user_id);
+    if ($user) {
+        echo json_encode(array("success" => "Retrieved user.", "user" => $user));
+    } else {
+        echo json_encode(array("error" => "Invalid username."));
+    }
 } else {
     echo json_encode(array("success" => "Retrieved user.", "user" => $CURRENT_USER));
 }
-
