@@ -7,9 +7,10 @@
  * Authentication required.
  * 
  * POST variables:
- * "id" (required) The user you are getting the conversation from.
+ * "id" (required) The conversation you are getting the messages from.
  * "page" (optional) The page number of the results, 1-based.
  * "limit" (optional) The maximum number of messages per page. Defaults to 15.
+ * "type" (optional) either "unread" or "all". Defaults to "all".
  * 
  * On success:
  * "success" The success message.
@@ -33,24 +34,24 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$to_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-$recipient = User::get_by_id($to_id);
-if (!$recipient) {
-    echo json_encode(array("error" => "Invalid user id."));
-    exit;
-} else if ($recipient->id === $CURRENT_USER->id) {
-    echo json_encode(array("error" => "You cannot get messages from yourself."));
+$conversation_id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+$conversation = Conversation::get_by_id($conversation_id);
+if (!$conversation) {
+    echo json_encode(array(
+        "error" => "The conversation does not exist or you are not a participant."
+    ));
     exit;
 }
 
 $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
+$unread = isset($_POST['type']) ? ($_POST['type'] === "unread") : false;
 
-$messages = Message::get_conversation($recipient->id, $page, $limit);
+$messages = Message::get_for_conversation($conversation->id, $page, $limit, $unread);
 if (is_array($messages)) {
     echo json_encode(array(
         "success" => "Messages retrieved successfully.",
-        "users" => array($CURRENT_USER, $recipient),
+        "users" => $conversation->users,
         "messages" => $messages
     ));
 } else {

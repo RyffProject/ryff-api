@@ -5,8 +5,7 @@
  * =================
  * 
  * Authentication required.
- * Returns an array of user objects you have sent or received messages from,
- * and the most recent message in the conversation.
+ * Returns an array of conversations you have been involved in.
  * 
  * POST variables:
  * "page" (optional) The page number of the results, 1-based.
@@ -36,9 +35,9 @@ require_once("global.php");
 
 $page = isset($_POST['page']) ? (int)$_POST['page'] : 1;
 $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 15;
-$type = isset($_POST['type']) ? $_POST['type'] : "all";
+$unread = isset($_POST['type']) ? ($_POST['type'] === "unread") : false;
 
-$conversations = Message::get_conversations_recent($page, $limit, $type === "unread");
+$conversations = Conversation::get_conversations_recent($page, $limit, $unread);
 if (is_array($conversations)) {
     echo json_encode(array(
         "success" => "Conversations retrieved successfully.",
