@@ -55,13 +55,12 @@ class Auth {
      * login cookies to expire.
      * 
      * @global mysqli $db
-     * @global string $AUTH_TOKEN
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
      */
     public static function set_logged_out($user_id = null) {
-        global $db, $AUTH_TOKEN, $CURRENT_USER;
+        global $db, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = (int)$CURRENT_USER->id;
@@ -73,8 +72,7 @@ class Auth {
         $query = "
             UPDATE `auth_tokens`
             SET `date_expires`='".$db->real_escape_string($expiration_date)."'
-            WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
-            AND `token`='".$db->real_escape_string($AUTH_TOKEN)."'";
+            WHERE `user_id`=".$db->real_escape_string((int)$user_id);
         
         if (!$db->query($query)) {
             return false;
@@ -109,5 +107,39 @@ class Auth {
         }
         
         return false;
+    }
+    
+    /**
+     * Verifies that this user_id and auth_token are valid, not expired, and match.
+     * 
+     * @global mysqli $db
+     * @param int $user_id
+     * @param string $auth_token
+     * @return boolean
+     */
+    public static function is_auth_token_valid($user_id, $auth_token) {
+        global $db;
+        
+        $query = "
+            SELECT * FROM `auth_tokens`
+            WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
+            AND `token`='".$db->real_escape_string($auth_token)."'
+            AND `token_id`=(
+                SELECT `token_id` FROM `auth_tokens`
+                WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
+                ORDER BY `date_created` DESC
+                LIMIT 1
+            )";
+        $results = $db->query($query);
+        if ($results && $results->num_rows) {
+            $row = $results->fetch_assoc();
+            $expiration = $row['date_expires'];
+            if (time() >= strtotime($expiration)) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 }
