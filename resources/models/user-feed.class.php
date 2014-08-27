@@ -71,7 +71,10 @@ class UserFeed {
                 FROM `locations` AS l2 
                 WHERE l2.`user_id`= l.`user_id`
             )
-            ".($tags ? "AND t.`tag` IN (".implode(',', array_fill(0, count($tags), '?')).")" : "")."
+            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
+                function($i) { return ':tag'.$i; },
+                range(0, count($tags) - 1)
+            )).")" : "")."
             AND l.`user_id` != :user_id
             ORDER BY `distance` ASC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
@@ -79,9 +82,15 @@ class UserFeed {
         $sth->bindParam('x', $location->x);
         $sth->bindParam('y', $location->y);
         $sth->bindParam('user_id', $CURRENT_USER->id);
-        if ($sth->execute($tags)) {
+        foreach ($tags as $i => $tag) {
+            $sth->bindValue('tag'.$i, $tag);
+        }
+        if ($sth->execute()) {
             $users = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                if (!$row['user_id']) {
+                    continue;
+                }
                 $users[] = User::create($row);
             }
             return $users;
@@ -117,14 +126,23 @@ class UserFeed {
             JOIN `upvotes` AS up
             ON up.`post_id` = p.`post_id`
             WHERE up.`date_created` >= :from_date
-            ".($tags ? "AND t.`tag` IN (".implode(',', array_fill(0, count($tags), '?')).")" : "")."
+            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
+                function($i) { return ':tag'.$i; },
+                range(0, count($tags) - 1)
+            )).")" : "")."
             ORDER BY `num_upvotes` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
         $sth->bindParam('from_date', $from_date);
-        if ($sth->execute($tags)) {
+        foreach ($tags as $i => $tag) {
+            $sth->bindValue('tag'.$i, $tag);
+        }
+        if ($sth->execute()) {
             $users = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                if (!$row['user_id']) {
+                    continue;
+                }
                 $users[] = User::create($row);
             }
             return $users;

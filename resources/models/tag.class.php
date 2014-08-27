@@ -94,17 +94,18 @@ class Tag {
         
         $tags = array();
         if (preg_match_all('/#([a-zA-Z0-9_]+)/', $content, $tags)) {
-            $query = "INSERT INTO `post_tags` (`post_id`, `tag`) VALUES ";
-            $query_pieces = array();
-            $params = array();
-            foreach ($tags[1] as $tag) {
-                $query_pieces[] = "(?, ?)";
-                $params[] = $post_id;
-                $params[] = $tag;
-            }
-            $query .= implode(',', $query_pieces);
+            $query = "
+                INSERT INTO `post_tags` (`post_id`, `tag`)
+                VALUES ".implode(',', array_map(
+                    function($i) { return "(:post_id, :tag$i)"; },
+                    range(0, count($tags[1]) - 1)
+                ));
             $sth = $dbh->prepare($query);
-            if ($sth->execute($params)) {
+            $sth->bindParam('post_id', $post_id);
+            foreach ($tags[1] as $i => $tag) {
+                $sth->bindValue('tag'.$i, $tag);
+            }
+            if ($sth->execute()) {
                 return true;
             } else {
                 return false;

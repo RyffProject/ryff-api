@@ -126,11 +126,17 @@ class PostFeed {
             FROM `posts` AS p
             ".($tags ? "JOIN `post_tags` AS t
             ON t.`post_id` = p.`post_id`
-            WHERE t.`tag` IN (".implode(',', array_fill(0, count($tags), '?')).")" : "")."
+            WHERE t.`tag` IN (".implode(',', array_map(
+                function($i) { return ':tag'.$i; },
+                range(0, count($tags) - 1)
+            )).")" : "")."
             ORDER BY p.`date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        if ($sth->execute($tags)) {
+        foreach ($tags as $i => $tag) {
+            $sth->bindValue('tag'.$i, $tag);
+        }
+        if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                 $posts[] = Post::get_by_id((int)$row['post_id']);
@@ -164,14 +170,23 @@ class PostFeed {
             JOIN `upvotes` AS up
             ON up.`post_id` = p.`post_id`
             WHERE up.`date_created` >= :from_date
-            ".($tags ? "AND t.`tag` IN (".implode(',', array_fill(0, count($tags), '?')).")" : "")."
+            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
+                function($i) { return ':tag'.$i; },
+                range(0, count($tags) - 1)
+            )).")" : "")."
             ORDER BY `num_upvotes` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
         $sth->bindParam('from_date', $from_date);
-        if ($sth->execute($tags)) {
+        foreach ($tags as $i => $tag) {
+            $sth->bindValue('tag'.$i, $tag);
+        }
+        if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                if (!$row['post_id']) {
+                    continue;
+                }
                 $posts[] = Post::get_by_id((int)$row['post_id']);
             }
             return $posts;
@@ -200,13 +215,22 @@ class PostFeed {
             ON t.`post_id` = p.`post_id`" : "")."
             JOIN `upvotes` AS up
             ON up.`post_id` = p.`post_id`
-            ".($tags ? "WHERE t.`tag` IN (".implode(',', array_fille(0, count($tags), '?')).")" : "")."
+            ".($tags ? "WHERE t.`tag` IN (".implode(',', array_map(
+                function($i) { return ':tag'.$i; },
+                range(0, count($tags) - 1)
+            )).")" : "")."
             ORDER BY `score` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        if ($sth->execute($tags)) {
+        foreach ($tags as $i => $tag) {
+            $sth->bindValue('tag'.$i, $tag);
+        }
+        if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                if (!$row['post_id']) {
+                    continue;
+                }
                 $posts[] = Post::get_by_id((int)$row['post_id']);
             }
             return $posts;

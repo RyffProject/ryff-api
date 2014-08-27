@@ -304,18 +304,22 @@ class Post {
         if (!is_array($parent_ids)) {
             $parent_ids = explode(',', $parent_ids);
         }
-        
-        $query = "INSERT INTO `post_families` (`parent_id`, `child_id`) VALUES ";
-        $query_pieces = array();
-        $params = array();
-        foreach ($parent_ids as $parent_id) {
-            $query_pieces[] = "(?, ?)";
-            $params[] = $parent_id;
-            $params[] = $post_id;
+        if (empty($parent_ids)) {
+            return true;
         }
-        $query .= implode(',', $query_pieces);
+        
+        $query = "
+            INSERT INTO `post_families` (`parent_id`, `child_id`)
+            VALUES ".implode(',', array_map(
+                function($i) { return "(:parent_id$i, :post_id)"; },
+                range(0, count($parent_ids) - 1)
+            ));
         $sth = $dbh->prepare($query);
-        if ($sth->execute($params)) {
+        $sth->bindParam('post_id', $post_id);
+        foreach ($parent_ids as $i => $parent_id) {
+            $sth->bindValue('parent_id'.$i, $parent_id);
+        }
+        if ($sth->execute()) {
             return true;
         }
         return false;

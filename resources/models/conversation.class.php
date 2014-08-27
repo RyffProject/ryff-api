@@ -163,17 +163,16 @@ class Conversation {
         $members_query = "
             INSERT INTO `conversation_members` (
                 `conversation_id`, `user_id`, `date_last_updated`
-            ) VALUES ";
-        $member_query_pieces = array();
-        $members_params = array();
-        foreach ($user_ids as $user_id) {
-            $member_query_pieces[] = "(?, ?, NOW())";
-            $members_params[] = $conversation_id;
-            $members_params[] = $user_id;
-        }
-        $members_query .= implode(',', $member_query_pieces);
+            ) VALUES ".implode(',', array_map(
+                function($i) { return "(:conversation_id, :user_id$i, NOW())"; },
+                range(0, count($user_ids) - 1)
+            ));
         $members_sth = $dbh->prepare($members_query);
-        if (!$members_sth->execute($members_params)) {
+        $members_sth->bindParam('conversation_id', $conversation_id);
+        foreach ($user_ids as $i => $user_id) {
+            $members_sth->bindValue('user_id'.$i, $user_id);
+        }
+        if (!$members_sth->execute()) {
             Conversation::delete($conversation_id);
             return null;
         }
