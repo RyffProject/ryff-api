@@ -163,7 +163,7 @@ class Message {
         }
         
         $query = "
-            SELECT m.`message_id`, m.`user_id`, m.`content,` m.`date_created`
+            SELECT m.`message_id`, m.`user_id`, m.`content`, m.`date_created`
             FROM `messages` AS m
             ".($unread ? "JOIN `conversation_members` AS cm
                 ON cm.`conversation_id` = c.`conversation_id`
@@ -179,7 +179,6 @@ class Message {
         if ($unread) {
             $sth->bindParam('user_id', $user_id);
         }
-        
         if ($sth->execute()) {
             $messages = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {

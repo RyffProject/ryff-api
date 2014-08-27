@@ -337,8 +337,8 @@ class Notification {
         }
         
         $query = "
-            SELECT `notification_id`, `post_obj_id`, `user_obj_id`,
-                `text`, `read`, `date_read`, `date_created`
+            SELECT `notification_id`, `type`, `read`,
+                `date_read`, `date_updated`, `date_created`
             FROM `notifications`
             WHERE `notification_id` = :notification_id
             AND `user_id` = :user_id";

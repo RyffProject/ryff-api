@@ -131,6 +131,7 @@ class Conversation {
             WHERE m.`user_id` = :user_id";
         $sth = $dbh->prepare($query);
         $sth->bindParam('user_id', $CURRENT_USER->id);
+        $sth->execute();
         return (bool)$sth->fetchColumn();
     }
     
@@ -162,7 +163,7 @@ class Conversation {
         
         $members_query = "
             INSERT INTO `conversation_members` (
-                `conversation_id`, `user_id`, `date_last_updated`
+                `conversation_id`, `user_id`, `date_last_read`
             ) VALUES ".implode(',', array_map(
                 function($i) { return "(:conversation_id, :user_id$i, NOW())"; },
                 range(0, count($user_ids) - 1)
@@ -285,6 +286,7 @@ class Conversation {
         $sth = $dbh->prepare($query);
         $sth->bindParam('conversation_id', $conversation_id);
         $sth->bindParam('user_id', $user_id);
+        $sth->execute();
         if ($sth->fetchColumn()) {
             return new Conversation($conversation_id);
         }
@@ -318,7 +320,7 @@ class Conversation {
             WHERE m.`user_id` = :user_id
             ".($unread ? "AND c.`date_updated` > m.`date_last_read`" : "")."
             GROUP BY m.`conversation_id`
-            ORDRE BY c.`date_updated` DESC
+            ORDER BY c.`date_updated` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
         $sth->bindParam('user_id', $user_id);
