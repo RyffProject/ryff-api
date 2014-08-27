@@ -220,7 +220,7 @@ class Tag {
             GROUP BY t.`tag`
             ORDER BY `score` DESC
             LIMIT 10";
-        $sth = $dbh->prepare($sth);
+        $sth = $dbh->prepare($query);
         $sth->bindParam('from_date', $from_date);
         if ($sth->execute()) {
             $tags = array();

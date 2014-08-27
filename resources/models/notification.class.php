@@ -197,12 +197,12 @@ class Notification {
                 ) VALUES (
                     :user_id, :type, :base_post_obj_id, :base_user_obj_id, NOW()
                 )";
-            $base_query = $dbh->prepare($base_query);
-            $base_query->bindParam('user_id', $user_id);
-            $base_query->bindParam('type', $type);
-            $base_query->bindParam('base_post_obj_id', $base_post_obj_id);
-            $base_query->bindParam('base_user_obj_id', $base_user_obj_id);
-            if (!$base_query->execute()) {
+            $base_sth = $dbh->prepare($base_query);
+            $base_sth->bindParam('user_id', $user_id);
+            $base_sth->bindParam('type', $type);
+            $base_sth->bindParam('base_post_obj_id', $base_post_obj_id);
+            $base_sth->bindParam('base_user_obj_id', $base_user_obj_id);
+            if (!$base_sth->execute()) {
                 return null;
             }
             $notification_id = $dbh->lastInsertId();
@@ -363,6 +363,7 @@ class Notification {
      */
     public static function get_latest($page = 1, $limit = 15) {
         global $dbh, $CURRENT_USER;
+        
         if (!$CURRENT_USER) {
             return null;
         }
@@ -378,7 +379,7 @@ class Notification {
             ORDER BY n.`date_updated` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindParam('user_id', $CURRENT_USER->id);
         if ($sth->execute()) {
             $notifications = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
