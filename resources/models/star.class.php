@@ -30,8 +30,8 @@ class Star {
             INSERT INTO `stars` (`post_id`, `user_id`)
             VALUES (:post_id, :user_id)";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $post_id);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             return true;
         }
@@ -59,8 +59,8 @@ class Star {
             WHERE `post_id` = :post_id
             AND `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $post_id);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             return true;
         }
@@ -87,7 +87,7 @@ class Star {
             WHERE `user_id` = :user_id
             ORDER BY `date_created` DESC";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {

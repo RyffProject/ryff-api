@@ -35,9 +35,9 @@ class Auth {
             INSERT INTO `auth_tokens` (`user_id`, `token`, `date_expires`)
             VALUES (:user_id, :auth_token, :expiration_date)";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('auth_token', $auth_token);
-        $sth->bindParam('expiration_date', $expiration_date);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('auth_token', $auth_token);
+        $sth->bindValue('expiration_date', $expiration_date);
         if (!$sth->execute()) {
             return false;
         }
@@ -72,8 +72,8 @@ class Auth {
             SET `date_expires` = :expiration_date
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('expiration_date', $expiration_date);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('expiration_date', $expiration_date);
         if (!$sth->execute()) {
             return false;
         }
@@ -98,7 +98,7 @@ class Auth {
         $query = "SELECT `password` FROM `users`
                   WHERE `username` = :username";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('username', $username);
+        $sth->bindValue('username', $username);
         $sth->execute();
         
         $password_hash = $sth->fetchColumn();
@@ -131,8 +131,8 @@ class Auth {
             )";
         $sth = $dbh->prepare($query);
         
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('auth_token', $auth_token);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('auth_token', $auth_token);
         $sth->execute();
         
         $date_expires = $sth->fetchColumn();

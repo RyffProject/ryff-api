@@ -30,8 +30,8 @@ class Follow {
             INSERT INTO `follows` (`to_id`, `from_id`)
             VALUES (:to_id, :from_id)";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('to_id', $to_id);
-        $sth->bindParam('from_id', $from_id);
+        $sth->bindValue('to_id', $to_id);
+        $sth->bindValue('from_id', $from_id);
         if ($sth->execute()) {
             Notification::add($to_id, "follow", null, null, null, $from_id);
             return true;
@@ -60,8 +60,8 @@ class Follow {
             WHERE `to_id` = :to_id
             AND `from_id` = :from_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('to_id', $to_id);
-        $sth->bindParam('from_id', $from_id);
+        $sth->bindValue('to_id', $to_id);
+        $sth->bindValue('from_id', $from_id);
         if ($sth->execute()) {
             Notification::delete($to_id, "follow", null, null, null, $from_id);
             return true;
@@ -93,7 +93,7 @@ class Follow {
             ORDER BY f.`date_created` ASC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('to_id', $user_id);
+        $sth->bindValue('to_id', $user_id);
         if ($sth->execute()) {
             $users = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
@@ -128,7 +128,7 @@ class Follow {
             ORDER BY f.`date_created` ASC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('from_id', $user_id);
+        $sth->bindValue('from_id', $user_id);
         if ($sth->execute()) {
             $users = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {

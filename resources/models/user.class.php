@@ -155,7 +155,7 @@ class User {
               WHERE b.`user_id` = :user_id
             ) AS c";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $this->id);
+        $sth->bindValue('user_id', $this->id);
         $sth->execute();
         return (int)$sth->fetchColumn();
     }
@@ -175,7 +175,7 @@ class User {
             SELECT `tag` FROM `user_tags`
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $this->id);
+        $sth->bindValue('user_id', $this->id);
         if ($sth->execute()) {
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                 $tags[] = Tag::get_by_tag($row['tag']);
@@ -204,8 +204,8 @@ class User {
             WHERE `from_id` = :from_id
             AND `to_id` = :to_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('from_id', $CURRENT_USER->id);
-        $sth->bindParam('to_id', $this->id);
+        $sth->bindValue('from_id', $CURRENT_USER->id);
+        $sth->bindValue('to_id', $this->id);
         $sth->execute();
         if ($sth->rowCount()) {
             return true;
@@ -226,7 +226,7 @@ class User {
             SELECT COUNT(*) AS `num_followers` FROM `follows`
             WHERE `to_id` = :to_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('to_id', $this->id);
+        $sth->bindValue('to_id', $this->id);
         $sth->execute();
         return (int)$sth->fetchColumn();
     }
@@ -244,7 +244,7 @@ class User {
             SELECT COUNT(*) AS `num_following` FROM `follows`
             WHERE `from_id` = :from_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('from_id', $this->id);
+        $sth->bindValue('from_id', $this->id);
         $sth->execute();
         return (int)$sth->fetchColumn();
     }
@@ -263,7 +263,7 @@ class User {
             FROM `locations` WHERE `user_id` = :user_id
             ORDER BY `date_created` DESC LIMIT 1";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $this->id);
+        $sth->bindValue('user_id', $this->id);
         $sth->execute();
         if ($sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
@@ -287,9 +287,9 @@ class User {
             INSERT INTO `locations` (`user_id`, `location`)
             VALUES (:user_id, POINT(:x, :y))";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $this->id);
-        $sth->bindParam('x', $x);
-        $sth->bindParam('y', $y);
+        $sth->bindValue('user_id', $this->id);
+        $sth->bindValue('x', $x);
+        $sth->bindValue('y', $y);
         if ($sth->execute()) {
             return true;
         }
@@ -312,8 +312,8 @@ class User {
             UPDATE `users` SET `$key` = :value
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('value', $value);
-        $sth->bindParam('user_id', $this->id);
+        $sth->bindValue('value', $value);
+        $sth->bindValue('user_id', $this->id);
         if ($sth->execute()) {
             $this->$key = $value;
             return true;
@@ -376,8 +376,8 @@ class User {
             UPDATE `users` SET `password` = :password_hash
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('password_hash', $password_hash);
-        $sth->bindParam('user_id', $this->id);
+        $sth->bindValue('password_hash', $password_hash);
+        $sth->bindValue('user_id', $this->id);
         if ($sth->execute()) {
             return true;
         }
@@ -444,11 +444,11 @@ class User {
                 :bio, :password_hash, NOW()
             )";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('name', $name);
-        $sth->bindParam('username', $username);
-        $sth->bindParam('email', $email);
-        $sth->bindParam('bio', $bio);
-        $sth->bindParam('password_hash', $password_hash);
+        $sth->bindValue('name', $name);
+        $sth->bindValue('username', $username);
+        $sth->bindValue('email', $email);
+        $sth->bindValue('bio', $bio);
+        $sth->bindValue('password_hash', $password_hash);
         if (!$sth->execute()) {
             return null;
         }
@@ -485,7 +485,7 @@ class User {
             DELETE FROM `users`
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             return true;
         }
@@ -508,7 +508,7 @@ class User {
             FROM `users`
             WHERE `username` = :username";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('username', $username);
+        $sth->bindValue('username', $username);
         $sth->execute();
         if ($sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
@@ -533,7 +533,7 @@ class User {
             FROM `users`
             WHERE `email` = :email";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('email', $email);
+        $sth->bindValue('email', $email);
         $sth->execute();
         if ($sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
@@ -558,7 +558,7 @@ class User {
             FROM `users`
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('user_id', $user_id);
         $sth->execute();
         if ($sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);

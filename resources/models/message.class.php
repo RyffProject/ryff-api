@@ -89,7 +89,7 @@ class Message {
             FROM `messages`
             WHERE `message_id` = :message_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('message_id', $message_id);
+        $sth->bindValue('message_id', $message_id);
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             return Message::create($row);
@@ -119,9 +119,9 @@ class Message {
             INSERT INTO `messages` (`conversation_id`, `user_id`, `content`)
             VALUES (:conversation_id, :user_id, :content)";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $conversation_id);
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('content', $content);
+        $sth->bindValue('conversation_id', $conversation_id);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('content', $content);
         if ($sth->execute()) {
             $message_id = $dbh->lastInsertId();
             
@@ -130,7 +130,7 @@ class Message {
                 SET `date_updated` = NOW()
                 WHERE `conversation_id` = :conversation_id";
             $update_conversation_sth = $dbh->prepare($update_conversation_query);
-            $update_conversation_sth->bindParam('conversation_id', $conversation_id);
+            $update_conversation_sth->bindValue('conversation_id', $conversation_id);
             $update_conversation_sth->execute();
             
             Conversation::set_read($conversation_id, $user_id);
@@ -175,9 +175,9 @@ class Message {
             ORDER BY m.`date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $conversation_id);
+        $sth->bindValue('conversation_id', $conversation_id);
         if ($unread) {
-            $sth->bindParam('user_id', $user_id);
+            $sth->bindValue('user_id', $user_id);
         }
         if ($sth->execute()) {
             $messages = array();

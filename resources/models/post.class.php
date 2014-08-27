@@ -108,7 +108,7 @@ class Post {
             SELECT COUNT(*) AS `num_upvotes` FROM `upvotes`
             WHERE `post_id` = :post_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $this->id);
+        $sth->bindValue('post_id', $this->id);
         $sth->execute();
         return (int)$sth->fetchColumn();
     }
@@ -133,8 +133,8 @@ class Post {
             WHERE `post_id` = :post_id
             AND `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $this->id);
-        $sth->bindParam('user_id', $CURRENT_USER->id);
+        $sth->bindValue('post_id', $this->id);
+        $sth->bindValue('user_id', $CURRENT_USER->id);
         $sth->execute();
         return (bool)$sth->fetchColumn();
     }
@@ -159,8 +159,8 @@ class Post {
             WHERE `post_id` = :post_id
             AND `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $this->id);
-        $sth->bindParam('user_id', $CURRENT_USER->id);
+        $sth->bindValue('post_id', $this->id);
+        $sth->bindValue('user_id', $CURRENT_USER->id);
         $sth->execute();
         return (bool)$sth->fetchColumn();
     }
@@ -192,7 +192,7 @@ class Post {
             SELECT `parent_id` FROM `post_families`
             WHERE `child_id` = :post_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $this->id);
+        $sth->bindValue('post_id', $this->id);
         $sth->execute();
         while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
             $parents[] = Post::get_by_id((int)$row['parent_id']);
@@ -214,7 +214,7 @@ class Post {
             SELECT `child_id` FROM `post_families`
             WHERE `parent_id` = :post_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $this->id);
+        $sth->bindValue('post_id', $this->id);
         $sth->execute();
         while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
             $children[] = Post::get_by_id((int)$row['child_id']);
@@ -248,8 +248,8 @@ class Post {
             INSERT INTO `posts` (`user_id`, `content`)
             VALUES (:user_id, :content)";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('content', $content);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('content', $content);
         if ($sth->execute()) {
             $post_id = $dbh->lastInsertId();
             
@@ -315,7 +315,7 @@ class Post {
                 range(0, count($parent_ids) - 1)
             ));
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $post_id);
+        $sth->bindValue('post_id', $post_id);
         foreach ($parent_ids as $i => $parent_id) {
             $sth->bindValue('parent_id'.$i, $parent_id);
         }
@@ -341,7 +341,7 @@ class Post {
             DELETE FROM `posts`
             WHERE `post_id` = :post_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $post_id);
+        $sth->bindValue('post_id', $post_id);
         if ($sth->execute()) {
             return true;
         }
@@ -363,7 +363,7 @@ class Post {
             FROM `posts`
             WHERE `post_id` = :post_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $post_id);
+        $sth->bindValue('post_id', $post_id);
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             

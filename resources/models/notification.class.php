@@ -93,7 +93,7 @@ class Notification {
             SELECT `user_obj_id`, `post_obj_id` FROM `notifications`
             WHERE `notification_id` = :notification_id";
         $base_sth = $dbh->prepare($base_query);
-        $base_sth->bindParam('notification_id', $this->id);
+        $base_sth->bindValue('notification_id', $this->id);
         if ($base_sth->execute() && $base_sth->rowCount()) {
             $base_row = $base_sth->fetch(PDO::FETCH_ASSOC);
             if ($base_row['post_obj_id'] && $post = Post::get_by_id($base_row['post_obj_id'])) {
@@ -109,7 +109,7 @@ class Notification {
             WHERE `notification_id` = :notification_id
             ORDER BY `date_created` DESC";
         $leaves_sth = $dbh->prepare($leaves_query);
-        $leaves_sth->bindParam('notification_id', $this->id);
+        $leaves_sth->bindValue('notification_id', $this->id);
         if ($leaves_sth->execute()) {
             while ($leaf_row = $leaves_sth->fetch(PDO::FETCH_ASSOC)) {
                 if ($leaf_row['post_obj_id'] && $post = Post::get_by_id($leaf_row['post_obj_id'])) {
@@ -169,13 +169,13 @@ class Notification {
             AND `user_obj_id` ".($base_user_obj_id ? "= :base_user_obj_id" : "IS NULL")."
             AND `date_updated` > (NOW() - ".NOTIFICATION_TIMEOUT.")";
         $stack_sth = $dbh->prepare($stack_query);
-        $stack_sth->bindParam('user_id', $user_id);
-        $stack_sth->bindParam('type', $type);
+        $stack_sth->bindValue('user_id', $user_id);
+        $stack_sth->bindValue('type', $type);
         if ($base_post_obj_id) {
-            $stack_sth->bindParam('base_post_obj_id', $base_post_obj_id);
+            $stack_sth->bindValue('base_post_obj_id', $base_post_obj_id);
         }
         if ($base_user_obj_id) {
-            $stack_sth->bindParam('user_post_obj_id', $base_user_obj_id);
+            $stack_sth->bindValue('user_post_obj_id', $base_user_obj_id);
         }
         $stack_sth->execute();
         $notification_id = (int)$stack_sth->fetchColumn();
@@ -186,7 +186,7 @@ class Notification {
                 SET `read` = 0, `date_read` = 0, `date_updated` = NOW()
                 WHERE `notification_id` = :notification_id";
             $base_sth = $dbh->prepare($base_query);
-            $base_sth->bindParam('notification_id', $notification_id);
+            $base_sth->bindValue('notification_id', $notification_id);
             if (!$base_sth->execute()) {
                 return null;
             }
@@ -198,10 +198,10 @@ class Notification {
                     :user_id, :type, :base_post_obj_id, :base_user_obj_id, NOW()
                 )";
             $base_sth = $dbh->prepare($base_query);
-            $base_sth->bindParam('user_id', $user_id);
-            $base_sth->bindParam('type', $type);
-            $base_sth->bindParam('base_post_obj_id', $base_post_obj_id);
-            $base_sth->bindParam('base_user_obj_id', $base_user_obj_id);
+            $base_sth->bindValue('user_id', $user_id);
+            $base_sth->bindValue('type', $type);
+            $base_sth->bindValue('base_post_obj_id', $base_post_obj_id);
+            $base_sth->bindValue('base_user_obj_id', $base_user_obj_id);
             if (!$base_sth->execute()) {
                 return null;
             }
@@ -215,9 +215,9 @@ class Notification {
                 :notification_id, :leaf_post_obj_id, :leaf_user_obj_id
             )";
         $leaf_sth = $dbh->prepare($leaf_query);
-        $leaf_sth->bindParam('notification_id', $notification_id);
-        $leaf_sth->bindParam('leaf_post_obj_id', $leaf_post_obj_id);
-        $leaf_sth->bindParam('leaf_user_obj_id', $leaf_user_obj_id);
+        $leaf_sth->bindValue('notification_id', $notification_id);
+        $leaf_sth->bindValue('leaf_post_obj_id', $leaf_post_obj_id);
+        $leaf_sth->bindValue('leaf_user_obj_id', $leaf_user_obj_id);
         if ($leaf_sth->execute()) {
             return Notification::get_by_id($notification_id, $user_id);
         }
@@ -253,19 +253,19 @@ class Notification {
             AND obj.`post_obj_id` ".($leaf_post_obj_id ? "= :leaf_post_obj_id" : "IS NULL")."
             AND obj.`user_obj_id` ".($leaf_user_obj_id ? "= :leaf_user_obj_id" : "IS NULL");
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('type', $type);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('type', $type);
         if ($base_post_obj_id) {
-            $sth->bindParam('base_post_obj_id', $base_post_obj_id);
+            $sth->bindValue('base_post_obj_id', $base_post_obj_id);
         }
         if ($base_user_obj_id) {
-            $sth->bindParam('base_user_obj_id', $base_user_obj_id);
+            $sth->bindValue('base_user_obj_id', $base_user_obj_id);
         }
         if ($leaf_post_obj_id) {
-            $sth->bindParam('leaf_post_obj_id', $leaf_post_obj_id);
+            $sth->bindValue('leaf_post_obj_id', $leaf_post_obj_id);
         }
         if ($leaf_user_obj_id) {
-            $sth->bindParam('leaf_user_obj_id', $leaf_user_obj_id);
+            $sth->bindValue('leaf_user_obj_id', $leaf_user_obj_id);
         }
         if ($sth->execute()) {
             return true;
@@ -312,7 +312,7 @@ class Notification {
             SET `read`=1, `date_read` = NOW()
             WHERE `notification_id` = :notification_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('notification_id', $notification_id);
+        $sth->bindValue('notification_id', $notification_id);
         if ($sth->execute()) {
             return true;
         }
@@ -343,8 +343,8 @@ class Notification {
             WHERE `notification_id` = :notification_id
             AND `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('notification_id', $notification_id);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('notification_id', $notification_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             return Notification::create($row);
@@ -379,7 +379,7 @@ class Notification {
             ORDER BY n.`date_updated` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $CURRENT_USER->id);
+        $sth->bindValue('user_id', $CURRENT_USER->id);
         if ($sth->execute()) {
             $notifications = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {

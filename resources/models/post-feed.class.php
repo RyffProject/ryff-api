@@ -60,7 +60,7 @@ class PostFeed {
             ORDER BY `date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
@@ -97,7 +97,7 @@ class PostFeed {
             ORDER BY a.`date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
@@ -177,7 +177,7 @@ class PostFeed {
             ORDER BY `num_upvotes` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('from_date', $from_date);
+        $sth->bindValue('from_date', $from_date);
         foreach ($tags as $i => $tag) {
             $sth->bindValue('tag'.$i, $tag);
         }

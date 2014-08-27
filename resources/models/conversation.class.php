@@ -72,7 +72,7 @@ class Conversation {
             ON m.`user_id` = u.`user_id`
             WHERE m.`conversation_id` = :conversation_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $this->id);
+        $sth->bindValue('conversation_id', $this->id);
         
         $users = array();
         if ($sth->execute()) {
@@ -100,7 +100,7 @@ class Conversation {
             ORDER BY m.`date_created` DESC
             LIMIT 1";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $this->id);
+        $sth->bindValue('conversation_id', $this->id);
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             return Message::create($row);
@@ -130,7 +130,7 @@ class Conversation {
             ON m.`conversation_id` = c.`conversation_id`
             WHERE m.`user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $CURRENT_USER->id);
+        $sth->bindValue('user_id', $CURRENT_USER->id);
         $sth->execute();
         return (bool)$sth->fetchColumn();
     }
@@ -169,7 +169,7 @@ class Conversation {
                 range(0, count($user_ids) - 1)
             ));
         $members_sth = $dbh->prepare($members_query);
-        $members_sth->bindParam('conversation_id', $conversation_id);
+        $members_sth->bindValue('conversation_id', $conversation_id);
         foreach ($user_ids as $i => $user_id) {
             $members_sth->bindValue('user_id'.$i, $user_id);
         }
@@ -195,7 +195,7 @@ class Conversation {
             DELETE FROM `conversations`
             WHERE `conversation_id` = :conversation_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $conversation_id);
+        $sth->bindValue('conversation_id', $conversation_id);
         if ($sth->execute()) {
             return true;
         }
@@ -223,8 +223,8 @@ class Conversation {
             WHERE `conversation_id` = :conversation_id
             AND `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $conversation_id);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('conversation_id', $conversation_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             return true;
         }
@@ -253,8 +253,8 @@ class Conversation {
             WHERE `conversation_id` = :conversation_id
             AND `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $conversation_id);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('conversation_id', $conversation_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             return true;
         }
@@ -284,8 +284,8 @@ class Conversation {
             WHERE c.`conversation_id` = :conversation_id
             AND m.`user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('conversation_id', $conversation_id);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('conversation_id', $conversation_id);
+        $sth->bindValue('user_id', $user_id);
         $sth->execute();
         if ($sth->fetchColumn()) {
             return new Conversation($conversation_id);
@@ -323,7 +323,7 @@ class Conversation {
             ORDER BY c.`date_updated` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             $conversations = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {

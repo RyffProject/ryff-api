@@ -79,9 +79,9 @@ class UserFeed {
             ORDER BY `distance` ASC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('x', $location->x);
-        $sth->bindParam('y', $location->y);
-        $sth->bindParam('user_id', $CURRENT_USER->id);
+        $sth->bindValue('x', $location->x);
+        $sth->bindValue('y', $location->y);
+        $sth->bindValue('user_id', $CURRENT_USER->id);
         foreach ($tags as $i => $tag) {
             $sth->bindValue('tag'.$i, $tag);
         }
@@ -133,7 +133,7 @@ class UserFeed {
             ORDER BY `num_upvotes` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindParam('from_date', $from_date);
+        $sth->bindValue('from_date', $from_date);
         foreach ($tags as $i => $tag) {
             $sth->bindValue('tag'.$i, $tag);
         }

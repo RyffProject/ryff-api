@@ -70,9 +70,9 @@ class Riff {
             INSERT INTO `riffs` (`post_id`, `title`, `duration`)
             VALUES (:post_id, :title, :duration)";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $post_id);
-        $sth->bindParam('title', $title);
-        $sth->bindParam('duration', $duration);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('title', $title);
+        $sth->bindValue('duration', $duration);
         if ($sth->execute()) {
             $riff_id = $dbh->lastInsertId();
             
@@ -102,7 +102,7 @@ class Riff {
             DELETE FROM `riffs`
             WHERE `riff_id` = :riff_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('riff_id', $riff_id);
+        $sth->bindValue('riff_id', $riff_id);
         if ($sth->execute()) {
             return true;
         }
@@ -121,7 +121,7 @@ class Riff {
         
         $query = "SELECT * FROM `riffs` WHERE `post_id` = :post_id";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('post_id', $post_id);
+        $sth->bindValue('post_id', $post_id);
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             $riff_id = $row['riff_id'];

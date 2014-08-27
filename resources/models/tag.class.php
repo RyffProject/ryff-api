@@ -57,7 +57,7 @@ class Tag {
             FROM `user_tags`
             WHERE `tag` = :tag";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('tag', $this->tag);
+        $sth->bindValue('tag', $this->tag);
         $sth->execute();
         return (int)$sth->fetchColumn();
     }
@@ -76,7 +76,7 @@ class Tag {
             FROM `post_tags`
             WHERE `tag` = :tag";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('tag', $this->tag);
+        $sth->bindValue('tag', $this->tag);
         $sth->execute();
         return (int)$sth->fetchColumn();
     }
@@ -101,7 +101,7 @@ class Tag {
                     range(0, count($tags[1]) - 1)
                 ));
             $sth = $dbh->prepare($query);
-            $sth->bindParam('post_id', $post_id);
+            $sth->bindValue('post_id', $post_id);
             foreach ($tags[1] as $i => $tag) {
                 $sth->bindValue('tag'.$i, $tag);
             }
@@ -134,8 +134,8 @@ class Tag {
             INSERT INTO `user_tags` (`user_id`, `tag`)
             VALUES (:user_id, :tag)";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('tag', $tag);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('tag', $tag);
         if ($sth->execute()) {
             return true;
         }
@@ -163,8 +163,8 @@ class Tag {
             WHERE `user_id` = :user_id
             AND `tag` = :tag";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
-        $sth->bindParam('tag', $tag);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('tag', $tag);
         if ($sth->execute()) {
             return true;
         }
@@ -189,7 +189,7 @@ class Tag {
             ORDER BY COUNT(*) DESC
             LIMIT 10";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('query_str', '%'.$query_str.'%');
+        $sth->bindValue('query_str', '%'.$query_str.'%');
         if ($sth->execute()) {
             $tags = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
@@ -222,7 +222,7 @@ class Tag {
             ORDER BY `score` DESC
             LIMIT 10";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('from_date', $from_date);
+        $sth->bindValue('from_date', $from_date);
         if ($sth->execute()) {
             $tags = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
@@ -289,7 +289,7 @@ class Tag {
             ORDER BY `score` DESC
             LIMIT 10";
         $sth = $dbh->prepare($query);
-        $sth->bindParam('user_id', $user_id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             $tags = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
