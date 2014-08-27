@@ -49,18 +49,19 @@ class MediaFiles {
     /**
      * Deletes all media files associated with the given post.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $post_id
      */
     public static function delete_from_post($post_id) {
-        global $db;
+        global $dbh;
         
         $riff_query = "
             SELECT `riff_id` FROM `riffs`
-            WHERE `post_id` = ".$db->real_escape_string((int)$post_id);
-        $riff_results = $db->query($riff_query);
-        if ($riff_results && $riff_results->num_rows) {
-            $row = $riff_results->fetch_assoc();
+            WHERE `post_id` = :post_id";
+        $riff_sth = $dbh->prepare($riff_query);
+        $riff_sth->bindParam('post_id', $post_id);
+        if ($riff_sth->execute() && $riff_sth->rowCount()) {
+            $row = $riff_sth->fetch(PDO::FETCH_ASSOC);
             MediaFiles::delete_riff_audio((int)$row['riff_id']);
         }
         
@@ -70,12 +71,12 @@ class MediaFiles {
     /**
      * Deletes all media files associated with the given user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      */
     public static function delete_from_user($user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
@@ -84,20 +85,22 @@ class MediaFiles {
         $riff_ids_query = "
             SELECT a.`riff_id` FROM `riffs` AS a
             JOIN `posts` AS b ON b.`post_id` = a.`post_id`
-            WHERE b.`user_id` = ".$db->real_escape_string((int)$user_id);
-        $riff_ids_results = $db->query($riff_ids_query);
-        if ($riff_ids_results) {
-            while ($row = $riff_ids_results->fetch_assoc()) {
+            WHERE b.`user_id` = :user_id";
+        $riff_ids_sth = $dbh->prepare($riff_ids_query);
+        $riff_ids_sth->bindParam('user_id', $user_id);
+        if ($riff_ids_sth->execute()) {
+            while ($row = $riff_ids_sth->fetch(PDO::FETCH_ASSOC)) {
                 MediaFiles::delete_riff_audio((int)$row['riff_id']);
             }
         }
         
         $post_ids_query = "
             SELECT `post_id` FROM `posts`
-            WHERE `user_id` = ".$db->real_escape_string((int)$user_id);
-        $post_ids_results = $db->query($post_ids_query);
-        if ($post_ids_results) {
-            while ($row = $post_ids_results->fetch_assoc()) {
+            WHERE `user_id` = :user_id";
+        $post_ids_sth = $dbh->prepare($post_ids_query);
+        $post_ids_sth->bindParam('user_id', $user_id);
+        if ($post_ids_sth->execute()) {
+            while ($row = $post_ids_sth->fetch(PDO::FETCH_ASSOC)) {
                 MediaFiles::delete_post_image((int)$row['post_id']);
             }
         }

@@ -13,28 +13,26 @@ class Upvote {
     /**
      * Upvotes a post for the given user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $post_id
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
      */
     public static function add($post_id, $user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
         }
         
-        $upvote_query = "
+        $query = "
             INSERT INTO `upvotes` (`post_id`, `user_id`)
-            VALUES (
-              ".$db->real_escape_string((int)$post_id).",
-              ".$db->real_escape_string((int)$user_id)."
-            )";
-        $upvote_results = $db->query($upvote_query);
-        
-        if ($upvote_results) {
+            VALUES (:post_id, :user_id)";
+        $sth = $dbh->prepare($query);
+        $sth->bindParam('post_id', $post_id);
+        $sth->bindParam('user_id', $user_id);
+        if ($sth->execute()) {
             $post = Post::get_by_id($post_id);
             if ($post->user->id !== (int)$user_id) {
                 Notification::add($post->user->id, "upvote", $post->id, null, null, $user_id);
@@ -47,26 +45,27 @@ class Upvote {
     /**
      * Removes the given user's upvote from the post.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $post_id
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
      */
     public static function delete($post_id, $user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
         }
         
-        $upvote_query = "
+        $query = "
             DELETE FROM `upvotes`
-            WHERE `post_id`=".$db->real_escape_string((int)$post_id)."
-            AND `user_id`=".$db->real_escape_string((int)$user_id);
-        $upvote_results = $db->query($upvote_query);
-        
-        if ($upvote_results) {
+            WHERE `post_id` = :post_id
+            AND `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindParam('post_id', $post_id);
+        $sth->bindParam('user_id', $user_id);
+        if ($sth->execute()) {
             $post = Post::get_by_id($post_id);
             Notification::delete($post->user->id, "upvote", $post->id, null, null, $user_id);
             return true;
