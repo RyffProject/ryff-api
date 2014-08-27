@@ -56,7 +56,7 @@ class Riff {
     /**
      * Adds a new Riff.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $post_id
      * @param string $title
      * @param int $duration
@@ -64,18 +64,17 @@ class Riff {
      * @return Riff|null The new Riff object, or null on failure.
      */
     public static function add($post_id, $title, $duration, $riff_tmp_path) {
-        global $db;
+        global $dbh;
         
-        $riff_query = "
+        $query = "
             INSERT INTO `riffs` (`post_id`, `title`, `duration`)
-            VALUES (
-                ".$db->real_escape_string((int)$post_id).",
-                '".$db->real_escape_string($title)."',
-                ".$db->real_escape_string((int)$duration)."
-            )";
-        $riff_results = $db->query($riff_query);
-        if ($riff_results) {
-            $riff_id = $db->insert_id;
+            VALUES (:post_id, :title, :duration)";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('title', $title);
+        $sth->bindValue('duration', $duration);
+        if ($sth->execute()) {
+            $riff_id = $dbh->lastInsertId();
             
             $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
             if (move_uploaded_file($riff_tmp_path, $riff_new_path)) {
@@ -90,19 +89,21 @@ class Riff {
     /**
      * Deletes a Riff object with the given riff_id.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $riff_id
      * @return boolean
      */
     public static function delete($riff_id) {
-        global $db;
+        global $dbh;
         
         MediaFiles::delete_riff_audio((int)$riff_id);
         
         $query = "
             DELETE FROM `riffs`
-            WHERE `riff_id` = ".$db->real_escape_string((int)$riff_id);
-        if ($db->query($query)) {
+            WHERE `riff_id` = :riff_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('riff_id', $riff_id);
+        if ($sth->execute()) {
             return true;
         }
         return false;
@@ -111,21 +112,23 @@ class Riff {
     /**
      * Returns the Riff object attached to the given post_id, if there is one.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $post_id
      * @return Riff|null The Riff object, or null if it doesn't exist.
      */
     public static function get_by_post_id($post_id) {
-        global $db;
+        global $dbh;
         
-        $riff_query = "SELECT * FROM `riffs` WHERE `post_id`=".$db->real_escape_string($post_id);
-        $riff_results = $db->query($riff_query);
-        if ($riff_results && $riff_results->num_rows && $riff_row = $riff_results->fetch_assoc()) {
-            $riff_id = $riff_row['riff_id'];
+        $query = "SELECT * FROM `riffs` WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        if ($sth->execute() && $sth->rowCount()) {
+            $row = $sth->fetch(PDO::FETCH_ASSOC);
+            $riff_id = $row['riff_id'];
             $path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
             if (file_exists($path)) {
-                return new Riff($riff_row['riff_id'], $riff_row['title'], 
-                                $riff_row['duration'], MEDIA_URL."/riffs/$riff_id.m4a");
+                return new Riff($row['riff_id'], $row['title'], 
+                                $row['duration'], MEDIA_URL."/riffs/$riff_id.m4a");
             }
         }
         

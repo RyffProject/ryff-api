@@ -98,69 +98,71 @@ class Post {
     /**
      * Helper function that returns the number of upvotes this post has.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return int The number of upvotes.
      */
     protected function get_num_upvotes() {
-        global $db;
+        global $dbh;
         
-        $upvotes_query = "SELECT COUNT(*) AS `num_upvotes` FROM `upvotes`
-                          WHERE `post_id`=".$db->real_escape_string($this->id);
-        $upvotes_results = $db->query($upvotes_query);
-        if ($upvotes_results && $upvotes_results->num_rows) {
-            $upvotes_row = $upvotes_results->fetch_assoc();
-            return (int)$upvotes_row['num_upvotes'];
-        }
-        
-        return 0;
+        $query = "
+            SELECT COUNT(*) AS `num_upvotes` FROM `upvotes`
+            WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $this->id);
+        $sth->execute();
+        return (int)$sth->fetchColumn();
     }
     
     /**
      * Helper function that returns whether this post is upvoted by the
      * current user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @return boolean If this post is upvoted by the current user.
      */
     protected function get_is_upvoted() {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
-        if ($CURRENT_USER) {
-            $upvote_query = "SELECT * FROM `upvotes`
-                             WHERE `post_id`=".$db->real_escape_string($this->id)."
-                             AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-            $upvote_results = $db->query($upvote_query);
-            if ($upvote_results && $upvote_results->num_rows > 0) {
-                return true;
-            }
+        if (!$CURRENT_USER) {
+            return false;
         }
         
-        return false;
+        $query = "
+            SELECT 1 FROM `upvotes`
+            WHERE `post_id` = :post_id
+            AND `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $this->id);
+        $sth->bindValue('user_id', $CURRENT_USER->id);
+        $sth->execute();
+        return (bool)$sth->fetchColumn();
     }
     
     /**
      * Helper function that returns whether this post is starred by the
      * current user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @return boolean If this post is starred by the current user.
      */
     protected function get_is_starred() {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
-        if ($CURRENT_USER) {
-            $star_query = "SELECT * FROM `stars`
-                           WHERE `post_id`=".$db->real_escape_string($this->id)."
-                           AND `user_id`=".$db->real_escape_string($CURRENT_USER->id);
-            $star_results = $db->query($star_query);
-            if ($star_results && $star_results->num_rows > 0) {
-                return true;
-            }
+        if (!$CURRENT_USER) {
+            return false;
         }
         
-        return false;
+        $query = "
+            SELECT 1 FROM `stars`
+            WHERE `post_id` = :post_id
+            AND `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $this->id);
+        $sth->bindValue('user_id', $CURRENT_USER->id);
+        $sth->execute();
+        return (bool)$sth->fetchColumn();
     }
     
     /**
@@ -179,20 +181,21 @@ class Post {
     /**
      * Gets the post objects that are parents of this post.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return array An array of Post objects
      */
     public function get_parents() {
-        global $db;
+        global $dbh;
         
         $parents = array();
-        $parents_query = "SELECT `parent_id` FROM `post_families`
-                          WHERE `child_id`=".$db->real_escape_string($this->id);
-        $parents_results = $db->query($parents_query);
-        if ($parents_results) {
-            while ($parent_row = $parents_results->fetch_assoc()) {
-                $parents[] = Post::get_by_id((int)$parent_row['parent_id']);
-            }
+        $query = "
+            SELECT `parent_id` FROM `post_families`
+            WHERE `child_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $this->id);
+        $sth->execute();
+        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+            $parents[] = Post::get_by_id((int)$row['parent_id']);
         }
         return $parents;
     }
@@ -200,20 +203,21 @@ class Post {
     /**
      * Gets the post objects that are children of this post.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return array An array of Post objects
      */
     public function get_children() {
-        global $db;
+        global $dbh;
         
         $children = array();
-        $children_query = "SELECT `child_id` FROM `post_families`
-                           WHERE `parent_id`=".$db->real_escape_string($this->id);
-        $children_results = $db->query($children_query);
-        if ($children_results) {
-            while ($child_row = $children_results->fetch_assoc()) {
-                $children[] = Post::get_by_id((int)$child_row['child_id']);
-            }
+        $query = "
+            SELECT `child_id` FROM `post_families`
+            WHERE `parent_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $this->id);
+        $sth->execute();
+        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+            $children[] = Post::get_by_id((int)$row['child_id']);
         }
         return $children;
     }
@@ -221,7 +225,7 @@ class Post {
     /**
      * Adds a new Post.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param string $content The text of the post.
      * @param array $parent_ids The array of parent ids, array() for none.
@@ -234,20 +238,20 @@ class Post {
      */
     public static function add($content, $parent_ids, $img_tmp_path,
             $title, $duration, $riff_tmp_path, $user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
         }
         
-        $post_query = "INSERT INTO `posts` (`user_id`, `content`)
-                       VALUES (
-                           ".$db->real_escape_string((int)$user_id).",
-                           '".$db->real_escape_string($content)."'
-                       )";
-        $post_results = $db->query($post_query);
-        if ($post_results) {
-            $post_id = $db->insert_id;
+        $query = "
+            INSERT INTO `posts` (`user_id`, `content`)
+            VALUES (:user_id, :content)";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('content', $content);
+        if ($sth->execute()) {
+            $post_id = $dbh->lastInsertId();
             
             if ($parent_ids) {
                 if (!Post::add_parents($parent_ids)) {
@@ -289,29 +293,33 @@ class Post {
      * Adds the $parent_ids as parents of $post_id. The $parent_ids can be
      * either a comma-separated string or an array of ids.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $post_id
      * @param string|array $parent_ids
      * @return boolean
      */
     public static function add_parents($post_id, $parent_ids) {
-        global $db;
+        global $dbh;
         
         if (!is_array($parent_ids)) {
             $parent_ids = explode(',', $parent_ids);
         }
-        
-        $post_family_query = "INSERT INTO `post_families` (`parent_id`, `child_id`) VALUES ";
-        $post_family_query_pieces = array();
-        foreach ($parent_ids as $parent_id) {
-            $post_family_query_pieces[] = "(
-                ".$db->real_escape_string((int)$parent_id).",
-                ".$db->real_escape_string((int)$post_id)."
-            )";
+        if (empty($parent_ids)) {
+            return true;
         }
-        $post_family_query .= implode(',', $post_family_query_pieces);
-        $post_family_results = $db->query($post_family_query);
-        if ($post_family_results) {
+        
+        $query = "
+            INSERT INTO `post_families` (`parent_id`, `child_id`)
+            VALUES ".implode(',', array_map(
+                function($i) { return "(:parent_id$i, :post_id)"; },
+                range(0, count($parent_ids) - 1)
+            ));
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        foreach ($parent_ids as $i => $parent_id) {
+            $sth->bindValue('parent_id'.$i, $parent_id);
+        }
+        if ($sth->execute()) {
             return true;
         }
         return false;
@@ -320,19 +328,21 @@ class Post {
     /**
      * Deletes the given post.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $post_id
      * @return boolean
      */
     public static function delete($post_id) {
-        global $db;
+        global $dbh;
         
         MediaFiles::delete_from_post((int)$post_id);
         
         $query = "
             DELETE FROM `posts`
-            WHERE `post_id`=".$db->real_escape_string((int)$post_id);
-        if ($db->query($query)) {
+            WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        if ($sth->execute()) {
             return true;
         }
         return false;
@@ -341,22 +351,27 @@ class Post {
     /**
      * Gets the post object with the given $post_id, if it exists.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $post_id
      * @return Post|null
      */
     public static function get_by_id($post_id) {
-        global $db;
+        global $dbh;
         
-        $post_id = (int)$post_id;
-        $post_query = "SELECT * FROM `posts` WHERE `post_id`=".$db->real_escape_string($post_id);
-        $post_results = $db->query($post_query);
-        if ($post_results && $post_results->num_rows && $post_row = $post_results->fetch_assoc()) {
-            $user = User::get_by_id($post_row['user_id']);
+        $query = "
+            SELECT `user_id`, `content`, `date_created`
+            FROM `posts`
+            WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        if ($sth->execute() && $sth->rowCount()) {
+            $row = $sth->fetch(PDO::FETCH_ASSOC);
+            
+            $user = User::get_by_id((int)$row['user_id']);
             $riff = Riff::get_by_post_id($post_id);
             
             $post = new Post($post_id, $user, $riff, 
-                    $post_row['content'], $post_row['date_created']);
+                    $row['content'], $row['date_created']);
             return $post;
         }
         

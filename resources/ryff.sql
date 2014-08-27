@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `conversation_members` (
   `user_id` int(10) unsigned NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_last_read` timestamp DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`conversation_id`),
+  PRIMARY KEY (`conversation_member_id`),
   KEY `conversation_id` (`conversation_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
@@ -98,8 +98,8 @@ CREATE TABLE IF NOT EXISTS `messages` (
   `content` text NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`message_id`),
-  KEY `to_id` (`to_id`),
-  KEY `from_id` (`from_id`)
+  KEY `conversation_id` (`conversation_id`),
+  KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -303,7 +303,7 @@ ALTER TABLE `locations`
 -- Constraints for table `messages`
 --
 ALTER TABLE `messages`
-  ADD CONSTRAINT `messages_to_id_constr` FOREIGN KEY (`to_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `messages_conversation_id_constr` FOREIGN KEY (`conversation_id`) REFERENCES `conversations` (`conversation_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `messages_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --

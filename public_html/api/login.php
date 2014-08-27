@@ -29,22 +29,10 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-if ($ERRORS) {
-    echo json_encode(array("error" => "Unable to connect to database"));
-    exit;
-}
-
 $username = isset($_POST['auth_username']) ? trim($_POST['auth_username']) : "";
 $password = isset($_POST['auth_password']) ? $_POST['auth_password'] : "";
 
-if (!$username) {
-    $ERRORS++;
-}
-if (!$password) {
-    $ERRORS++;
-}
-
-if ($ERRORS) {
+if (!$username || !$password) {
     echo json_encode(array("error" => "Missing username or password"));
     exit;
 }

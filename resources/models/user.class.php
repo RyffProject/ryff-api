@@ -139,46 +139,46 @@ class User {
      * Helper function that returns the total amount of upvotes this user's
      * posts have received.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return int
      */
     protected function get_karma() {
-        global $db;
+        global $dbh;
         
-        $karma_query = "SELECT SUM(c.`num_upvotes`) AS `karma`
-                        FROM (
-                          SELECT COUNT(*) AS `num_upvotes`
-                          FROM `upvotes` AS a
-                          JOIN `posts` AS b
-                          ON b.`post_id`=a.`post_id`
-                          WHERE b.`user_id`=".$db->real_escape_string($this->id)."
-                        ) AS c";
-        $karma_results = $db->query($karma_query);
-        if ($karma_results && $karma_results->num_rows) {
-            $karma_row = $karma_results->fetch_assoc();
-            return (int)$karma_row['karma'];
-        }
-        
-        return 0;
+        $query = "
+            SELECT SUM(c.`num_upvotes`) AS `karma`
+            FROM (
+              SELECT COUNT(*) AS `num_upvotes`
+              FROM `upvotes` AS a
+              JOIN `posts` AS b
+              ON b.`post_id`=a.`post_id`
+              WHERE b.`user_id` = :user_id
+            ) AS c";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $this->id);
+        $sth->execute();
+        return (int)$sth->fetchColumn();
     }
     
     /**
      * Helper function that returns an array of Tag objects attached to this
      * User object.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return array An array of Tag objects.
      */
     protected function get_tags() {
-        global $db;
+        global $dbh;
         
         $tags = array();
-        $tag_query = "SELECT `tag` FROM `user_tags`
-                      WHERE `user_id`=".$db->real_escape_string($this->id);
-        $tag_results = $db->query($tag_query);
-        if ($tag_results) {
-            while ($tag_row = $tag_results->fetch_assoc()) {
-                $tags[] = Tag::get_by_tag($tag_row['tag']);
+        $query = "
+            SELECT `tag` FROM `user_tags`
+            WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $this->id);
+        if ($sth->execute()) {
+            while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                $tags[] = Tag::get_by_tag($row['tag']);
             }
         }
         return $tags;
@@ -188,114 +188,109 @@ class User {
      * Helper function that returns whether the current user is following this
      * user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @return boolean
      */
     protected function get_is_following() {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if (!isset($CURRENT_USER)) {
             return false;
         }
         
-        $is_following_query = "
+        $query = "
             SELECT `follow_id` FROM `follows`
-            WHERE `from_id`=".$db->real_escape_string($CURRENT_USER->id)."
-            AND `to_id`=".$db->real_escape_string($this->id);
-        $is_following_result = $db->query($is_following_query);
-        if ($is_following_result && $is_following_result->num_rows > 0) {
+            WHERE `from_id` = :from_id
+            AND `to_id` = :to_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('from_id', $CURRENT_USER->id);
+        $sth->bindValue('to_id', $this->id);
+        $sth->execute();
+        if ($sth->rowCount()) {
             return true;
         }
-        
         return false;
     }
     
     /**
      * Helper function that returns the number of users who follow this user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return int
      */
     protected function get_num_followers() {
-        global $db;
+        global $dbh;
         
-        $num_followers_query = "
+        $query = "
             SELECT COUNT(*) AS `num_followers` FROM `follows`
-            WHERE `to_id`=".$db->real_escape_string($this->id);
-        $num_followers_result = $db->query($num_followers_query);
-        if ($num_followers_result && $num_followers_result->num_rows > 0) {
-            $row = $num_followers_result->fetch_assoc();
-            return (int)$row['num_followers'];
-        }
-        
-        return 0;
+            WHERE `to_id` = :to_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('to_id', $this->id);
+        $sth->execute();
+        return (int)$sth->fetchColumn();
     }
     
     /**
      * Helper function that returns the number of users that this user follows.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return int
      */
     protected function get_num_following() {
-        global $db;
+        global $dbh;
         
-        $num_following_query = "
+        $query = "
             SELECT COUNT(*) AS `num_following` FROM `follows`
-            WHERE `from_id`=".$db->real_escape_string($this->id);
-        $num_following_result = $db->query($num_following_query);
-        if ($num_following_result && $num_following_result->num_rows > 0) {
-            $row = $num_following_result->fetch_assoc();
-            return (int)$row['num_following'];
-        }
-        
-        return 0;
+            WHERE `from_id` = :from_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('from_id', $this->id);
+        $sth->execute();
+        return (int)$sth->fetchColumn();
     }
     
     /**
      * Returns this user's latest location.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @return Point|null The user's latest location or null if it isn't set.
      */
     public function get_location() {
-        global $db;
+        global $dbh;
     
-        $query = "SELECT X(`location`) AS `x`, Y(`location`) AS `y`
-                  FROM `locations` WHERE `user_id`=".$db->real_escape_string($this->id)."
-                  ORDER BY `date_created` DESC LIMIT 1";
-        $results = $db->query($query);
-        if ($results && $results->num_rows > 0) {
-            $row = $results->fetch_assoc();
+        $query = "
+            SELECT X(`location`) AS `x`, Y(`location`) AS `y`
+            FROM `locations` WHERE `user_id` = :user_id
+            ORDER BY `date_created` DESC LIMIT 1";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $this->id);
+        $sth->execute();
+        if ($sth->rowCount()) {
+            $row = $sth->fetch(PDO::FETCH_ASSOC);
             return new Point($row['x'], $row['y']);
         }
-        
         return null;
     }
     
     /**
      * Sets this user's latest location.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param double $x
      * @param double $y
      * @return boolean
      */
     public function set_location($x, $y) {
-        global $db;
+        global $dbh;
         
-        $location_query = "
+        $query = "
             INSERT INTO `locations` (`user_id`, `location`)
-            VALUES (
-                ".$db->real_escape_string($this->id).",
-                POINT(
-                    ".$db->real_escape_string((double)$x).",
-                    ".$db->real_escape_string((double)$y)."
-                )
-            )";
-        $results = $db->query($location_query);
-        if ($results) {
+            VALUES (:user_id, POINT(:x, :y))";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $this->id);
+        $sth->bindValue('x', $x);
+        $sth->bindValue('y', $y);
+        if ($sth->execute()) {
             return true;
         }
         return false;
@@ -305,16 +300,21 @@ class User {
      * Helper function that updates an attribute for the current user both in
      * the database and in this User object.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param string $key
      * @param string $value
      * @return boolean
      */
     protected function set_attribute($key, $value) {
-        global $db;
-        $query = "UPDATE `users` SET `$key`='".$db->real_escape_string($value)."'
-                  WHERE `user_id`=".$db->real_escape_string($this->id);
-        if ($db->query($query)) {
+        global $dbh;
+        
+        $query = "
+            UPDATE `users` SET `$key` = :value
+            WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('value', $value);
+        $sth->bindValue('user_id', $this->id);
+        if ($sth->execute()) {
             $this->$key = $value;
             return true;
         }
@@ -364,16 +364,21 @@ class User {
     /**
      * Updates this user's password in the database.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param string $password
      * @return boolean
      */
     public function set_password($password) {
-        global $db;
+        global $dbh;
+        
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        $query = "UPDATE `users` SET `password`='".$db->real_escape_string($password_hash)."'
-                  WHERE `user_id`=".$db->real_escape_string($this->id);
-        if ($db->query($query)) {
+        $query = "
+            UPDATE `users` SET `password` = :password_hash
+            WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('password_hash', $password_hash);
+        $sth->bindValue('user_id', $this->id);
+        if ($sth->execute()) {
             return true;
         }
         return false;
@@ -417,7 +422,7 @@ class User {
     /**
      * Adds a new user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param string $name
      * @param string $username
      * @param string $email
@@ -427,7 +432,7 @@ class User {
      * @return User|null The new User object, or null on failure.
      */
     public static function add($name, $username, $email, $bio, $password, $avatar_tmp_path) {
-        global $db;
+        global $dbh;
         
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
         $query = "
@@ -435,19 +440,20 @@ class User {
                 `name`, `username`, `email`,
                 `bio`, `password`, `date_updated`
             ) VALUES (
-                '".$db->real_escape_string($name)."',
-                '".$db->real_escape_string($username)."',
-                '".$db->real_escape_string($email)."',
-                '".$db->real_escape_string($bio)."',
-                '".$db->real_escape_string($password_hash)."',
-                NOW()
+                :name, :username, :email,
+                :bio, :password_hash, NOW()
             )";
-        $results = $db->query($query);
-        if (!$results) {
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('name', $name);
+        $sth->bindValue('username', $username);
+        $sth->bindValue('email', $email);
+        $sth->bindValue('bio', $bio);
+        $sth->bindValue('password_hash', $password_hash);
+        if (!$sth->execute()) {
             return null;
         }
         
-        $user_id = $db->insert_id;
+        $user_id = $dbh->lastInsertId();
         if ($avatar_tmp_path) {
             $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
             if (!move_uploaded_file($avatar_tmp_path, $avatar_new_path)) {
@@ -461,13 +467,13 @@ class User {
     /**
      * Deletes the given user.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
      */
     public static function delete($user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
@@ -477,9 +483,10 @@ class User {
         
         $query = "
             DELETE FROM `users`
-            WHERE `user_id`=".$db->real_escape_string((int)$user_id);
-        $results = $db->query($query);
-        if ($results) {
+            WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $user_id);
+        if ($sth->execute()) {
             return true;
         }
         return false;
@@ -488,63 +495,75 @@ class User {
     /**
      * Returns the user with the given username, or null if it doesn't exist.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param string $username
      * @return User|null
      */
     public static function get_by_username($username) {
-        global $db;
+        global $dbh;
 
-        $query = "SELECT * FROM `users`
-                  WHERE `username`='".$db->real_escape_string($username)."'";
-        $results = $db->query($query);
-        if ($results && $results->num_rows > 0) {
-            $row = $results->fetch_assoc();
+        $query = "
+            SELECT `user_id`, `name`, `username`,
+                `email`, `bio`, `date_created`
+            FROM `users`
+            WHERE `username` = :username";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('username', $username);
+        $sth->execute();
+        if ($sth->rowCount()) {
+            $row = $sth->fetch(PDO::FETCH_ASSOC);
             return User::create($row);
         }
-        
         return null;
     }
     
     /**
      * Returns the user with the given email, or null if it doesn't exist.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param string $email
      * @return User|null
      */
     public static function get_by_email($email) {
-        global $db;
+        global $dbh;
 
-        $query = "SELECT * FROM `users`
-                  WHERE `email`='".$db->real_escape_string($email)."'";
-        $results = $db->query($query);
-        if ($results && $results->num_rows > 0) {
-            $row = $results->fetch_assoc();
+        $query = "
+            SELECT `user_id`, `name`, `username`,
+                `email`, `bio`, `date_created`
+            FROM `users`
+            WHERE `email` = :email";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('email', $email);
+        $sth->execute();
+        if ($sth->rowCount()) {
+            $row = $sth->fetch(PDO::FETCH_ASSOC);
             return User::create($row);
         }
-        
         return null;
     }
     
     /**
      * Returns the user with the given user_id, or null if it doesn't exist.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param type $user_id
      * @return User|null
      */
     public static function get_by_id($user_id) {
-        global $db;
+        global $dbh;
 
-        $query = "SELECT * FROM `users`
-                  WHERE `user_id`=".$db->real_escape_string((int)$user_id);
-        $results = $db->query($query);
-        if ($results && $results->num_rows > 0) {
-            $row = $results->fetch_assoc();
+        $query = "
+            SELECT `user_id`, `name`, `username`,
+                `email`, `bio`, `date_created`
+            FROM `users`
+            WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $user_id);
+        $sth->execute();
+        if ($sth->rowCount()) {
+            $row = $sth->fetch(PDO::FETCH_ASSOC);
             return User::create($row);
         }
-        
         return null;
     }
 }

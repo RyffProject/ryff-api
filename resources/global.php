@@ -20,12 +20,6 @@ require_once("models/upvote.class.php");
 require_once("models/user.class.php");
 require_once("models/user-feed.class.php");
 
-$ERRORS = 0;
-
-if (!$db) {
-    $ERRORS++;
-}
-
 if (isset($_COOKIE['user_id'])) {
     $AUTH_USER_ID = (int)$_COOKIE['user_id'];
 }
@@ -39,25 +33,7 @@ if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
         exit;
     }
     
-    $auth_token_query = "
-        SELECT * FROM `auth_tokens`
-        WHERE `user_id`=".$db->real_escape_string($AUTH_USER_ID)."
-        AND `token`='".$db->real_escape_string($AUTH_TOKEN)."'
-        AND `token_id`=(
-            SELECT `token_id` FROM `auth_tokens`
-            WHERE `user_id`=".$db->real_escape_string($AUTH_USER_ID)."
-            ORDER BY `date_created` DESC
-            LIMIT 1
-        )";
-    $auth_token_results = $db->query($auth_token_query);
-    if ($auth_token_results && $auth_token_results->num_rows) {
-        $auth_token_row = $auth_token_results->fetch_assoc();
-        $auth_token_expiration = $auth_token_row['date_expires'];
-        if (time() >= strtotime($auth_token_expiration)) {
-            echo json_encode(array("error" => "Your auth token has expired."));
-            exit;
-        }
-    } else {
+    if (!Auth::is_auth_token_valid($AUTH_USER_ID, $AUTH_TOKEN)) {
         echo json_encode(array("error" => "Invalid credentials."));
         exit;
     }
