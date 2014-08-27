@@ -35,11 +35,9 @@ class Auth {
             INSERT INTO `auth_tokens` (`user_id`, `token`, `date_expires`)
             VALUES (:user_id, :auth_token, :expiration_date)";
         $sth = $dbh->prepare($query);
-        
-        $sth->bindParam('user_id', $user_id, PDO::PARAM_INT);
-        $sth->bindParam('auth_token', $auth_token, PDO::PARAM_STR);
-        $sth->bindParam('expiration_date', $expiration_date, PDO::PARAM_STR);
-        
+        $sth->bindParam('user_id', $user_id);
+        $sth->bindParam('auth_token', $auth_token);
+        $sth->bindParam('expiration_date', $expiration_date);
         if (!$sth->execute()) {
             return false;
         }
@@ -74,10 +72,8 @@ class Auth {
             SET `date_expires` = :expiration_date
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
-        
-        $sth->bindParam('user_id', $user_id, PDO::PARAM_INT);
-        $sth->bindParam('expiration_date', $expiration_date, PDO::PARAM_STR);
-        
+        $sth->bindParam('user_id', $user_id);
+        $sth->bindParam('expiration_date', $expiration_date);
         if (!$sth->execute()) {
             return false;
         }
@@ -135,10 +131,10 @@ class Auth {
             )";
         $sth = $dbh->prepare($query);
         
-        $sth->bindParam('user_id', $user_id, PDO::PARAM_INT);
-        $sth->bindParam('auth_token', $auth_token, PDO::PARAM_STR);
-        
+        $sth->bindParam('user_id', $user_id);
+        $sth->bindParam('auth_token', $auth_token);
         $sth->execute();
+        
         $date_expires = $sth->fetchColumn();
         if (!$date_expires || time() >= strtotime($date_expires)) {
             return false;
