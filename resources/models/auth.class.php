@@ -15,13 +15,13 @@ class Auth {
      * Creates a new auth token for the user and sets both the user_id and
      * auth token cookies.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
      */
     public static function set_logged_in($user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
@@ -33,14 +33,14 @@ class Auth {
         
         $query = "
             INSERT INTO `auth_tokens` (`user_id`, `token`, `date_expires`)
-            VALUES
-            (
-                ".$db->real_escape_string((int)$user_id).",
-                '".$db->real_escape_string($auth_token)."',
-                '".$db->real_escape_string($expiration_date)."'
-            )";
+            VALUES (:user_id, :auth_token, :expiration_date)";
+        $sth = $dbh->prepare($query);
         
-        if (!$db->query($query)) {
+        $sth->bindParam('user_id', $user_id, PDO::PARAM_INT);
+        $sth->bindParam('auth_token', $auth_token, PDO::PARAM_STR);
+        $sth->bindParam('expiration_date', $expiration_date, PDO::PARAM_STR);
+        
+        if (!$sth->execute()) {
             return false;
         }
         
@@ -54,13 +54,13 @@ class Auth {
      * Expires the user's auth token in the database and sets
      * login cookies to expire.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
      */
     public static function set_logged_out($user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = (int)$CURRENT_USER->id;
@@ -71,10 +71,14 @@ class Auth {
         
         $query = "
             UPDATE `auth_tokens`
-            SET `date_expires`='".$db->real_escape_string($expiration_date)."'
-            WHERE `user_id`=".$db->real_escape_string((int)$user_id);
+            SET `date_expires` = :expiration_date
+            WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
         
-        if (!$db->query($query)) {
+        $sth->bindParam('user_id', $user_id, PDO::PARAM_INT);
+        $sth->bindParam('expiration_date', $expiration_date, PDO::PARAM_STR);
+        
+        if (!$sth->execute()) {
             return false;
         }
         
@@ -87,57 +91,56 @@ class Auth {
     /**
      * Verifies that the username/password combination is valid.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param string $username
      * @param string $password
      * @return boolean
      */
     public static function is_login_valid($username, $password) {
-        global $db;
+        global $dbh;
 
         $query = "SELECT `password` FROM `users`
-                  WHERE `username`='".$db->real_escape_string($username)."'";
-        $results = $db->query($query);
-        if ($results && $results->num_rows > 0) {
-            $row = $results->fetch_assoc();
-            $password_hash = $row['password'];
-            if (password_verify($password, $password_hash)) {
-                return true;
-            }
-        }
+                  WHERE `username` = :username";
+        $sth = $dbh->prepare($query);
+        $sth->bindParam('username', $username);
+        $sth->execute();
         
+        $password_hash = $sth->fetchColumn();
+        if (password_verify($password, $password_hash)) {
+            return true;
+        }
         return false;
     }
     
     /**
      * Verifies that this user_id and auth_token are valid, not expired, and match.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $user_id
      * @param string $auth_token
      * @return boolean
      */
     public static function is_auth_token_valid($user_id, $auth_token) {
-        global $db;
+        global $dbh;
         
         $query = "
-            SELECT * FROM `auth_tokens`
-            WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
-            AND `token`='".$db->real_escape_string($auth_token)."'
+            SELECT `date_expires` FROM `auth_tokens`
+            WHERE `user_id` = :user_id
+            AND `token` = :auth_token
             AND `token_id`=(
                 SELECT `token_id` FROM `auth_tokens`
-                WHERE `user_id`=".$db->real_escape_string((int)$user_id)."
+                WHERE `user_id` = :user_id
                 ORDER BY `date_created` DESC
                 LIMIT 1
             )";
-        $results = $db->query($query);
-        if ($results && $results->num_rows) {
-            $row = $results->fetch_assoc();
-            $expiration = $row['date_expires'];
-            if (time() >= strtotime($expiration)) {
-                return false;
-            }
-        } else {
+        $sth = $dbh->prepare($query);
+        
+        $sth->bindParam('user_id', $user_id, PDO::PARAM_INT);
+        $sth->bindParam('auth_token', $auth_token, PDO::PARAM_STR);
+        
+        $sth->execute();
+        $date_expires = $sth->fetchColumn();
+        if (!$date_expires || time() >= strtotime($date_expires)) {
             return false;
         }
         return true;
