@@ -42,7 +42,7 @@ if (isset($_POST['id'])) {
 } else if (isset($_POST['username'])) {
     $username = $_POST['username'];
 
-    $user = User::get_by_username($user_id);
+    $user = User::get_by_username($username);
     if ($user) {
         echo json_encode(array("success" => "Retrieved user.", "user" => $user));
     } else {
