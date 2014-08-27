@@ -123,7 +123,7 @@ class Message {
         $sth->bindParam('user_id', $user_id);
         $sth->bindParam('content', $content);
         if ($sth->execute()) {
-            $message_id = $db->insert_id;
+            $message_id = $dbh->lastInsertId();
             
             $update_conversation_query = "
                 UPDATE `conversations`
