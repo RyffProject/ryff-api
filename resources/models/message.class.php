@@ -77,18 +77,21 @@ class Message {
     /**
      * Returns the message object with the given id, or null if it does not exist.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @param int $message_id
      * @return Message|null
      */
     public static function get_by_id($message_id) {
-        global $db;
+        global $dbh;
 
-        $query = "SELECT * FROM `messages`
-                  WHERE `message_id`=".$db->real_escape_string((int)$message_id);
-        $results = $db->query($query);
-        if ($results && $results->num_rows > 0) {
-            $row = $results->fetch_assoc();
+        $query = "
+            SELECT `message_id`, `user_id`, `content`, `date_created`
+            FROM `messages`
+            WHERE `message_id` = :message_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindParam('message_id', $message_id);
+        if ($sth->execute() && $sth->rowCount()) {
+            $row = $sth->fetch(PDO::FETCH_ASSOC);
             return Message::create($row);
         }
         
@@ -98,7 +101,7 @@ class Message {
     /**
      * Sends a message from one user to a conversation.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param string $content
      * @param int $conversation_id
@@ -106,7 +109,7 @@ class Message {
      * @return Message|null The new Message object, or null on failure.
      */
     public static function send($content, $conversation_id, $user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
@@ -114,20 +117,21 @@ class Message {
         
         $query = "
             INSERT INTO `messages` (`conversation_id`, `user_id`, `content`)
-            VALUES (
-                ".$db->real_escape_string((int)$conversation_id).",
-                ".$db->real_escape_string((int)$user_id).",
-                '".$db->real_escape_string($content)."'
-            )";
-        $results = $db->query($query);
-        if ($results) {
+            VALUES (:conversation_id, :user_id, :content)";
+        $sth = $dbh->prepare($query);
+        $sth->bindParam('conversation_id', $conversation_id);
+        $sth->bindParam('user_id', $user_id);
+        $sth->bindParam('content', $content);
+        if ($sth->execute()) {
             $message_id = $db->insert_id;
             
             $update_conversation_query = "
                 UPDATE `conversations`
                 SET `date_updated` = NOW()
-                WHERE `conversation_id` = ".((int)$conversation_id);
-            $db->query($update_conversation_query);
+                WHERE `conversation_id` = :conversation_id";
+            $update_conversation_sth = $dbh->prepare($update_conversation_query);
+            $update_conversation_sth->bindParam('conversation_id', $conversation_id);
+            $update_conversation_sth->execute();
             
             Conversation::set_read($conversation_id, $user_id);
             
@@ -141,7 +145,7 @@ class Message {
      * read for the user who is requesting them. If $unread is true, only gets
      * unread messages.
      * 
-     * @global mysqli $db
+     * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $conversation_id
      * @param int $page The page number of results.
@@ -152,7 +156,7 @@ class Message {
      */
     public static function get_for_conversation($conversation_id, $page, $limit,
             $unread = false, $user_id = null) {
-        global $db, $CURRENT_USER;
+        global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
@@ -164,17 +168,21 @@ class Message {
             ".($unread ? "JOIN `conversation_members` AS cm
                 ON cm.`conversation_id` = c.`conversation_id`
                 AND m.`user_id` = cm.`user_id`" : "")."
-            WHERE m.`conversation_id` = ".((int)$conversation_id)."
+            WHERE m.`conversation_id` = :conversation_id
             ".($unread ? "AND m.`date_created` > cm.`date_last_read`
-                AND mem.`user_id` = ".((int)$user_id) : "")."
+                AND mem.`user_id` = :user_id" : "")."
             GROUP BY m.`message_id`
             ORDER BY m.`date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
-        $results = $db->query($query);
+        $sth = $dbh->prepare($query);
+        $sth->bindParam('conversation_id', $conversation_id);
+        if ($unread) {
+            $sth->bindParam('user_id', $user_id);
+        }
         
-        if ($results) {
+        if ($sth->execute()) {
             $messages = array();
-            while ($row = $results->fetch_assoc()) {
+            while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                 $messages[] = Message::create($row);
             }
             
