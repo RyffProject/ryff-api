@@ -392,11 +392,11 @@ class User {
      */
     public function set_avatar($avatar_tmp_path) {
         $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
-        if (move_uploaded_file($avatar_tmp_path, $avatar_new_path)) {
-            $this->avatar = $this->get_avatar_url();
-            return true;
+        if (is_uploaded_file($avatar_tmp_path)) {
+            return move_uploaded_file($avatar_tmp_path, $avatar_new_path);
+        } else {
+            return copy($avatar_tmp_path, $avatar_new_path);
         }
-        return false;
     }
     
     /**
@@ -456,7 +456,12 @@ class User {
         $user_id = $dbh->lastInsertId();
         if ($avatar_tmp_path) {
             $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
-            if (!move_uploaded_file($avatar_tmp_path, $avatar_new_path)) {
+            if (is_uploaded_file($avatar_tmp_path)) {
+                $saved_img = move_uploaded_file($avatar_tmp_path, $avatar_new_path);
+            } else {
+                $saved_img = copy($avatar_tmp_path, $avatar_new_path);
+            }
+            if (!$saved_img) {
                 User::delete($user_id);
                 return null;
             }

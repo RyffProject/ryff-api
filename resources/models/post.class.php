@@ -268,7 +268,12 @@ class Post {
             
             if ($img_tmp_path) {
                 $img_new_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
-                if (!move_uploaded_file($img_tmp_path, $img_new_path)) {
+                if (is_uploaded_file($img_tmp_path)) {
+                    $saved_img = move_uploaded_file($img_tmp_path, $img_new_path);
+                } else {
+                    $saved_img = copy($img_tmp_path, $img_new_path);
+                }
+                if (!$saved_img) {
                     Post::delete($post_id);
                     return null;
                 }

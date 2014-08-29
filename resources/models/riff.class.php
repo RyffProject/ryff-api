@@ -77,7 +77,13 @@ class Riff {
             $riff_id = $dbh->lastInsertId();
             
             $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
-            if (move_uploaded_file($riff_tmp_path, $riff_new_path)) {
+            if (is_uploaded_file($riff_tmp_path)) {
+                $saved_riff = move_uploaded_file($riff_tmp_path, $riff_new_path);
+            } else {
+                $saved_riff = copy($riff_tmp_path, $riff_new_path);
+            }
+            
+            if ($saved_riff) {
                 return Riff::get_by_post_id($post_id);
             } else {
                 Riff::delete($riff_id);
