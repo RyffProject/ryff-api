@@ -11,6 +11,22 @@ USE `ryff`;
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `apns_tokens`
+--
+
+CREATE TABLE IF NOT EXISTS `apns_tokens` (
+  `apns_token_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `device_token` char(64) NOT NULL,
+  `device_uuid` char(36) NOT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`apns_token_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `auth_tokens`
 --
 
@@ -272,6 +288,12 @@ CREATE TABLE IF NOT EXISTS `users` (
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `apns_tokens`
+--
+ALTER TABLE `apns_tokens`
+  ADD CONSTRAINT `apns_tokens_user_id_constr` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `auth_tokens`
