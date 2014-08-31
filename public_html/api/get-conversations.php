@@ -23,6 +23,7 @@
  * Released under the Apache License 2.0.
  */
 
+header("Content-Type: application/json");
 
 define("REQUIRES_AUTHENTICATION", true);
 

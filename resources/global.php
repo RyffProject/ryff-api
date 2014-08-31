@@ -1,7 +1,5 @@
 <?php
 
-header("Content-Type: application/json");
-
 require_once("connect-db.php");
 
 require_once("models/auth.class.php");
