@@ -183,6 +183,7 @@ class PushNotification {
             return 0;
         }
         
+        $start_time = date('Y-m-d H:i:s');
         $num_sent = 0;
         $query = "
             SELECT n.`notification_id`, n.`user_id`, n.`type`,
@@ -196,12 +197,15 @@ class PushNotification {
                 SELECT obj2.`notification_id`
                 FROM `notification_objects` AS obj2
                 WHERE obj2.`sent` = 0
+                AND obj2.`date_created` <= :start_time
                 ORDER BY obj2.`date_created` ASC
                 LIMIT 1
             )
             AND n.`read` = 0
-            AND obj1.`sent` = 0";
+            AND obj1.`sent` = 0
+            AND obj1.`date_created` <= :start_time";
         $sth = $dbh->prepare($query);
+        $sth->bindValue('start_time', $start_time);
         while ($sth->execute() && $sth->rowCount() && (!$limit || $num_sent < $limit)) {
             $rows = $sth->fetchAll(PDO::FETCH_ASSOC);
             
