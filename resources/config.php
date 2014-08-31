@@ -9,6 +9,11 @@ define("DB_USER", "");
 define("DB_HOST", "");
 define("DB_PASS", "");
 
+define("APNS_CERTIFICATE", ""); //Path to the APNs SSL certificate
+define("APNS_PASSPHRASE", ""); //Passphrase for APNs private key
+define("APNS_GATEWAY", ""); //The APNs gateway to connect to
+define("APNS_CONNECT_TIMEOUT", 60); //How long the script will wait to connect
+
 define("COOKIE_LIFESPAN", 604800); //The amount of time it takes for auth tokens to expire.
 define("NOTIFICATION_TIMEOUT", 7200); //The time it takes before notifications will not longer stack
 
