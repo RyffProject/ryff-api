@@ -128,7 +128,7 @@ if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
 }
 
 if (isset($_POST['tags'])) {
-    $new_tags = is_array($_POST['tags']) ? $_POST['tags'] : explode(',', $_POST['tags']);
+    $new_tags = is_array($_POST['tags']) ? $_POST['tags'] : array_filter(explode(',', $_POST['tags']));
     $current_tags = array_map(function($tag) { return $tag->tag; }, $CURRENT_USER->tags);
     
     $tags_to_add = array_diff($new_tags, $current_tags);

@@ -307,7 +307,7 @@ class Post {
         global $dbh;
         
         if (!is_array($parent_ids)) {
-            $parent_ids = explode(',', $parent_ids);
+            $parent_ids = explode(',', array_filter($parent_ids));
         }
         if (empty($parent_ids)) {
             return true;

@@ -36,7 +36,7 @@ $raw_user_ids = isset($_POST['ids']) ? $_POST['ids'] : array();
 if (is_array($raw_user_ids)) {
     $raw_user_ids_array = $raw_user_ids;
 } else {
-    $raw_user_ids_array = explode(',', $raw_user_ids);
+    $raw_user_ids_array = array_filter(explode(',', $raw_user_ids));
 }
 $raw_user_ids_array[] = $CURRENT_USER->id;
 

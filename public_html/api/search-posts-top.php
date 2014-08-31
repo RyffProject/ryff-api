@@ -45,7 +45,7 @@ if (isset($_POST['tags'])) {
     if (is_array($_POST['tags'])) {
         $tags = preg_replace($tag_pattern, "", $_POST['tags']);
     } else {
-        $tags = preg_replace($tag_pattern, "", explode(',', $_POST['tags']));
+        $tags = preg_replace($tag_pattern, "", array_filter(explode(',', $_POST['tags'])));
     }
 }
 
