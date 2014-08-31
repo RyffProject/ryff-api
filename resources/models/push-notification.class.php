@@ -87,6 +87,32 @@ class PushNotification {
         return $tokens;
     }
     
+    protected static function get_message($type, $base_user_id, $base_post_id,
+            $leaf_user_ids, $leaf_post_ids) {
+        $message = "";
+        if (count($leaf_user_ids)) {
+            $message .= User::get_username($leaf_user_ids[0]);
+            if (count($leaf_user_ids) > 1) {
+                $message .= " and ".(count($leaf_user_ids) - 1)." others";
+            }
+        }
+        switch ($type) {
+            case 'follow':
+                $message .= " followed you.";
+                break;
+            case 'upvote':
+                $message .= " upvoted your post.";
+                break;
+            case 'mention':
+                $message .= " mentioned you in a post.";
+                break;
+            case 'remix':
+                $message .= " remixed your post.";
+                break;
+        }
+        return $message;
+    }
+    
     /**
      * Constructs a notification message from the type and associated notification
      * objects, sends it to all of the devices that the user has registered,
@@ -109,20 +135,9 @@ class PushNotification {
             $notification_object_ids) {
         global $dbh;
         
-        switch ($type) {
-            case 'follow':
-                $message = "Someone followed you.";
-                break;
-            case 'upvote':
-                $message = "Someone upvoted your post.";
-                break;
-            case 'mention':
-                $message = "Someone messaged you in a post.";
-                break;
-            case 'remix':
-                $message = "Someone remixed your post.";
-                break;
-        }
+        $message = static::get_message(
+                $type, $base_user_id, $base_post_id,
+                $leaf_user_ids, $leaf_post_ids);
         
         $payload = json_encode(array(
             'aps' => array('alert' => $message),

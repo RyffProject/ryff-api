@@ -497,6 +497,20 @@ class User {
         return false;
     }
     
+    public static function get_username($user_id) {
+        global $dbh;
+        
+        $query = "
+            SELECT `username` FROM `users`
+            WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $user_id);
+        if ($sth->execute()) {
+            return $sth->fetchColumn();
+        }
+        return null;
+    }
+    
     /**
      * Returns the user with the given username, or null if it doesn't exist.
      * 

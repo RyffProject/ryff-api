@@ -261,7 +261,7 @@ class Post {
                 foreach ($parent_ids as $parent_id) {
                     $parent_post = Post::get_by_id($parent_id);
                     if ($parent_post->user->id !== (int)$user_id) {
-                        Notification::add($parent_post->user->id, "remix", $parent_post->id, null, $post_id, null);
+                        Notification::add($parent_post->user->id, "remix", $parent_post->id, null, $post_id, $user_id);
                     }
                 }
             }
