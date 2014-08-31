@@ -307,16 +307,24 @@ class Notification {
      */
     public static function set_read($notification_id) {
         global $dbh;
+        
         $query = "
             UPDATE `notifications`
             SET `read`=1, `date_read` = NOW()
             WHERE `notification_id` = :notification_id";
         $sth = $dbh->prepare($query);
         $sth->bindValue('notification_id', $notification_id);
-        if ($sth->execute()) {
-            return true;
+        if (!$sth->execute()) {
+            return false;
         }
-        return false;
+        
+        $sent_query = "
+            UPDATE `notification_objects`
+            SET `sent` = 1
+            WHERE `notification_id` = :notification_id";
+        $sent_sth = $dbh->prepare($sent_query);
+        $sent_sth->bindValue('notification_id', $notification_id);
+        return $sent_sth->execute();
     }
     
     /**

@@ -13,6 +13,8 @@
  * Released under the Apache License 2.0.
  */
 
+set_time_limit(60);
+
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     __DIR__."/../resources"
