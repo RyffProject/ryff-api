@@ -1,7 +1,5 @@
 <?php
 
-header("Content-Type: application/json");
-
 require_once("connect-db.php");
 
 require_once("models/auth.class.php");
@@ -13,6 +11,7 @@ require_once("models/notification.class.php");
 require_once("models/point.class.php");
 require_once("models/post.class.php");
 require_once("models/post-feed.class.php");
+require_once("models/push-notification.class.php");
 require_once("models/riff.class.php");
 require_once("models/star.class.php");
 require_once("models/tag.class.php");

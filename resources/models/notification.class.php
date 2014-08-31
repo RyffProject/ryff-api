@@ -290,7 +290,7 @@ class Notification {
                 if (!$user || $user->id === $post->user->id) {
                     continue;
                 }
-                if (!Notification::add($user->id, "mention", null, null, $post->id, null)) {
+                if (!Notification::add($user->id, "mention", null, null, $post->id, $post->user->id)) {
                     return false;
                 }
             }

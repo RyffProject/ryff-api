@@ -22,6 +22,8 @@
  * Released under the Apache License 2.0.
  */
 
+header("Content-Type: application/json");
+
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
     __DIR__."/../../resources"
