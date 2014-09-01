@@ -31,7 +31,10 @@ if (file_exists($lock_file)) {
 file_put_contents($lock_file, "Locked at ".date('Y-m-d H:i:s')."\n");
 
 $num_sent = PushNotification::send_all(PUSH_NOTIFICATION_LIMIT);
-echo "Sent $num_sent notifications.\n";
+echo "Sent $num_sent notification".($num_sent !== 1 ? "s" : "")."\n";
+
+$num_messages_sent = PushNotification::send_all_messages(PUSH_MESSAGE_LIMIT);
+echo "Sent $num_messages_sent message".($num_messages_sent !== 1 ? "s" : "")."\n";
 
 if (file_exists($lock_file)) {
     unlink($lock_file);

@@ -112,6 +112,8 @@ CREATE TABLE IF NOT EXISTS `messages` (
   `conversation_id` int(10) unsigned NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
   `content` text NOT NULL,
+  `sent` int(1) NOT NULL DEFAULT 0,
+  `date_sent` timestamp NULL DEFAULT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`message_id`),
   KEY `conversation_id` (`conversation_id`),

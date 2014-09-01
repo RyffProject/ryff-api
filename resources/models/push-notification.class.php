@@ -141,6 +141,7 @@ class PushNotification {
         
         $payload = json_encode(array(
             'aps' => array('alert' => $message),
+            'type' => $type,
             'id' => $notification_id
         ));
         
@@ -227,6 +228,109 @@ class PushNotification {
             if (static::send_one($apns_socket, $notification_id,
                     $user_id, $type, $base_user_id, $base_post_id,
                     $leaf_user_ids, $leaf_post_ids, $notification_object_ids)) {
+                $num_sent++;
+            } else {
+                break;
+            }
+        }
+        
+        fclose($apns_socket);
+        return $num_sent;
+    }
+    
+    /**
+     * Sends a push notification about a message. Sends a payload with the
+     * conversation_id, a type of message, and the text of the message.
+     * The array of recipient ids should be whoever has not yet read the message.
+     * After notifications are sent, the message is marked as sent.
+     * 
+     * @global PDO $dbh
+     * @param resource $apns_socket
+     * @param int $message_id
+     * @param int $conversation_id
+     * @param int $sender_id
+     * @param array $recipient_ids
+     * @param string $content
+     * @return boolean
+     */
+    protected static function send_one_message(&$apns_socket, $message_id,
+            $conversation_id, $sender_id, $recipient_ids, $content) {
+        global $dbh;
+        
+        $sender_username = User::get_username($sender_id);
+        $fitted_content = strlen($content) > 50 ? substr($content, 0, 50).'...' : $content;
+        $payload = json_encode(array(
+            'aps' => array('alert' => $sender_username.': '.$fitted_content),
+            'type' => 'message',
+            'id' => $conversation_id
+        ));
+        
+        foreach ($recipient_ids as $user_id) {
+            $apns_tokens = static::get_apns_tokens($user_id);
+            foreach ($apns_tokens as $token) {
+                $msg = chr(0).pack('n', 32).pack('H*', $token).pack('n', strlen($payload)).$payload;
+                if (!fwrite($apns_socket, $msg, strlen($msg))) {
+                    return false;
+                }
+            }
+        }
+        
+        $query = "
+            UPDATE `messages`
+            SET `sent` = 1, `date_sent` = NOW()
+            WHERE `message_id` = :message_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('message_id', $message_id);
+        return $sth->execute();
+    }
+    
+    /**
+     * This function sends push notifications to iOS devices for the messaging
+     * system. Messages are sent in order of creation.
+     * 
+     * @global PDO $dbh
+     * @param int $limit [optional] How many messages should be sent, 0 for no limit.
+     * @return int The number of messages sent.
+     */
+    public static function send_all_messages($limit = 0) {
+        global $dbh;
+        
+        $apns_socket = static::get_apns_socket();
+        if (!$apns_socket) {
+            return 0;
+        }
+        
+        $start_time = date('Y-m-d H:i:s');
+        $num_sent = 0;
+        $query = "
+            SELECT m.*
+            FROM `messages` AS m
+            WHERE m.`sent` = 0
+            AND m.`date_created` < :start_time
+            ORDER BY m.`date_created` ASC
+            LIMIT 1";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('start_time', $start_time);
+        while ($sth->execute() && $sth->rowCount() && (!$limit || $num_sent < $limit)) {
+            $message_row = $sth->fetch(PDO::FETCH_ASSOC);
+            
+            $to_query = "
+                SELECT cm.`user_id`
+                FROM `conversation_members` AS cm
+                WHERE cm.`conversation_id` = :conversation_id
+                AND cm.`date_last_read` < :date_created";
+            $to_sth = $dbh->prepare($to_query);
+            $to_sth->bindValue('conversation_id', $message_row['conversation_id']);
+            $to_sth->bindValue('date_created', $message_row['date_created']);
+            $to_sth->execute();
+            $to_rows = $to_sth->fetchAll(PDO::FETCH_ASSOC);
+            $to_user_ids = array_map(function($row) {
+                return $row['user_id'];
+            }, $to_rows);
+            
+            if (static::send_one_message($apns_socket, $message_row['message_id'],
+                    $message_row['conversation_id'], $message_row['user_id'],
+                    $to_user_ids, $message_row['content'])) {
                 $num_sent++;
             } else {
                 break;
