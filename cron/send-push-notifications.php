@@ -9,6 +9,21 @@
  * service like cron. It will create a lock file, send as many notifications as
  * specified in config.php, then remove the lock file.
  * 
+ * As well as alert text, each push notification will have custom data. The
+ * payload will look like this:
+ * 
+ * {
+ *   'aps': {
+ *     'alert': text
+ *   },
+ *   'type': type,
+ *   'id': id
+ * }
+ * 
+ * The alert text is what is shown to the user. If the type is 'message', the
+ * id will be a conversation id. If the type is 'follow', 'upvote', 'mention',
+ * or 'remix', the id will be a notification id.
+ * 
  * Ryff API <http://www.github.com/rfotino/ryff-api>
  * Released under the Apache License 2.0.
  */
