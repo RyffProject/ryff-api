@@ -153,7 +153,7 @@ class PushNotification {
         }
         $query = "
             UPDATE `notification_objects`
-            SET `sent` = 1 AND `sent_date` = NOW()
+            SET `sent` = 1, `date_sent` = NOW()
             WHERE `notification_object_id` IN (
                 ".implode(',', array_map(
                     function($i) { return ':id'.$i; },
@@ -189,27 +189,27 @@ class PushNotification {
             SELECT n.`notification_id`, n.`user_id`, n.`type`,
                 n.`user_obj_id` AS `base_user_id`, n.`post_obj_id` AS `base_post_id`,
                 obj1.`user_obj_id` AS `leaf_user_id`, obj1.`post_obj_id` AS `leaf_post_id`,
-                obj1.`notifcation_object_id`
+                obj1.`notification_object_id`
             FROM `notifications` AS n
-            JOIN `notifcation_objects` AS obj1
-            ON obj1.`notification_id` = n.`notifcation_id`
+            JOIN `notification_objects` AS obj1
+            ON obj1.`notification_id` = n.`notification_id`
             WHERE obj1.`notification_id` = (
                 SELECT obj2.`notification_id`
                 FROM `notification_objects` AS obj2
                 WHERE obj2.`sent` = 0
-                AND obj2.`date_created` <= :start_time
+                AND obj2.`date_created` < :start_time
                 ORDER BY obj2.`date_created` ASC
                 LIMIT 1
             )
             AND n.`read` = 0
             AND obj1.`sent` = 0
-            AND obj1.`date_created` <= :start_time";
+            AND obj1.`date_created` < :start_time";
         $sth = $dbh->prepare($query);
         $sth->bindValue('start_time', $start_time);
         while ($sth->execute() && $sth->rowCount() && (!$limit || $num_sent < $limit)) {
             $rows = $sth->fetchAll(PDO::FETCH_ASSOC);
             
-            $notification_id = $rows[0]['notifcation_id'];
+            $notification_id = $rows[0]['notification_id'];
             $user_id = $rows[0]['user_id'];
             $type = $rows[0]['type'];
             $base_user_id = $rows[0]['base_user_id'];
