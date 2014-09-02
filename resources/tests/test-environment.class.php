@@ -41,6 +41,21 @@ abstract class TestEnvironment {
     }
     
     /**
+     * Returns a space-separated string of random words.
+     * 
+     * @param int $num_words The number of words.
+     * @return string
+     */
+    protected function get_words($num_words) {
+        $words = array();
+        while ($num_words > 0) {
+            $words[] = $this->get_word();
+            $num_words--;
+        }
+        return implode(' ', $words);
+    }
+    
+    /**
      * Installs the test database.
      * 
      * @global PDO $dbh
@@ -111,7 +126,7 @@ abstract class TestEnvironment {
     }
     
     /**
-     * Runs setup(), lock_tables(), run_tests(), unlock_tables(). If $do_setup is
+     * Runs setup(), run_tests(), and teardown(). If $do_setup is
      * false, the tables are assumed to be setup already and this step will be
      * skipped. If $do_teardown is false, the data will not be deleted after
      * running the tests. This function is the only outward-facing API.

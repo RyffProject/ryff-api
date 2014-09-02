@@ -254,7 +254,7 @@ class Post {
             $post_id = $dbh->lastInsertId();
             
             if ($parent_ids) {
-                if (!Post::add_parents($parent_ids)) {
+                if (!Post::add_parents($post_id, $parent_ids)) {
                     Post::delete($post_id);
                     return null;
                 }

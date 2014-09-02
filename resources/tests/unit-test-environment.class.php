@@ -15,11 +15,183 @@ require_once("test-environment.class.php");
 
 class UnitTestEnvironment extends TestEnvironment {
     /**
+     * Adds and returns a random new user, or null on failure.
+     * 
+     * @return User|null
+     */
+    private function get_test_user() {
+        return User::add(
+            $this->get_words(2),
+            $this->get_word(),
+            $this->get_word()."@example.com",
+            $this->get_words(10),
+            $this->get_word(),
+            ""
+        );
+    }
+    
+    /**
+     * Adds and returns a random new post for the given users, with the
+     * given parent_ids optionally as parent posts.
+     * 
+     * @param int $user_id
+     * @param array $parent_ids [optional]
+     * @return Post|null
+     */
+    private function get_test_post($user_id, $parent_ids = array()) {
+        return Post::add(
+            $this->get_words(10),
+            $parent_ids,
+            "",
+            "",
+            0,
+            "",
+            $user_id
+        );
+    }
+    
+    /**
+     * Adds and deletes a test user.
+     * 
+     * @return boolean
+     */
+    protected function create_user_test() {
+        $user = $this->get_test_user();
+        if (!$user) {
+            echo "Failed to create user.\n";
+            return false;
+        }
+        if (!User::delete($user->id)) {
+            echo "Failed to delete user.\n";
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Creates a new user, then tries to get it by id, username, and email.
+     * 
+     * @return boolean
+     */
+    protected function get_user_test() {
+        $user = $this->get_test_user();
+        if (User::get_by_id($user->id) != $user) {
+            echo "Failed to get user by id.\n";
+            return false;
+        }
+        if (User::get_by_username($user->username) != $user) {
+            echo "Failed to get user by username.\n";
+            return false;
+        }
+        if (User::get_by_email($user->email) != $user) {
+            echo "Failed to get user by email.\n";
+            return false;
+        }
+        User::delete($user->id);
+        return true;
+    }
+    
+    /**
+     * Creates two users, has one follow another, then deletes the follow.
+     * 
+     * @return boolean
+     */
+    protected function follow_test() {
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        if (!Follow::add($user1->id, $user2->id)) {
+            echo "Failed to add follow.\n";
+            return false;
+        }
+        if (Follow::get_followers(1, 15, $user1->id) != array(User::get_by_id($user2->id))) {
+            echo "Get followers failed.\n";
+            return false;
+        }
+        if (Follow::get_following(1, 15, $user2->id) != array(User::get_by_id($user1->id))) {
+            echo "Get following failed.\n";
+            return false;
+        }
+        if (!Follow::delete($user1->id, $user2->id)) {
+            echo "Failed to delete follow.";
+            return false;
+        }
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return true;
+    }
+    
+    /**
+     * Creates a user and a post, tries to get the post, tries to create a second
+     * post with the first as a parent, then deletes the posts.
+     * 
+     * @return boolean
+     */
+    protected function post_test() {
+        $user = $this->get_test_user();
+        $post = $this->get_test_post($user->id);
+        if (!$post) {
+            echo "Failed to add post.\n";
+            return false;
+        }
+        if (Post::get_by_id($post->id) != $post) {
+            echo "Failed to get post.\n";
+            return false;
+        }
+        $post2 = $this->get_test_post($user->id, array($post->id));
+        if (!$post2 || $post2->get_parents() != array($post)) {
+            echo "Failed to add post with parents.\n";
+            return false;
+        }
+        if (!Post::delete($post->id) || !Post::delete($post2->id)) {
+            echo "Failed to delete post.\n";
+            return false;
+        }
+        User::delete($user->id);
+        return true;
+    }
+    
+    /**
+     * Creates two users and a post by the first of them. Then has the second
+     * upvote the post and then remove the upvote.
+     * 
+     * @return boolean
+     */
+    protected function upvote_test() {
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        $post = $this->get_test_post($user1->id);
+        if (!Upvote::add($post->id, $user2->id)) {
+            echo "Failed to add upvote.\n";
+            return false;
+        }
+        if (!Upvote::delete($post->id, $user2->id)) {
+            echo "Failed to delete upvote.\n";
+            return false;
+        }
+        Post::delete($post->id);
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return true;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
      */
     protected function run_tests() {
+        $tests = array(
+            "create_user_test" => "Create user test",
+            "get_user_test" => "Get user test",
+            "follow_test" => "Follow test",
+            "post_test" => "Post test",
+            "upvote_test" => "Upvote test"
+        );
+        foreach ($tests as $test => $message) {
+            if (!$this->do_test($test, $message)) {
+                return false;
+            }
+        }
         return true;
     }
 }
