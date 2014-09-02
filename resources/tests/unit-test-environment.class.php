@@ -296,6 +296,76 @@ class UnitTestEnvironment extends TestEnvironment {
     }
     
     /**
+     * Creates a conversation between three users, then makes one leave, then
+     * deletes the conversation.
+     * 
+     * @return boolean
+     */
+    protected function conversation_test() {
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        $user3 = $this->get_test_user();
+        $conversation = Conversation::add(array($user1->id, $user2->id, $user3->id));
+        if (!$conversation) {
+            echo "Failed to add conversation.\n";
+            return false;
+        }
+        if (!in_array($user1, $conversation->users) ||
+                !in_array($user2, $conversation->users) ||
+                !in_array($user3, $conversation->users)) {
+            echo "Failed to add conversation members.\n";
+            return false;
+        }
+        Conversation::delete_member($conversation->id, $user1->id);
+        $conversation = Conversation::get_by_id($conversation->id, $user3->id);
+        if (in_array($user1, $conversation->users) ||
+                !in_array($user2, $conversation->users) ||
+                !in_array($user3, $conversation->users)) {
+            echo "Failed to remove conversation member.\n";
+            return false;
+        }
+        Conversation::delete($conversation->id);
+        if (Conversation::get_by_id($conversation->id, $user3->id)) {
+            echo "Failed to delete conversation.\n";
+            return false;
+        }
+        User::delete($user1->id);
+        User::delete($user2->id);
+        User::delete($user3->id);
+        return true;
+    }
+    
+    /**
+     * Creates two users and a conversation between them. Sends a message from
+     * one user, then gets unread messages from the conversation to see that it
+     * is there, then sets the conversation as read and checks that unread
+     * messages are empty.
+     * 
+     * @return boolean
+     */
+    protected function message_test() {
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        $conversation = Conversation::add(array($user1->id, $user2->id));
+        $content = $this->get_words(10);
+        $message = Message::send($content, $conversation->id, $user1->id);
+        $messages = Message::get_for_conversation($conversation->id, 1, 15, false, $user2->id);
+        if (empty($messages) || $messages[0] != $message) {
+            echo "Failed to send message.\n";
+            return false;
+        }
+        $messages_unread = Message::get_for_conversation($conversation->id, 1, 15, true, $user2->id);
+        if (!empty($messages_unread)) {
+            echo "Failed to set messages as read.\n";
+            return false;
+        }
+        Conversation::delete($conversation->id);
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return true;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
@@ -310,7 +380,9 @@ class UnitTestEnvironment extends TestEnvironment {
             "upvote_test" => "Upvote test",
             "star_test" => "Star test",
             "post_tags_test" => "Post tags test",
-            "user_tags_test" => "User tags test"
+            "user_tags_test" => "User tags test",
+            "conversation_test" => "Conversation test",
+            "message_test" => "Message test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {
