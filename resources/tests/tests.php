@@ -12,6 +12,7 @@
  * "--no-setup" Doesn't install or uninstall the database.
  * "--no-teardown" Doesn't uninstall the database.
  * "--type=$n" The type of tests to run, where $n is unit or populate.
+ * "--cycles=$m" The number of populate cycles to run, where $m is an integer.
  * "--help" Brings up the help text.
  * 
  * Ryff API <http://www.github.com/rfotino/ryff-api>
@@ -22,6 +23,7 @@ if (in_array('--help', $argv)) {
     echo "--no-setup: Doesn't attempt to install or uninstall the database.\n";
     echo "--no-teardown: Doesn't attempt to uninstall the database.\n";
     echo "--type: The type of test, either unit or populate. ex) --type=unit\n";
+    echo "--cycles: The number of populate cycles to run. ex) --cycles=10\n";
     echo "--help: Brings up this text.\n";
     exit;
 }
@@ -72,6 +74,12 @@ if (!isset($type)) {
     $environment = new UnitTests();
 } else if ($type === 'populate') {
     $environment = new PopulateTests();
+    foreach ($argv as $arg) {
+        if (strpos($arg, '--cycles=') === 0) {
+            $num_cycles = (int)substr($arg, 9);
+            $environment->set_num_cycles($num_cycles);
+        }
+    }
 } else {
     echo "The type must be either unit or populate.\n";
     echo "Use --help for more information.\n";
