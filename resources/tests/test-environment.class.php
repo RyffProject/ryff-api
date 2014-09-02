@@ -116,6 +116,7 @@ abstract class TestEnvironment {
         ob_start();
         $passed = $this->$test();
         $output = ob_get_contents();
+        ob_end_clean();
         $end_time = microtime(true);
         
         echo $passed ? "passed" : "failed";

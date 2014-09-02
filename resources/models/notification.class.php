@@ -310,7 +310,7 @@ class Notification {
         
         $query = "
             UPDATE `notifications`
-            SET `read`=1, `date_read` = NOW()
+            SET `read` = 1, `date_read` = NOW()
             WHERE `notification_id` = :notification_id";
         $sth = $dbh->prepare($query);
         $sth->bindValue('notification_id', $notification_id);
@@ -361,19 +361,20 @@ class Notification {
     }
     
     /**
-     * Gets an array of Notification objects for the current user.
+     * Gets an array of Notification objects for the given user.
      * 
      * @global PDO $dbh
      * @global User $CURRENT_USER
      * @param int $page [optional] The current page of results, defaults to 1.
      * @param int $limit [optional] The number of results per page, defaults to 15.
+     * @param int $user_id [optional] Defaults to the current user.
      * @return array|null An array of Notification objects or null on failure.
      */
-    public static function get_latest($page = 1, $limit = 15) {
+    public static function get_latest($page = 1, $limit = 15, $user_id = null) {
         global $dbh, $CURRENT_USER;
         
-        if (!$CURRENT_USER) {
-            return null;
+        if ($user_id === null && $CURRENT_USER) {
+            $user_id = $CURRENT_USER->id;
         }
         
         $query = "
@@ -387,7 +388,7 @@ class Notification {
             ORDER BY n.`date_updated` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
-        $sth->bindValue('user_id', $CURRENT_USER->id);
+        $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
             $notifications = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {

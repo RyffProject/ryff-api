@@ -22,7 +22,7 @@ class UnitTestEnvironment extends TestEnvironment {
     private function get_test_user() {
         return User::add(
             $this->get_words(2),
-            $this->get_word(),
+            preg_replace('/[^a-zA-Z0-9]/', '', $this->get_word()),
             $this->get_word()."@example.com",
             $this->get_words(10),
             $this->get_word(),
@@ -215,7 +215,6 @@ class UnitTestEnvironment extends TestEnvironment {
             echo "Failed to delete upvote.\n";
             return false;
         }
-        Post::delete($post->id);
         User::delete($user1->id);
         User::delete($user2->id);
         return true;
@@ -242,7 +241,6 @@ class UnitTestEnvironment extends TestEnvironment {
             echo "Failed to delete star.\n";
             return false;
         }
-        Post::delete($post->id);
         User::delete($user->id);
         return true;
     }
@@ -266,7 +264,6 @@ class UnitTestEnvironment extends TestEnvironment {
             echo "Failed to add tags.\n";
             return false;
         }
-        Post::delete($post->id);
         User::delete($user->id);
         return true;
     }
@@ -366,6 +363,53 @@ class UnitTestEnvironment extends TestEnvironment {
     }
     
     /**
+     * Creates two users and gives one user all four types of notification,
+     * then makes sure the user who did the following is attached to the follow
+     * notification, then checks that setting a notification as read works.
+     * 
+     * @global User $CURRENT_USER
+     * @return boolean
+     */
+    protected function notification_test() {
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        $post1 = $this->get_test_post($user1->id);
+        $this->get_test_post($user2->id, array(), "@".$user1->username);
+        $this->get_test_post($user2->id, array($post1->id));
+        Upvote::add($post1->id, $user2->id);
+        Follow::add($user1->id, $user2->id);
+        $notifications = Notification::get_latest(1, 15, $user1->id);
+        if (count($notifications) !== 4) {
+            echo "Failed to add notifications.\n";
+            return false;
+        }
+        foreach ($notifications as $n) {
+            if ($n->type === 'follow') {
+                $notification = $n;
+                break;
+            }
+        }
+        if (!isset($notification)) {
+            echo "Failed to find follow notification.\n";
+            return false;
+        }
+        if (empty($notification->users) ||
+                $notification->users[0] != User::get_by_id($user2->id)) {
+            echo "Failed to add user to follow notification.\n";
+            return false;
+        }
+        Notification::set_read($notification->id);
+        $read_notification = Notification::get_by_id($notification->id, $user1->id);
+        if (!$read_notification->is_read) {
+            echo "Failed to set notification as read.\n";
+            return false;
+        }
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return true;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
@@ -382,7 +426,8 @@ class UnitTestEnvironment extends TestEnvironment {
             "post_tags_test" => "Post tags test",
             "user_tags_test" => "User tags test",
             "conversation_test" => "Conversation test",
-            "message_test" => "Message test"
+            "message_test" => "Message test",
+            "notification_test" => "Notification test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {
