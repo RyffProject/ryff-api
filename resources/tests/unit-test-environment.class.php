@@ -32,15 +32,16 @@ class UnitTestEnvironment extends TestEnvironment {
     
     /**
      * Adds and returns a random new post for the given users, with the
-     * given parent_ids optionally as parent posts.
+     * given parent_ids optionally as parent posts. Optionally with custom content.
      * 
      * @param int $user_id
      * @param array $parent_ids [optional]
+     * @param string $content [optional]
      * @return Post|null
      */
-    private function get_test_post($user_id, $parent_ids = array()) {
+    private function get_test_post($user_id, $parent_ids = array(), $content = null) {
         return Post::add(
-            $this->get_words(10),
+            $content !== null ? $content : $this->get_words(10),
             $parent_ids,
             "",
             "",
@@ -85,6 +86,52 @@ class UnitTestEnvironment extends TestEnvironment {
         }
         if (User::get_by_email($user->email) != $user) {
             echo "Failed to get user by email.\n";
+            return false;
+        }
+        User::delete($user->id);
+        return true;
+    }
+    
+    /**
+     * Creates a new user and tries to update their name, username, email, bio,
+     * and password.
+     * 
+     * @return boolean
+     */
+    protected function update_user_test() {
+        $user = $this->get_test_user();
+        
+        $new_name = $this->get_words(2);
+        $new_username = $this->get_word();
+        $new_email = $this->get_word()."@example.com";
+        $new_bio = $this->get_words(10);
+        $new_password = $this->get_word();
+        
+        $user->set_name($new_name);
+        $user->set_username($new_username);
+        $user->set_email($new_email);
+        $user->set_bio($new_bio);
+        $user->set_password($new_password);
+        
+        $user = User::get_by_id($user->id);
+        if ($user->name !== $new_name) {
+            echo "Failed to update name.\n";
+            return false;
+        }
+        if ($user->username !== $new_username) {
+            echo "Failed to update username.\n";
+            return false;
+        }
+        if ($user->email !== $new_email) {
+            echo "Failed to update email.\n";
+            return false;
+        }
+        if ($user->bio !== $new_bio) {
+            echo "Failed to update bio.\n";
+            return false;
+        }
+        if (!Auth::is_login_valid($new_username, $new_password)) {
+            echo "Failed to update password.\n";
             return false;
         }
         User::delete($user->id);
@@ -175,6 +222,80 @@ class UnitTestEnvironment extends TestEnvironment {
     }
     
     /**
+     * Creates a user and a post, then stars the post, gets the user's starred
+     * posts, and deletes the star from the post.
+     * 
+     * @return boolean
+     */
+    protected function star_test() {
+        $user = $this->get_test_user();
+        $post = $this->get_test_post($user->id);
+        if (!Star::add($post->id, $user->id)) {
+            echo "Failed to add star.\n";
+            return false;
+        }
+        if (Star::get_starred_posts($user->id) != array($post)) {
+            echo "Failed to get starred posts.\n";
+            return false;
+        }
+        if (!Star::delete($post->id, $user->id)) {
+            echo "Failed to delete star.\n";
+            return false;
+        }
+        Post::delete($post->id);
+        User::delete($user->id);
+        return true;
+    }
+    
+    /**
+     * Creates a post with two tags, then checks that getting those tags shows
+     * they are each on one post.
+     * 
+     * @return boolean
+     */
+    protected function post_tags_test() {
+        $user = $this->get_test_user();
+        $tag1 = "tag1";
+        $tag2 = "tag2";
+        $content = "#$tag1 #$tag2 ".$this->get_words(6);
+        $post = $this->get_test_post($user->id, array(), $content);
+        $tag_obj1 = Tag::get_by_tag($tag1);
+        $tag_obj2 = Tag::get_by_tag($tag2);
+        if ($tag_obj1->num_posts !== 1 || $tag_obj1->tag !== $tag1 ||
+                $tag_obj2->num_posts !== 1 || $tag_obj2->tag !== $tag2) {
+            echo "Failed to add tags.\n";
+            return false;
+        }
+        Post::delete($post->id);
+        User::delete($user->id);
+        return true;
+    }
+    
+    /**
+     * Creates a user and adds a tag to them, then removes it.
+     * 
+     * @return boolean
+     */
+    protected function user_tags_test() {
+        $user = $this->get_test_user();
+        $tag = $this->get_word();
+        Tag::add_for_user($tag, $user->id);
+        $user = User::get_by_id($user->id);
+        if ($user->tags != array(Tag::get_by_tag($tag))) {
+            echo "Failed to add tag for user.\n";
+            return false;
+        }
+        Tag::delete_from_user($tag, $user->id);
+        $user = User::get_by_id($user->id);
+        if (!empty($user->tags)) {
+            echo "Failed to remove tag for user.\n";
+            return false;
+        }
+        User::delete($user->id);
+        return true;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
@@ -183,9 +304,13 @@ class UnitTestEnvironment extends TestEnvironment {
         $tests = array(
             "create_user_test" => "Create user test",
             "get_user_test" => "Get user test",
+            "update_user_test" => "Update user test",
             "follow_test" => "Follow test",
             "post_test" => "Post test",
-            "upvote_test" => "Upvote test"
+            "upvote_test" => "Upvote test",
+            "star_test" => "Star test",
+            "post_tags_test" => "Post tags test",
+            "user_tags_test" => "User tags test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {
