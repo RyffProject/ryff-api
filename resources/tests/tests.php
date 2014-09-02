@@ -11,10 +11,20 @@
  * Command-line arguments:
  * "--no-setup" Doesn't install or uninstall the database.
  * "--no-teardown" Doesn't uninstall the database.
+ * "--type=$n" The type of tests to run, where $n is unit or populate.
+ * "--help" Brings up the help text.
  * 
  * Ryff API <http://www.github.com/rfotino/ryff-api>
  * Released under the Apache License 2.0.
  */
+
+if (in_array('--help', $argv)) {
+    echo "--no-setup: Doesn't attempt to install or uninstall the database.\n";
+    echo "--no-teardown: Doesn't attempt to uninstall the database.\n";
+    echo "--type: The type of test, either unit or populate. ex) --type=unit\n";
+    echo "--help: Brings up this text.\n";
+    exit;
+}
 
 define("TEST_MODE", true);
 
@@ -26,7 +36,8 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 require_once("global.php");
-require_once("unit-test-environment.class.php");
+require_once("unit-tests.class.php");
+require_once("populate-tests.class.php");
 
 if (in_array('--no-setup', $argv)) {
     $do_setup = false;
@@ -40,8 +51,26 @@ if (!$do_setup || in_array('--no-teardown', $argv)) {
     $do_teardown = true;
 }
 
-echo "Running unit tests\n";
+foreach ($argv as $arg) {
+    if (strpos($arg, '--type=') === 0) {
+        $type = strtolower(substr($arg, 7));
+    }
+}
+if (!isset($type)) {
+    echo "You must specify a type.\n";
+    echo "Use --help for more information.\n";
+    exit;
+} else if ($type === 'unit') {
+    $environment = new UnitTests();
+} else if ($type === 'populate') {
+    $environment = new PopulateTests();
+} else {
+    echo "The type must be either unit or populate.\n";
+    echo "Use --help for more information.\n";
+    exit;
+}
+
+echo "Running $type tests\n";
 echo "==================\n";
 
-$environment = new UnitTestEnvironment();
 $environment->run($do_setup, $do_teardown);

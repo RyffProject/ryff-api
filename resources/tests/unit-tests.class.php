@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @class UnitTestEnvironment
- * ==========================
+ * @class UnitTests
+ * ================
  * 
  * Implements unit tests for basic actions that models can take. Will test
  * user creation, following, post creation, upvoting, tagging, messaging, etc.
@@ -13,7 +13,7 @@
 
 require_once("test-environment.class.php");
 
-class UnitTestEnvironment extends TestEnvironment {
+class UnitTests extends TestEnvironment {
     /**
      * Adds and returns a random new user, or null on failure.
      * 
