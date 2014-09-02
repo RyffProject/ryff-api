@@ -39,6 +39,14 @@ require_once("global.php");
 require_once("unit-tests.class.php");
 require_once("populate-tests.class.php");
 
+$lock_file = __DIR__."/tests.lock";
+if (file_exists($lock_file)) {
+    echo "Found existing tests lock file. Exiting now.\n";
+    exit;
+}
+
+file_put_contents($lock_file, "Locked at ".date('Y-m-d H:i:s')."\n");
+
 if (in_array('--no-setup', $argv)) {
     $do_setup = false;
 } else {
@@ -74,3 +82,7 @@ echo "Running $type tests\n";
 echo "==================\n";
 
 $environment->run($do_setup, $do_teardown);
+
+if (file_exists($lock_file)) {
+    unlink($lock_file);
+}
