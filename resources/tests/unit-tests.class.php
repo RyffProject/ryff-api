@@ -15,43 +15,6 @@ require_once("test-environment.class.php");
 
 class UnitTests extends TestEnvironment {
     /**
-     * Adds and returns a random new user, or null on failure.
-     * 
-     * @return User|null
-     */
-    private function get_test_user() {
-        return User::add(
-            $this->get_words(2),
-            preg_replace('/[^a-zA-Z0-9]/', '', $this->get_word()),
-            $this->get_word()."@example.com",
-            $this->get_words(10),
-            $this->get_word(),
-            ""
-        );
-    }
-    
-    /**
-     * Adds and returns a random new post for the given users, with the
-     * given parent_ids optionally as parent posts. Optionally with custom content.
-     * 
-     * @param int $user_id
-     * @param array $parent_ids [optional]
-     * @param string $content [optional]
-     * @return Post|null
-     */
-    private function get_test_post($user_id, $parent_ids = array(), $content = null) {
-        return Post::add(
-            $content !== null ? $content : $this->get_words(10),
-            $parent_ids,
-            "",
-            "",
-            0,
-            "",
-            $user_id
-        );
-    }
-    
-    /**
      * Adds and deletes a test user.
      * 
      * @return boolean
@@ -255,8 +218,7 @@ class UnitTests extends TestEnvironment {
         $user = $this->get_test_user();
         $tag1 = "tag1";
         $tag2 = "tag2";
-        $content = "#$tag1 #$tag2 ".$this->get_words(6);
-        $post = $this->get_test_post($user->id, array(), $content);
+        $this->get_test_post($user->id, array(), array($tag1, $tag2));
         $tag_obj1 = Tag::get_by_tag($tag1);
         $tag_obj2 = Tag::get_by_tag($tag2);
         if ($tag_obj1->num_posts !== 1 || $tag_obj1->tag !== $tag1 ||
@@ -374,7 +336,7 @@ class UnitTests extends TestEnvironment {
         $user1 = $this->get_test_user();
         $user2 = $this->get_test_user();
         $post1 = $this->get_test_post($user1->id);
-        $this->get_test_post($user2->id, array(), "@".$user1->username);
+        $this->get_test_post($user2->id, array(), array(), array($user1->username));
         $this->get_test_post($user2->id, array($post1->id));
         Upvote::add($post1->id, $user2->id);
         Follow::add($user1->id, $user2->id);

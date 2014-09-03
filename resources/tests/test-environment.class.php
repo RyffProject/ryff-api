@@ -11,20 +11,92 @@
  * Ryff API <http://www.github.com/rfotino/ryff-api>
  * Released under the Apache License 2.0.
  */
+
+ini_set('memory_limit','1024M');
+
 abstract class TestEnvironment {
     /**
      * An array of words so for get_word() to use.
      * 
      * @var array
      */
-    private $words;
+    private $words = array();
+    
+    /**
+     * An array of unique words that haven't been used get. Used in
+     * get_unique_word().
+     * 
+     * @var array
+     */
+    private $unique_words = array();
+    
+    /**
+     * An array of unique words that have already been used.
+     * 
+     * @var array
+     */
+    private $used_words = array();
     
     /**
      * Constructs a new TestEnvironment object and initializes the words array
      * from words.txt.
      */
     public function __construct() {
-        $this->words = explode("\n", file_get_contents(__DIR__."/words.txt"));
+        $raw_words = explode("\n", file_get_contents(__DIR__."/words.txt"));
+        $this->words = array_values(array_unique(array_map(function($word) {
+            return preg_replace('/[^a-z]/', '', strtolower($word));
+        }, $raw_words)));
+        $this->unique_words = $this->words;
+        shuffle($this->unique_words);
+    }
+    /**
+     * Adds and returns a random new user, or null on failure.
+     * 
+     * @return User|null
+     */
+    protected function get_test_user() {
+        return User::add(
+            $this->get_words(2),
+            $this->get_unique_word(),
+            $this->get_unique_word()."@example.com",
+            $this->get_words(10),
+            $this->get_word(),
+            ""
+        );
+    }
+    
+    /**
+     * Adds and returns a random new post for the given users, with the
+     * given parent_ids optionally as parent posts. Optionally with custom tags.
+     * 
+     * @param int $user_id
+     * @param array $parent_ids [optional]
+     * @param array $tags [optional]
+     * @return Post|null
+     */
+    protected function get_test_post($user_id, $parent_ids = array(),
+            $tags = array(), $mentions = array()) {
+        $content = "";
+        if (is_array($mentions)) {
+            foreach ($mentions as $username) {
+                $content .= "@$username ";
+            }
+        }
+        $content .= $this->get_words(10);
+        if (is_array($tags)) {
+            foreach ($tags as $tag) {
+                $content .= " #$tag";
+            }
+        }
+        return Post::add(
+            $content,
+            $parent_ids,
+            "",
+            "",
+            0,
+            "",
+            $user_id
+        );
     }
     
     /**
@@ -38,6 +110,25 @@ abstract class TestEnvironment {
         } else {
             return "";
         }
+    }
+    
+    /**
+     * Returns a random word guaranteed to be unique for this instance of
+     * TestEnvironment.
+     * 
+     * @return string
+     */
+    protected function get_unique_word() {
+        $word = array_pop($this->unique_words);
+        if ($word) {
+            $this->used_words[] = $word;
+            return $word;
+        }
+        do {
+            $rand_word = substr(md5(rand()), 0, rand(4, 12));
+        } while (!in_array($rand_word, $this->used_words));
+        $this->used_words[] = $rand_word;
+        return $rand_word;
     }
     
     /**
