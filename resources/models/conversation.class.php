@@ -170,8 +170,10 @@ class Conversation {
             ));
         $members_sth = $dbh->prepare($members_query);
         $members_sth->bindValue('conversation_id', $conversation_id);
-        foreach ($user_ids as $i => $user_id) {
-            $members_sth->bindValue('user_id'.$i, $user_id);
+        $member_id_index = 0;
+        foreach ($user_ids as $user_id) {
+            $members_sth->bindValue('user_id'.$member_id_index, $user_id);
+            $member_id_index++;
         }
         if (!$members_sth->execute()) {
             Conversation::delete($conversation_id);

@@ -166,11 +166,10 @@ class Message {
             SELECT m.`message_id`, m.`user_id`, m.`content`, m.`date_created`
             FROM `messages` AS m
             ".($unread ? "JOIN `conversation_members` AS cm
-                ON cm.`conversation_id` = c.`conversation_id`
-                AND m.`user_id` = cm.`user_id`" : "")."
+                ON cm.`conversation_id` = m.`conversation_id`" : "")."
             WHERE m.`conversation_id` = :conversation_id
             ".($unread ? "AND m.`date_created` > cm.`date_last_read`
-                AND mem.`user_id` = :user_id" : "")."
+                AND cm.`user_id` = :user_id" : "")."
             GROUP BY m.`message_id`
             ORDER BY m.`date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);

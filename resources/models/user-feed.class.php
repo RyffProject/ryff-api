@@ -11,32 +11,6 @@
  */
 class UserFeed {
     /**
-     * Helper function that gets a timestamp that represents one day ago, or
-     * one week ago, etc.
-     * 
-     * @param string $time One of "day", "week", "month", or "all".
-     * @return string The timestamp.
-     */
-    protected static function get_from_date($time) {
-        switch ($time) {
-            case "day":
-                $from_time = time() - (60 * 60 * 24);
-                break;
-            case "week":
-                $from_time = time() - (60 * 60 * 24 * 7);
-                break;
-            case "month":
-                $from_time = time() - (60 * 60 * 24 * 30);
-                break;
-            case "all":
-            default:
-                $from_time = 0;
-                break;
-        }
-        return date("Y-m-d H:i:s", $from_time);
-    }
-    
-    /**
      * Returns an array of User objects sorted by proximity to the given user.
      * The users can optionally match an array of tags.
      * 
@@ -112,7 +86,7 @@ class UserFeed {
     public static function search_trending($time = "week", $tags = array(), $page = 1, $limit = 15) {
         global $dbh;
         
-        $from_date = UserFeed::get_from_date($time);
+        $from_date = Util::get_from_date($time);
         
         $query = "
             SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`,
