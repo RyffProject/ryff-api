@@ -49,18 +49,33 @@ abstract class TestEnvironment {
         $this->unique_words = $this->words;
         shuffle($this->unique_words);
     }
+    
+    /**
+     * Returns true with a probability of $prob.
+     * 
+     * @param float $prob A number between 0 and 1.
+     * @return boolean
+     */
+    protected static function chance($prob) {
+        return mt_rand(0, 100) < $prob * 100;
+    }
+    
     /**
      * Adds and returns a random new user, or null on failure.
      * 
      * @return User|null
      */
     protected function get_test_user() {
+        $name = $this->get_words(static::chance(0.7) ? 2 : 1);
+        if (static::chance(0.7)) {
+            $name = ucwords($name);
+        }
         return User::add(
-            $this->get_words(2),
+            $name,
             $this->get_unique_word(),
             $this->get_unique_word()."@example.com",
-            $this->get_words(10),
-            $this->get_word(),
+            static::chance(0.3) ? $this->get_words(mt_rand(1, 10)) : "",
+            "password",
             ""
         );
     }
@@ -106,7 +121,7 @@ abstract class TestEnvironment {
      */
     protected function get_word() {
         if (count($this->words)) {
-            return $this->words[rand(0, count($this->words) - 1)];
+            return $this->words[mt_rand(0, count($this->words) - 1)];
         } else {
             return "";
         }
@@ -125,7 +140,7 @@ abstract class TestEnvironment {
             return $word;
         }
         do {
-            $rand_word = substr(md5(rand()), 0, rand(4, 12));
+            $rand_word = substr(md5(mt_rand()), 0, mt_rand(4, 12));
         } while (!in_array($rand_word, $this->used_words));
         $this->used_words[] = $rand_word;
         return $rand_word;
