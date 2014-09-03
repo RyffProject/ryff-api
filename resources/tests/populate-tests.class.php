@@ -36,6 +36,13 @@ class PopulateTests extends TestEnvironment {
     private $posts = array();
     
     /**
+     * The array of Conversation objects created during the current run (all cycles).
+     * 
+     * @var array
+     */
+    private $conversations = array();
+    
+    /**
      * The number of populate cycles this environment should go through.
      * 
      * @var int
@@ -237,6 +244,51 @@ class PopulateTests extends TestEnvironment {
     }
     
     /**
+     * For each user, give a 25% chance that they will create a conversation with
+     * one or more of the people they follow.
+     * 
+     * @return boolean
+     */
+    protected function conversations_test() {
+        foreach ($this->users as $user) {
+            if (static::chance(0.75)) {
+                continue;
+            }
+            
+            $participants = array($user->id);
+            $following = Follow::get_following(1, 30, $user->id);
+            do {
+                $participants[] = $following[array_rand($following)]->id;
+            } while (static::chance(0.5));
+            
+            $conversation = Conversation::add($participants);
+            if (!$conversation) {
+                echo "Failed to add conversation.\n";
+                return false;
+            }
+            $this->conversations[] = $conversation;
+        }
+        return true;
+    }
+    
+    /**
+     * Adds some messages to some of the conversations.
+     */
+    protected function messages_test() {
+        foreach ($this->conversations as $conversation) {
+            while (static::chance(0.80)) {
+                $from = $conversation->users[array_rand($conversation->users)];
+                $message = $this->get_words(mt_rand(1, 10));
+                if (!Message::send($message, $conversation->id, $from->id)) {
+                    echo "Failed to send message.\n";
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
@@ -248,7 +300,9 @@ class PopulateTests extends TestEnvironment {
             "follows_test" => "Follow users test",
             "posts_test" => "Posts test",
             "upvotes_test" => "Upvotes test",
-            "stars_test" => "Stars test"
+            "stars_test" => "Stars test",
+            "conversations_test" => "Conversations test",
+            "messages_test" => "Messages test"
         );
         echo "\n";
         for ($i = 0; $i < $this->num_cycles; $i++) {
