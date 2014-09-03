@@ -43,6 +43,7 @@ require_once("models/tag.class.php");
 require_once("models/upvote.class.php");
 require_once("models/user.class.php");
 require_once("models/user-feed.class.php");
+require_once("models/util.class.php");
 
 if (isset($_COOKIE['user_id'])) {
     $AUTH_USER_ID = (int)$_COOKIE['user_id'];

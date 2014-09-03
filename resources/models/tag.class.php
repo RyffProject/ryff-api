@@ -206,12 +206,13 @@ class Tag {
      * attached.
      * 
      * @global PDO $dbh
-     * @param string $from_date
+     * @param string $time One of "day", "week", "month", or "all".
      * @return array|null An array of Tag objects, or null on failure.
      */
-    public static function get_trending($from_date) {
+    public static function get_trending($time) {
         global $dbh;
         
+        $from_date = Util::get_from_date($time);
         $query = "
             SELECT t.`tag`, COUNT(up.`upvote_id`) AS `score`
             FROM `post_tags` AS t

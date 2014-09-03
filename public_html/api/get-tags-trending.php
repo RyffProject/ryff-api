@@ -37,23 +37,8 @@ $time = isset($_POST['time']) ? $_POST['time'] : "day";
 if (!in_array($time, array("day", "week", "month", "all"))) {
     $time = "week";
 }
-switch ($time) {
-    case "day":
-        $from_time = time() - (60 * 60 * 24);
-        break;
-    case "week":
-        $from_time = time() - (60 * 60 * 24 * 7);
-        break;
-    case "month":
-        $from_time = time() - (60 * 60 * 24 * 30);
-        break;
-    case "all":
-        $from_time = 0;
-        break;
-}
-$from_date = date("Y-m-d H:i:s", $from_time);
 
-$tags = Tag::get_trending($from_date);
+$tags = Tag::get_trending($time);
 if (is_array($tags)) {
     echo json_encode(array(
         "success" => "Successfully retrieved trending tags.",
