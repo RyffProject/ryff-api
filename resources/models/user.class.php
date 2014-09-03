@@ -127,9 +127,17 @@ class User {
      * @return string
      */
     protected function get_avatar_url() {
-        $path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
+        if (TEST_MODE) {
+            $path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
+        } else {
+            $path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
+        }
         if (file_exists($path)) {
-            return MEDIA_URL."/avatars/{$this->id}.png";
+            if (TEST_MODE) {
+                return TEST_MEDIA_URL."/avatars/{$this->id}.png";
+            } else {
+                return MEDIA_URL."/avatars/{$this->id}.png";
+            }
         } else {
             return "";
         }
@@ -391,7 +399,11 @@ class User {
      * @return boolean
      */
     public function set_avatar($avatar_tmp_path) {
-        $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
+        if (TEST_MODE) {
+            $avatar_new_path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
+        } else {
+            $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
+        }
         if (is_uploaded_file($avatar_tmp_path)) {
             return move_uploaded_file($avatar_tmp_path, $avatar_new_path);
         } else {
@@ -455,7 +467,11 @@ class User {
         
         $user_id = $dbh->lastInsertId();
         if ($avatar_tmp_path) {
-            $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
+            if (TEST_MODE) {
+                $avatar_new_path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
+            } else {
+                $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
+            }
             if (is_uploaded_file($avatar_tmp_path)) {
                 $saved_img = move_uploaded_file($avatar_tmp_path, $avatar_new_path);
             } else {

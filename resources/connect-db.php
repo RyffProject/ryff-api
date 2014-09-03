@@ -3,9 +3,9 @@
  * Connect Database
  * ================
  * 
- * If TEST_MODE is defined and set to a truthy value, this script will attempt
- * to connect to the test database, otherwise it will attempt to connect to the
- * main database. The credentials for these databases are set in config.php.
+ * If in test mode, this script will attempt to connect to the test database,
+ * otherwise it will attempt to connect to the main database. The credentials
+ * for these databases are set in config.php.
  * 
  * If the database is connected successfully, a global variable $dbh will be
  * created as a PDO object for accessing the database. If there is an error,
@@ -16,7 +16,7 @@
  */
 
 try {
-    if (defined("TEST_MODE") && TEST_MODE) {
+    if (TEST_MODE) {
         $dbh = new PDO(
             "mysql:host=".TEST_DB_HOST.";dbname=".TEST_DB_NAME,
             TEST_DB_USER, TEST_DB_PASS

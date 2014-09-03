@@ -64,6 +64,32 @@ define("DB_USER", "");
 define("DB_HOST", "");
 define("DB_PASS", "");
 
+
+/**
+ * Testing constants
+ * -----------------
+ */
+
+/**
+ * Use the test database and media.
+ */
+if (!defined("TEST_MODE")) {
+    define("TEST_MODE", false);
+}
+
+/**
+ * The outward facing url of the test media folder of the site.
+ * ex) http://localhost/test_media
+ * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
+ */
+define("TEST_MEDIA_URL", "");
+
+/**
+ * The absolute path to the test media folder. ex) /var/www/html/test_media
+ * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
+ */
+define("TEST_MEDIA_ABSOLUTE_PATH", "");
+
 /**
  * The test database credentials. Used for running the test suite or for
  * populating a database with test data. The database must be created manually

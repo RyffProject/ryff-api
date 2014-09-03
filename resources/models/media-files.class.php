@@ -16,7 +16,11 @@ class MediaFiles {
      * @param int $riff_id
      */
     public static function delete_riff_audio($riff_id) {
-        $path = MEDIA_ABSOLUTE_PATH."/riffs/".((int)$riff_id).".m4a";
+        if (TEST_MODE) {
+            $path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/".((int)$riff_id).".m4a";
+        } else {
+            $path = MEDIA_ABSOLUTE_PATH."/riffs/".((int)$riff_id).".m4a";
+        }
         if (file_exists($path)) {
             unlink($path);
         }
@@ -28,7 +32,11 @@ class MediaFiles {
      * @param int $post_id
      */
     public static function delete_post_image($post_id) {
-        $path = MEDIA_ABSOLUTE_PATH."/posts/".((int)$post_id).".png";
+        if (TEST_MODE) {
+            $path = TEST_MEDIA_ABSOLUTE_PATH."/posts/".((int)$post_id).".png";
+        } else {
+            $path = MEDIA_ABSOLUTE_PATH."/posts/".((int)$post_id).".png";
+        }
         if (file_exists($path)) {
             unlink($path);
         }
@@ -40,7 +48,11 @@ class MediaFiles {
      * @param int $user_id
      */
     public static function delete_user_image($user_id) {
-        $path = MEDIA_ABSOLUTE_PATH."/avatars/".((int)$user_id).".png";
+        if (TEST_MODE) {
+            $path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/".((int)$user_id).".png";
+        } else {
+            $path = MEDIA_ABSOLUTE_PATH."/avatars/".((int)$user_id).".png";
+        }
         if (file_exists($path)) {
             unlink($path);
         }

@@ -171,9 +171,17 @@ class Post {
      * @return string The image URL or "" if not found.
      */
     protected function get_image_url() {
-        $image_path = MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
+        if (TEST_MODE) {
+            $image_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
+        } else {
+            $image_path = MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
+        }
         if (file_exists($image_path)) {
-            return MEDIA_URL."/posts/{$this->id}.png";
+            if (TEST_MODE) {
+                return TEST_MEDIA_URL."/posts/{$this->id}.png";
+            } else {
+                return MEDIA_URL."/posts/{$this->id}.png";
+            }
         }
         return "";
     }
@@ -267,7 +275,11 @@ class Post {
             }
             
             if ($img_tmp_path) {
-                $img_new_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
+                if (TEST_MODE) {
+                    $img_new_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
+                } else {
+                    $img_new_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
+                }
                 if (is_uploaded_file($img_tmp_path)) {
                     $saved_img = move_uploaded_file($img_tmp_path, $img_new_path);
                 } else {

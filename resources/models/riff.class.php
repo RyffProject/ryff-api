@@ -76,7 +76,11 @@ class Riff {
         if ($sth->execute()) {
             $riff_id = $dbh->lastInsertId();
             
-            $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
+            if (TEST_MODE) {
+                $riff_new_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
+            } else {
+                $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
+            }
             if (is_uploaded_file($riff_tmp_path)) {
                 $saved_riff = move_uploaded_file($riff_tmp_path, $riff_new_path);
             } else {
@@ -131,10 +135,21 @@ class Riff {
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             $riff_id = $row['riff_id'];
-            $path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
+            if (TEST_MODE) {
+                $path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
+            } else {
+                $path = MEDIA_ABSOLUTE_PATH."/riffs/$riff_id.m4a";
+            }
             if (file_exists($path)) {
-                return new Riff($row['riff_id'], $row['title'], 
-                                $row['duration'], MEDIA_URL."/riffs/$riff_id.m4a");
+                if (TEST_MODE) {
+                    $url = TEST_MEDIA_URL."/riffs/$riff_id.m4a";
+                } else {
+                    $url = MEDIA_URL."/riffs/$riff_id.m4a";
+                }
+                return new Riff(
+                    $row['riff_id'], $row['title'], 
+                    $row['duration'], $url
+                );
             }
         }
         
