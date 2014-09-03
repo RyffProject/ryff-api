@@ -29,6 +29,13 @@ class PopulateTests extends TestEnvironment {
     private $users = array();
     
     /**
+     * The array of Post objects created during the current run (all cycles).
+     * 
+     * @var array
+     */
+    private $posts = array();
+    
+    /**
      * The number of populate cycles this environment should go through.
      * 
      * @var int
@@ -115,6 +122,121 @@ class PopulateTests extends TestEnvironment {
     }
     
     /**
+     * Loops through each user. Users have a 30% chance of doing nothing,
+     * and a 70% chance of posting. If they post, there is a 20% chance they will
+     * post a significant amount (3-10 posts), and an 80% chance they will post
+     * only a little (1-3 posts). There is a chance that each post comes with
+     * parents, tags, and mentions.
+     * 
+     * @return boolean
+     */
+    protected function posts_test() {
+        foreach ($this->users as $user) {
+            if (static::chance(0.3)) {
+                continue;
+            }
+            
+            $following = Follow::get_following(1, 20, $user->id);
+            if (static::chance(0.2)) {
+                $num_posts = mt_rand(3, 10);
+            } else {
+                $num_posts = mt_rand(1, 3);
+            }
+            
+            for ($i = 0; $i < $num_posts; $i++) {
+                $parent_ids = array();
+                if (static::chance(0.5) && count($this->posts) > 5) {
+                    $num_parents = mt_rand(1, 3);
+                    for ($j = 0; $j < $num_parents; $j++) {
+                        $parent_ids[] = $this->posts[array_rand($this->posts)]->id;
+                    }
+                }
+                $tags = array();
+                if (static::chance(0.7)) {
+                    $num_tags = mt_rand(1, 5);
+                    for ($j = 0; $j < $num_tags; $j++) {
+                        $tags[] = $this->tags[array_rand($this->tags)]->tag;
+                    }
+                }
+                $mentions = array();
+                if (static::chance(0.3)) {
+                    $mentions[] = $following[array_rand($following)]->username;
+                }
+                $post = $this->get_test_post(
+                    $user->id, array_unique($parent_ids),
+                    array_unique($tags), array_unique($mentions)
+                );
+                if (!$post) {
+                    echo "Failed to add post.\n";
+                    return false;
+                }
+                $this->posts[] = $post;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Ten posts are chosen at random to be more likely to be upvoted than
+     * others. Each user gives out between 3-10 upvotes, with a 25% chance that
+     * the post will be chosen from the pool of "best" posts rather than the
+     * general pool.
+     * 
+     * @return boolean
+     */
+    protected function upvotes_test() {
+        $best_posts = array();
+        for ($i = 0; $i < 10; $i++) {
+            $best_posts[] = $this->posts[array_rand($this->posts)];
+        }
+        
+        foreach ($this->users as $user) {
+            $num_upvotes = mt_rand(3, 10);
+            for ($i = 0; $i < $num_upvotes; $i++) {
+                if (static::chance(0.25)) {
+                    $post = $best_posts[array_rand($best_posts)];
+                } else {
+                    $post = $this->posts[array_rand($this->posts)];
+                }
+                if (!Upvote::add($post->id, $user->id)) {
+                    echo "Failed to add upvote.\n";
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * For each user, removes a random number of starred posts and adds back
+     * between 0 and 5 starred posts.
+     * 
+     * @return boolean
+     */
+    protected function stars_test() {
+        foreach ($this->users as $user) {
+            $starred_posts = Star::get_starred_posts($user->id);
+            
+            $posts_to_remove = mt_rand(0, count($starred_posts));
+            for ($i = 0; $i < $posts_to_remove; $i++) {
+                if (!Star::delete($starred_posts[array_rand($starred_posts)]->id, $user->id)) {
+                    echo "Failed to remove starred post.\n";
+                    return false;
+                }
+            }
+            
+            $posts_to_add = mt_rand(0, 5);
+            for ($i = 0; $i < $posts_to_add; $i++) {
+                if (!Star::add($this->posts[array_rand($this->posts)]->id, $user->id)) {
+                    echo "Failed to add starred post.\n";
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
@@ -123,7 +245,10 @@ class PopulateTests extends TestEnvironment {
         $tests = array(
             "tags_test" => "Get tags test",
             "users_test" => "Add users test",
-            "follows_test" => "Follow users test"
+            "follows_test" => "Follow users test",
+            "posts_test" => "Posts test",
+            "upvotes_test" => "Upvotes test",
+            "stars_test" => "Stars test"
         );
         echo "\n";
         for ($i = 0; $i < $this->num_cycles; $i++) {

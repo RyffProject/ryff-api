@@ -333,8 +333,10 @@ class Post {
             ));
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
-        foreach ($parent_ids as $i => $parent_id) {
-            $sth->bindValue('parent_id'.$i, $parent_id);
+        $parent_id_index = 0;
+        foreach ($parent_ids as $parent_id) {
+            $sth->bindValue('parent_id'.$parent_id_index, $parent_id);
+            $parent_id_index++;
         }
         if ($sth->execute()) {
             return true;

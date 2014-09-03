@@ -183,7 +183,7 @@ class Notification {
         if ($notification_id) {
             $base_query = "
                 UPDATE `notifications`
-                SET `read` = 0, `date_read` = 0, `date_updated` = NOW()
+                SET `read` = 0, `date_read` = NULL, `date_updated` = NOW()
                 WHERE `notification_id` = :notification_id";
             $base_sth = $dbh->prepare($base_query);
             $base_sth->bindValue('notification_id', $notification_id);
