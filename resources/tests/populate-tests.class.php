@@ -80,7 +80,7 @@ class PopulateTests extends TestEnvironment {
      */
     protected function users_test() {
         for ($i = 0; $i < 20; $i++) {
-            $user = $this->get_test_user();
+            $user = $this->get_test_user(static::chance(0.7));
             $tags = array_rand($this->tags, mt_rand(2, 4));
             foreach ($tags as $t) {
                 Tag::add_for_user($this->tags[$t]->tag, $user->id);
@@ -171,7 +171,8 @@ class PopulateTests extends TestEnvironment {
                 }
                 $post = $this->get_test_post(
                     $user->id, array_unique($parent_ids),
-                    array_unique($tags), array_unique($mentions)
+                    array_unique($tags), array_unique($mentions),
+                    static::chance(0.3), static::chance(0.8)
                 );
                 if (!$post) {
                     echo "Failed to add post.\n";

@@ -38,8 +38,29 @@ abstract class TestEnvironment {
     private $used_words = array();
     
     /**
+     * An array of paths to sample avatars.
+     * 
+     * @var array
+     */
+    private $sample_avatars = array();
+    
+    /**
+     * An array of paths to sample post images.
+     * 
+     * @var array
+     */
+    private $sample_post_images = array();
+    
+    /**
+     * An array of paths to sample riffs.
+     * 
+     * @var array
+     */
+    private $sample_riffs = array();
+    
+    /**
      * Constructs a new TestEnvironment object and initializes the words array
-     * from words.txt.
+     * from words.txt. Also gets a list of paths to sample media.
      */
     public function __construct() {
         $raw_words = explode("\n", file_get_contents(__DIR__."/words.txt"));
@@ -48,6 +69,16 @@ abstract class TestEnvironment {
         }, $raw_words)));
         $this->unique_words = $this->words;
         shuffle($this->unique_words);
+        
+        foreach (glob(__DIR__."/sample_media/avatars/*.png") as $avatar_path) {
+            $this->sample_avatars[] = $avatar_path;
+        }
+        foreach (glob(__DIR__."/sample_media/posts/*.png") as $post_image_path) {
+            $this->sample_post_images[] = $post_image_path;
+        }
+        foreach (glob(__DIR__."/sample_media/riffs/*.m4a") as $riff_path) {
+            $this->sample_riffs[] = $riff_path;
+        }
     }
     
     /**
@@ -63,34 +94,48 @@ abstract class TestEnvironment {
     /**
      * Adds and returns a random new user, or null on failure.
      * 
+     * @param $use_avatar If an avatar image should be used.
      * @return User|null
      */
-    protected function get_test_user() {
+    protected function get_test_user($use_avatar = false) {
         $name = $this->get_words(static::chance(0.7) ? 2 : 1);
         if (static::chance(0.7)) {
             $name = ucwords($name);
         }
+        
+        if ($use_avatar) {
+            $avatar_tmp_path = $this->sample_avatars[array_rand($this->sample_avatars)];
+        } else {
+            $avatar_tmp_path = "";
+        }
+        
         return User::add(
             $name,
             $this->get_unique_word(),
             $this->get_unique_word()."@example.com",
             static::chance(0.3) ? $this->get_words(mt_rand(1, 10)) : "",
             "password",
-            ""
+            $avatar_tmp_path
         );
     }
     
     /**
      * Adds and returns a random new post for the given users, with the
-     * given parent_ids optionally as parent posts. Optionally with custom tags.
+     * given parent_ids optionally as parent posts. Optionally with custom tags
+     * and mentions. Will have a post image or audio if $use_image or $use_riff
+     * are set to true, respectively.
      * 
      * @param int $user_id
      * @param array $parent_ids [optional]
      * @param array $tags [optional]
+     * @param array $mentions [optional]
+     * @param boolean $use_image [optional]
+     * @param boolean $use_riff [optional]
      * @return Post|null
      */
     protected function get_test_post($user_id, $parent_ids = array(),
-            $tags = array(), $mentions = array()) {
+            $tags = array(), $mentions = array(),
+            $use_image = false, $use_riff = false) {
         $content = "";
         if (is_array($mentions)) {
             foreach ($mentions as $username) {
@@ -103,13 +148,30 @@ abstract class TestEnvironment {
                 $content .= " #$tag";
             }
         }
+        
+        if ($use_image) {
+            $image_tmp_path = $this->sample_post_images[array_rand($this->sample_post_images)];
+        } else {
+            $image_tmp_path = "";
+        }
+        
+        if ($use_riff) {
+            $riff_title = ucwords($this->get_words(mt_rand(1, 3)));
+            $riff_duration = mt_rand(45, 200);
+            $riff_tmp_path = $this->sample_riffs[array_rand($this->sample_riffs)];
+        } else {
+            $riff_title = "";
+            $riff_duration = 0;
+            $riff_tmp_path = "";
+        }
+        
         return Post::add(
             $content,
             $parent_ids,
-            "",
-            "",
-            0,
-            "",
+            $image_tmp_path,
+            $riff_title,
+            $riff_duration,
+            $riff_tmp_path,
             $user_id
         );
     }
