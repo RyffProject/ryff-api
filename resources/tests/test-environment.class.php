@@ -103,7 +103,7 @@ abstract class TestEnvironment {
             $name = ucwords($name);
         }
         
-        if ($use_avatar) {
+        if ($use_avatar && !empty($this->sample_avatars)) {
             $avatar_tmp_path = $this->sample_avatars[array_rand($this->sample_avatars)];
         } else {
             $avatar_tmp_path = "";
@@ -149,13 +149,13 @@ abstract class TestEnvironment {
             }
         }
         
-        if ($use_image) {
+        if ($use_image && !empty($this->sample_post_images)) {
             $image_tmp_path = $this->sample_post_images[array_rand($this->sample_post_images)];
         } else {
             $image_tmp_path = "";
         }
         
-        if ($use_riff) {
+        if ($use_riff && !empty($this->sample_riffs)) {
             $riff_title = ucwords($this->get_words(mt_rand(1, 3)));
             $riff_duration = mt_rand(45, 200);
             $riff_tmp_path = $this->sample_riffs[array_rand($this->sample_riffs)];
