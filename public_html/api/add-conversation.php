@@ -41,7 +41,7 @@ if (is_array($raw_user_ids)) {
 $raw_user_ids_array[] = $CURRENT_USER->id;
 
 $user_ids = array_filter(
-    array_unique(array_map(intval, $raw_user_ids_array)),
+    array_unique(array_map('intval', $raw_user_ids_array)),
     function($id) {
         return User::get_by_id($id) !== null;
     }

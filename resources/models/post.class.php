@@ -319,14 +319,15 @@ class Post {
         global $dbh;
         
         if (!is_array($parent_ids)) {
-            $parent_ids = explode(',', array_filter($parent_ids));
+            $parent_ids = explode(',', $parent_ids);
         }
+        $parent_ids = array_unique(array_filter(array_map('intval', $parent_ids)));
         if (empty($parent_ids)) {
             return true;
         }
         
         $query = "
-            INSERT INTO `post_families` (`parent_id`, `child_id`)
+            INSERT IGNORE INTO `post_families` (`parent_id`, `child_id`)
             VALUES ".implode(',', array_map(
                 function($i) { return "(:parent_id$i, :post_id)"; },
                 range(0, count($parent_ids) - 1)

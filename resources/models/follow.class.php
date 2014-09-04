@@ -27,7 +27,7 @@ class Follow {
         }
         
         $query = "
-            INSERT INTO `follows` (`to_id`, `from_id`)
+            INSERT IGNORE INTO `follows` (`to_id`, `from_id`)
             VALUES (:to_id, :from_id)";
         $sth = $dbh->prepare($query);
         $sth->bindValue('to_id', $to_id);

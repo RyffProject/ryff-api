@@ -258,10 +258,12 @@ class PopulateTests extends TestEnvironment {
             
             $participants = array($user->id);
             $following = Follow::get_following(1, 30, $user->id);
+            if (empty($following)) {
+                continue;
+            }
             do {
                 $participants[] = $following[array_rand($following)]->id;
             } while (static::chance(0.5));
-            
             $conversation = Conversation::add($participants);
             if (!$conversation) {
                 echo "Failed to add conversation.\n";

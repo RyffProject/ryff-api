@@ -27,7 +27,7 @@ class Upvote {
         }
         
         $query = "
-            INSERT INTO `upvotes` (`post_id`, `user_id`)
+            INSERT IGNORE INTO `upvotes` (`post_id`, `user_id`)
             VALUES (:post_id, :user_id)";
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);

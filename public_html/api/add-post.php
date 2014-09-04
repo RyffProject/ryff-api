@@ -51,7 +51,7 @@ if (!$content &&
 
 if (isset($_POST['parent_ids'])) {
     $parent_ids = array_filter(
-        array_map(intval, array_filter(explode(',', $_POST['parent_ids']))),
+        array_map('intval', array_filter(explode(',', $_POST['parent_ids']))),
         function($id) { return Post::get_by_id($id) !== null; }
     );
 } else {

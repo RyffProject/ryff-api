@@ -94,15 +94,16 @@ class Tag {
         
         $tags = array();
         if (preg_match_all('/#([a-zA-Z0-9_]+)/', $content, $tags)) {
+            $tags = array_values(array_unique($tags[1]));
             $query = "
                 INSERT INTO `post_tags` (`post_id`, `tag`)
                 VALUES ".implode(',', array_map(
                     function($i) { return "(:post_id, :tag$i)"; },
-                    range(0, count($tags[1]) - 1)
+                    range(0, count($tags) - 1)
                 ));
             $sth = $dbh->prepare($query);
             $sth->bindValue('post_id', $post_id);
-            foreach ($tags[1] as $i => $tag) {
+            foreach ($tags as $i => $tag) {
                 $sth->bindValue('tag'.$i, $tag);
             }
             if ($sth->execute()) {
@@ -131,7 +132,7 @@ class Tag {
         }
         
         $query = "
-            INSERT INTO `user_tags` (`user_id`, `tag`)
+            INSERT IGNORE INTO `user_tags` (`user_id`, `tag`)
             VALUES (:user_id, :tag)";
         $sth = $dbh->prepare($query);
         $sth->bindValue('user_id', $user_id);

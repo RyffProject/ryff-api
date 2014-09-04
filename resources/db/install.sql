@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS `apns_tokens` (
   `device_uuid` char(36) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`apns_token_id`),
-  KEY `user_id` (`user_id`)
+  KEY `user_id` (`user_id`),
+  UNIQUE KEY (`user_id`, `device_uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -51,7 +52,8 @@ CREATE TABLE IF NOT EXISTS `conversation_members` (
   `date_last_read` timestamp DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`conversation_member_id`),
   KEY `conversation_id` (`conversation_id`),
-  KEY `user_id` (`user_id`)
+  KEY `user_id` (`user_id`),
+  UNIQUE KEY (`conversation_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -73,8 +75,9 @@ CREATE TABLE IF NOT EXISTS `follows` (
   `from_id` int(10) unsigned NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`follow_id`),
-  KEY `to_id` (`to_id`,`from_id`),
-  KEY `from_id` (`from_id`)
+  KEY `to_id` (`to_id`),
+  KEY `from_id` (`from_id`),
+  UNIQUE KEY (`to_id`, `from_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -151,7 +154,8 @@ CREATE TABLE IF NOT EXISTS `post_families` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`post_family_id`),
   KEY `parent_id` (`parent_id`),
-  KEY `child_id` (`child_id`)
+  KEY `child_id` (`child_id`),
+  UNIQUE KEY (`parent_id`, `child_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -163,7 +167,8 @@ CREATE TABLE IF NOT EXISTS `post_tags` (
   `tag` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`tag_id`),
-  KEY `post_id` (`post_id`)
+  KEY `post_id` (`post_id`),
+  UNIQUE KEY (`post_id`, `tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -201,7 +206,8 @@ CREATE TABLE IF NOT EXISTS `stars` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`star_id`),
   KEY `post_id` (`post_id`),
-  KEY `user_id` (`user_id`)
+  KEY `user_id` (`user_id`),
+  UNIQUE KEY (`post_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -214,7 +220,8 @@ CREATE TABLE IF NOT EXISTS `upvotes` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`upvote_id`),
   KEY `post_id` (`post_id`),
-  KEY `user_id` (`user_id`)
+  KEY `user_id` (`user_id`),
+  UNIQUE KEY (`post_id`, `user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -226,7 +233,8 @@ CREATE TABLE IF NOT EXISTS `user_tags` (
   `tag` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`tag_id`),
-  KEY `user_id` (`user_id`)
+  KEY `user_id` (`user_id`),
+  UNIQUE KEY (`user_id`, `tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -241,7 +249,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `date_updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`user_id`)
+  PRIMARY KEY (`user_id`),
+  UNIQUE KEY (`username`),
+  UNIQUE KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 
