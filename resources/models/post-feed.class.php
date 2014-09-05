@@ -182,14 +182,14 @@ class PostFeed {
         global $dbh;
         
         $query = "
-            SELECT DISTINCT(p.`post_id`),
-                (COUNT(up.`upvote_id`) / (NOW() - p.`date_created`)) AS `score`
+            SELECT DISTINCT(p.`post_id`), (
+                    SELECT 1000000 * COUNT(*) FROM `upvotes`
+                    WHERE `post_id` = p.`post_id`
+                ) / (NOW() - p.`date_created`) AS `score`
             FROM `posts` AS p
             ".($tags ? "JOIN `post_tags` AS t
-            ON t.`post_id` = p.`post_id`" : "")."
-            JOIN `upvotes` AS up
-            ON up.`post_id` = p.`post_id`
-            ".($tags ? "WHERE t.`tag` IN (".implode(',', array_map(
+            ON t.`post_id` = p.`post_id`
+            WHERE t.`tag` IN (".implode(',', array_map(
                 function($i) { return ':tag'.$i; },
                 range(0, count($tags) - 1)
             )).")" : "")."
