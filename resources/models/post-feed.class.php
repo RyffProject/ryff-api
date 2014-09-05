@@ -137,14 +137,15 @@ class PostFeed {
         $from_date = Util::get_from_date($time);
         
         $query = "
-            SELECT DISTINCT(p.`post_id`), COUNT(up.`upvote_id`) AS `num_upvotes`
+            SELECT DISTINCT(p.`post_id`), (
+                    SELECT COUNT(*) FROM `upvotes`
+                    WHERE `post_id` = p.`post_id`
+                    AND `date_created` >= :from_date
+                ) AS `num_upvotes`
             FROM `posts` AS p
             ".($tags ? "JOIN `post_tags` AS t
-            ON t.`post_id` = p.`post_id`" : "")."
-            JOIN `upvotes` AS up
-            ON up.`post_id` = p.`post_id`
-            WHERE up.`date_created` >= :from_date
-            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
+            ON t.`post_id` = p.`post_id`
+            WHERE t.`tag` IN (".implode(',', array_map(
                 function($i) { return ':tag'.$i; },
                 range(0, count($tags) - 1)
             )).")" : "")."
