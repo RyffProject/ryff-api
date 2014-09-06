@@ -155,10 +155,7 @@ class ApiTests extends TestEnvironment {
     protected function logout_test() {
         $user = $this->get_test_user();
         $output = true;
-        if (!$this->log_user_in($user->username)) {
-            echo "Failed to log user in.\n";
-            $output = false;
-        }
+        $this->log_user_in($user->username);
         $results = $this->post_to_api("logout");
         if (!$results || property_exists($results, "error")) {
             echo "Failed to log user out.\n";
@@ -188,14 +185,17 @@ class ApiTests extends TestEnvironment {
             "uuid" => str_repeat("0", 36)
         );
         $results = $this->post_to_api("add-apns-token", $fields);
-        if (!$results || property_exists($results, "error")) {
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
             echo "Failed to add APNs token (API level).\n";
             $output = false;
-        }
-        $tokens = PushNotification::get_apns_tokens($user->id);
-        if (empty($tokens)) {
-            echo "Failed to add APNs token (Database level).\n";
-            $output = false;
+        } else {
+            $tokens = PushNotification::get_apns_tokens($user->id);
+            if (empty($tokens)) {
+                echo "Failed to add APNs token (Database level).\n";
+                $output = false;
+            }
         }
         User::delete($user->id);
         return $output;
@@ -214,10 +214,16 @@ class ApiTests extends TestEnvironment {
         $user2 = $this->get_test_user();
         $this->log_user_in($user1->username);
         $results = $this->post_to_api("add-conversation", array("ids" => $user2->id));
-        if (!$results || property_exists($results, "error")) {
-            echo "Failed to add conversation.\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to add conversation (API Level).\n";
             $output = false;
         } else {
+            if (!Conversation::get_by_id($results->conversation->id, $user1->id)) {
+                echo "Failed to add conversation (Database Level).\n";
+                $output = false;
+            }
             Conversation::delete($results->conversation->id);
         }
         $fail_results = $this->post_to_api("add-conversation", array("ids" => ""));
@@ -242,8 +248,13 @@ class ApiTests extends TestEnvironment {
         $user2 = $this->get_test_user();
         $this->log_user_in($user1->username);
         $results = $this->post_to_api("add-follow", array("id" => $user2->id));
-        if (!$results || property_exists($results, "error")) {
-            echo "Failed to add follow.\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to add follow (API Level).\n";
+            $output = false;
+        } else if (Follow::get_followers(1, 1, $user2->id) != array(User::get_by_id($user1->id))) {
+            echo "Failed to add follow (Database Level).\n";
             $output = false;
         }
         User::delete($user1->id);
@@ -276,8 +287,13 @@ class ApiTests extends TestEnvironment {
             $fields["duration"] = 150;
         }
         $results = $this->post_to_api("add-post", $fields);
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to add post (API Level).\n";
+            $output = false;
+        } else if (!Post::get_by_id($results->post->id)) {
+            echo "Failed to add post (Database Level).\n";
             $output = false;
         } else if (!$results->post->is_upvoted) {
             echo "The new post is not upvoted by the logged in user.\n";
@@ -299,8 +315,13 @@ class ApiTests extends TestEnvironment {
         $post = $this->get_test_post($user->id);
         $this->log_user_in($user->username);
         $results = $this->post_to_api("add-star", array("id" => $post->id));
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to add star (API Level).\n";
+            $output = false;
+        } else if (Star::get_starred_posts($user->id) != array($post)) {
+            echo "Failed to add star (Database Level).\n";
             $output = false;
         }
         User::delete($user->id);
@@ -321,8 +342,13 @@ class ApiTests extends TestEnvironment {
         Upvote::delete($post->id, $user->id);
         $this->log_user_in($user->username);
         $results = $this->post_to_api("add-upvote", array("id" => $post->id));
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to add upvote (API Level).\n";
+            $output = false;
+        } else if (Post::get_by_id($post->id)->upvotes !== 1) {
+            echo "Failed to add upvote (Database Level).\n";
             $output = false;
         }
         User::delete($user->id);
@@ -342,8 +368,13 @@ class ApiTests extends TestEnvironment {
         Follow::add($user1->id, $user2->id);
         $this->log_user_in($user2->username);
         $results = $this->post_to_api("delete-follow", array("id" => $user1->id));
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to delete follow (API Level).\n";
+            $output = false;
+        } else if (!empty(Follow::get_following(1, 1, $user2->id))) {
+            echo "Failed to delete follow (Database Level).\n";
             $output = false;
         }
         User::delete($user1->id);
@@ -362,8 +393,13 @@ class ApiTests extends TestEnvironment {
         $post = $this->get_test_post($user->id);
         $this->log_user_in($user->username);
         $results = $this->post_to_api("delete-post", array("id" => $post->id));
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to delete post (API Level).\n";
+            $output = false;
+        } else if (Post::get_by_id($post->id)) {
+            echo "Failed to delete post (Database Level).\n";
             $output = false;
         }
         User::delete($user->id);
@@ -383,8 +419,13 @@ class ApiTests extends TestEnvironment {
         Star::add($post->id, $user->id);
         $this->log_user_in($user->username);
         $results = $this->post_to_api("delete-star", array("id" => $post->id));
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to delete star (API Level).\n";
+            $output = false;
+        } else if (!empty(Star::get_starred_posts($user->id))) {
+            echo "Failed to delete star (Database Level).\n";
             $output = false;
         }
         User::delete($user->id);
@@ -403,8 +444,13 @@ class ApiTests extends TestEnvironment {
         $post = $this->get_test_post($user->id);
         $this->log_user_in($user->username);
         $results = $this->post_to_api("delete-upvote", array("id" => $post->id));
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
+            $output = false;
+        } else if (property_exists($results, "error")) {
+            echo "Failed to delete upvote (API Level).\n";
+            $output = false;
+        } else if (Post::get_by_id($post->id)->upvotes !== 0) {
+            echo "Failed to delete upvote (Database Level).\n";
             $output = false;
         }
         User::delete($user->id);
@@ -421,10 +467,16 @@ class ApiTests extends TestEnvironment {
         $user = $this->get_test_user();
         $this->log_user_in($user->username);
         $results = $this->post_to_api("delete-user");
-        if (!$results || property_exists($results, "error")) {
-            echo $results->error."\n";
+        if (!$results) {
             $output = false;
-        } else {
+        } else if (property_exists($results, "error")) {
+            echo "Failed to delete user (API Level).\n";
+            $output = false;
+        } else if (User::get_by_id($user->id)) {
+            echo "Failed to delete user (Database Level).\n";
+            $output = false;
+        }
+        if (!$output) {
             User::delete($user->id);
         }
         return $output;
