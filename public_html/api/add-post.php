@@ -75,9 +75,6 @@ if (isset($_FILES['riff']) && !$_FILES['riff']['error']) {
 $post = Post::add($content, $parent_ids, $img_tmp_path,
         $title, $duration, $riff_tmp_path);
 if ($post) {
-    //Add an upvote from the current user. Don't send an error on failure though.
-    Upvote::add($post->id);
-    
     echo json_encode(array(
         "success" => "Successfully added post from user.",
         "post" => Post::get_by_id($post->id)

@@ -279,6 +279,9 @@ class ApiTests extends TestEnvironment {
         if (!$results || property_exists($results, "error")) {
             echo $results->error."\n";
             $output = false;
+        } else if (!$results->post->is_upvoted) {
+            echo "The new post is not upvoted by the logged in user.\n";
+            $output = false;
         }
         User::delete($user->id);
         return $output;
@@ -327,6 +330,107 @@ class ApiTests extends TestEnvironment {
     }
     
     /**
+     * Creates two users and has one follow the other, then tries to delete
+     * that follow via the API.
+     * 
+     * @return boolean
+     */
+    protected function delete_follow_test() {
+        $output = true;
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        Follow::add($user1->id, $user2->id);
+        $this->log_user_in($user2->username);
+        $results = $this->post_to_api("delete-follow", array("id" => $user1->id));
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        }
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return $output;
+    }
+    
+    /**
+     * Creates a user and a post, then tries to delete the post via the API.
+     * 
+     * @return boolean
+     */
+    protected function delete_post_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $post = $this->get_test_post($user->id);
+        $this->log_user_in($user->username);
+        $results = $this->post_to_api("delete-post", array("id" => $post->id));
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        }
+        User::delete($user->id);
+        return $output;
+    }
+    
+    /**
+     * Creates a user and a post, stars the post, then tries to make the user
+     * unstar the post via the API.
+     * 
+     * @return boolean
+     */
+    protected function delete_star_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $post = $this->get_test_post($user->id);
+        Star::add($post->id, $user->id);
+        $this->log_user_in($user->username);
+        $results = $this->post_to_api("delete-star", array("id" => $post->id));
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        }
+        User::delete($user->id);
+        return $output;
+    }
+    
+    /**
+     * Creates a user and a post, then tries to delete the default upvote
+     * from the post.
+     * 
+     * @return boolean
+     */
+    protected function delete_upvote_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $post = $this->get_test_post($user->id);
+        $this->log_user_in($user->username);
+        $results = $this->post_to_api("delete-upvote", array("id" => $post->id));
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        }
+        User::delete($user->id);
+        return $output;
+    }
+    
+    /**
+     * Creates a user and then tries to delete it via the API.
+     * 
+     * @return boolean
+     */
+    protected function delete_user_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $this->log_user_in($user->username);
+        $results = $this->post_to_api("delete-user");
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        } else {
+            User::delete($user->id);
+        }
+        return $output;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
@@ -341,7 +445,12 @@ class ApiTests extends TestEnvironment {
             "add_follow_test" => "Add follow test",
             "add_post_test" => "Add post test",
             "add_star_test" => "Add star test",
-            "add_upvote_test" => "Add upvote test"
+            "add_upvote_test" => "Add upvote test",
+            "delete_follow_test" => "Delete follow test",
+            "delete_post_test" => "Delete post test",
+            "delete_star_test" => "Delete star test",
+            "delete_upvote_test" => "Delete upvote test",
+            "delete_user_test" => "Delete user test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {

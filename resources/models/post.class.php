@@ -300,6 +300,7 @@ class Post {
             
             Tag::add_for_post($post_id, $content);
             Notification::add_mentions($post_id, $content);
+            Upvote::add($post_id, $user_id);
             
             return Post::get_by_id($post_id);
         }
