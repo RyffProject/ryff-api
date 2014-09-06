@@ -71,7 +71,7 @@ class PushNotification {
      * @param int $user_id
      * @return array
      */
-    protected static function get_apns_tokens($user_id) {
+    public static function get_apns_tokens($user_id) {
         global $dbh;
         
         $query = "

@@ -59,7 +59,6 @@ class ApiTests extends TestEnvironment {
         
         curl_close($ch);
 
-        $this->cookies = array();
         $temp_cookies = array();
         preg_match_all("/^Set-cookie: (.*?);/ism", $header, $temp_cookies);
         foreach( $temp_cookies[1] as $cookie ){
@@ -97,6 +96,7 @@ class ApiTests extends TestEnvironment {
      * @return boolean
      */
     protected function create_user_test() {
+        $output = true;
         $fields = array(
             "username" => $this->get_unique_word(),
             "password" => "password",
@@ -118,9 +118,10 @@ class ApiTests extends TestEnvironment {
         $get_results = $this->post_to_api("get-user", array("id" => $results->user->id));
         if (!$get_results || property_exists($get_results, "error")) {
             echo "Failed to get user after creation.\n";
+            $output = false;
         }
         User::delete($results->user->id);
-        return $get_results && !property_exists($get_results, "error");
+        return $output;
     }
     
     /**
@@ -131,16 +132,18 @@ class ApiTests extends TestEnvironment {
      */
     protected function login_test() {
         $user = $this->get_test_user();
+        $output = true;
         if (!$this->log_user_in($user->username)) {
             echo "Failed to log user in.\n";
-            return false;
+            $output = false;
         }
         $results = $this->post_to_api("get-user", array("id" => $user->id));
         if (!$results || property_exists($results, "error")) {
             echo "Failed to get user after login.\n";
+            $output = false;
         }
         User::delete($user->id);
-        return $results && !property_exists($results, "error");
+        return $output;
     }
     
     /**
@@ -151,22 +154,80 @@ class ApiTests extends TestEnvironment {
      */
     protected function logout_test() {
         $user = $this->get_test_user();
+        $output = true;
         if (!$this->log_user_in($user->username)) {
             echo "Failed to log user in.\n";
-            return false;
+            $output = false;
         }
         $results = $this->post_to_api("logout");
         if (!$results || property_exists($results, "error")) {
             echo "Failed to log user out.\n";
-            User::delete($user->id);
-            return false;
+            $output = false;
         }
         $get_results = $this->post_to_api("get-user", array("id" => $user->id));
         if (!$get_results || property_exists($get_results, "success")) {
             echo "Error, not logged out after calling logout.\n";
+            $output = false;
         }
         User::delete($user->id);
-        return $get_results && property_exists($get_results, "error");
+        return $output;
+    }
+    
+    protected function add_apns_token_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $this->log_user_in($user->username);
+        $fields = array(
+            "token" => str_repeat("0", 64),
+            "uuid" => str_repeat("0", 36)
+        );
+        $results = $this->post_to_api("add-apns-token", $fields);
+        if (!$results || property_exists($results, "error")) {
+            echo "Failed to add APNs token (API level).\n";
+            $output = false;
+        }
+        $tokens = PushNotification::get_apns_tokens($user->id);
+        if (empty($tokens)) {
+            echo "Failed to add APNs token (Database level).\n";
+            $output = false;
+        }
+        User::delete($user->id);
+        return $output;
+    }
+    
+    protected function add_conversation_test() {
+        $output = true;
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        $this->log_user_in($user1->username);
+        $results = $this->post_to_api("add-conversation", array("ids" => $user2->id));
+        if (!$results || property_exists($results, "error")) {
+            echo "Failed to add conversation.\n";
+            $output = false;
+        }
+        $fail_results = $this->post_to_api("add-conversation", array("ids" => ""));
+        if (!$fail_results || !property_exists($fail_results, "error")) {
+            echo "Failed to detect conversation with not enough ids.\n";
+            $output = false;
+        }
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return $output;
+    }
+    
+    protected function add_follow_test() {
+        $output = true;
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        $this->log_user_in($user1->username);
+        $results = $this->post_to_api("add-follow", array("id" => $user2->id));
+        if (!$results || property_exists($results, "error")) {
+            echo "Failed to add follow.\n";
+            $output = false;
+        }
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return $output;
     }
     
     /**
@@ -178,7 +239,10 @@ class ApiTests extends TestEnvironment {
         $tests = array(
             "create_user_test" => "Create user test",
             "login_test" => "Login test",
-            "logout_test" => "Logout test"
+            "logout_test" => "Logout test",
+            "add_apns_token_test" => "Add APNs token test",
+            "add_conversation_test" => "Add conversation test",
+            "add_follow_test" => "Add follow test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {
