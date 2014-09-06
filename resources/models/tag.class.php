@@ -273,7 +273,7 @@ class Tag {
                 JOIN `users` AS u
                 ON u.`user_id` = p.`user_id`
                 JOIN `follows` AS f
-                ON f.`from_id` = p.`user_id`
+                ON f.`to_id` = p.`user_id`
                 WHERE f.`from_id` = :user_id
 
                 UNION ALL
@@ -284,7 +284,7 @@ class Tag {
                 JOIN `users` AS u
                 ON u.`user_id` = ut.`user_id`
                 JOIN `follows` AS f
-                ON f.`from_id` = u.`user_id`
+                ON f.`to_id` = u.`user_id`
                 WHERE f.`from_id` = :user_id
             ) AS t
             GROUP BY t.`tag`
