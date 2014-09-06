@@ -42,21 +42,21 @@ abstract class TestEnvironment {
      * 
      * @var array
      */
-    private $sample_avatars = array();
+    protected $sample_avatars = array();
     
     /**
      * An array of paths to sample post images.
      * 
      * @var array
      */
-    private $sample_post_images = array();
+    protected $sample_post_images = array();
     
     /**
      * An array of paths to sample riffs.
      * 
      * @var array
      */
-    private $sample_riffs = array();
+    protected $sample_riffs = array();
     
     /**
      * Constructs a new TestEnvironment object and initializes the words array

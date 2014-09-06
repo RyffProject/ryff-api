@@ -22,17 +22,24 @@ class ApiTests extends TestEnvironment {
     private $cookies = array();
     
     /**
-     * Sends a POST request to the API with the given field names. Returns the
-     * decoded JSON object or false on failure. Also echoes an error message
-     * on failure.
+     * Sends a POST request to the API with the given field names and files.
+     * Returns the decoded JSON object or false on failure. Also echoes an error
+     * message on failure.
      * 
      * @param string $script_name The name of the API script without the file extension.
-     * @param array $fields An associative key/value array.
+     * @param array $fields [optional] An associative $key => $value array.
+     * @param array $files [optional] An associative $key => $filepath array.
      * @return mixed The decoded JSON response or false on failure.
      */
-    private function post_to_api($script_name, $fields = array()) {
+    private function post_to_api($script_name, $fields = array(), $files = array()) {
         $ch = curl_init();
 
+        foreach ($files as $key => $path) {
+            if (!file_exists($path)) {
+                continue;
+            }
+            $fields[$key] = "@".$path.";filename=".basename($path);
+        }
         curl_setopt($ch, CURLOPT_URL, SITE_ROOT."/api/$script_name.php");
         curl_setopt($ch, CURLOPT_COOKIE, implode("; ", $this->cookies));
         curl_setopt($ch, CURLOPT_POST, true);
@@ -85,6 +92,41 @@ class ApiTests extends TestEnvironment {
     }
     
     /**
+     * Creates some fake credentials and creates a new user, with an avatar
+     * image if one is available. Then checks to make sure the user is logged
+     * in after creation.
+     * 
+     * @return boolean
+     */
+    protected function create_user_test() {
+        $fields = array(
+            "username" => $this->get_unique_word(),
+            "password" => "password",
+            "name" => $this->get_words(2),
+            "email" => $this->get_unique_word()."@example.com",
+            "bio" => $this->get_words(10),
+            "latitude" => 50,
+            "longitude" => 50
+        );
+        $files = array();
+        if (!empty($this->sample_avatars)) {
+            $files["avatar"] = $this->sample_avatars[0];
+        }
+        $results = $this->post_to_api("create-user", $fields, $files);
+        if (!$results) {
+            echo "Failed to create user.\n";
+            return false;
+        }
+        $get_results = $this->post_to_api("get-user", array("id" => $results->user->id));
+        if (!$get_results) {
+            echo "Failed to get user after creation.\n";
+            return false;
+        }
+        User::delete($results->user->id);
+        return true;
+    }
+    
+    /**
      * Creates a new user, attempts to log them in, then checks that the login
      * worked by calling get-user on the logged in user. Then the user is deleted.
      * 
@@ -93,11 +135,12 @@ class ApiTests extends TestEnvironment {
     protected function login_test() {
         $user = $this->get_test_user();
         if (!$this->log_user_in($user->username)) {
+            echo "Failed to log user in.\n";
             return false;
         }
         $result = (bool)$this->post_to_api("get-user", array("id" => $user->id));
         if (!$result) {
-            echo "Error: unable to get user after login.\n";
+            echo "Failed to get user after login.\n";
         }
         User::delete($user->id);
         return $result;
@@ -110,6 +153,7 @@ class ApiTests extends TestEnvironment {
      */
     protected function run_tests() {
         $tests = array(
+            "create_user_test" => "Create user test",
             "login_test" => "Login test"
         );
         foreach ($tests as $test => $message) {
