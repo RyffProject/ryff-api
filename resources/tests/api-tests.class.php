@@ -173,6 +173,12 @@ class ApiTests extends TestEnvironment {
         return $output;
     }
     
+    /**
+     * Creates a user, logs them in, and calls add-apns-token. Then it verifies
+     * that the token has been set in the database. Deletes the user on exit.
+     * 
+     * @return boolean
+     */
     protected function add_apns_token_test() {
         $output = true;
         $user = $this->get_test_user();
@@ -195,6 +201,13 @@ class ApiTests extends TestEnvironment {
         return $output;
     }
     
+    /**
+     * Creates two users, logs one of them in, ands adds a conversation with the
+     * other's id. Then tries to add a conversation with only itself as an id,
+     * which should fail. Deletes the users and conversation on exit.
+     * 
+     * @return boolean
+     */
     protected function add_conversation_test() {
         $output = true;
         $user1 = $this->get_test_user();
@@ -204,6 +217,8 @@ class ApiTests extends TestEnvironment {
         if (!$results || property_exists($results, "error")) {
             echo "Failed to add conversation.\n";
             $output = false;
+        } else {
+            Conversation::delete($results->conversation->id);
         }
         $fail_results = $this->post_to_api("add-conversation", array("ids" => ""));
         if (!$fail_results || !property_exists($fail_results, "error")) {
@@ -215,6 +230,12 @@ class ApiTests extends TestEnvironment {
         return $output;
     }
     
+    /**
+     * Creates two users and has one try to follow the other. Deletes the users
+     * on exit.
+     * 
+     * @return boolean
+     */
     protected function add_follow_test() {
         $output = true;
         $user1 = $this->get_test_user();
@@ -231,6 +252,81 @@ class ApiTests extends TestEnvironment {
     }
     
     /**
+     * Creates a user. Adds as many fields as possible, depending on the
+     * availability of sample post images and riff audio. Then adds a post via
+     * the API. Deletes the user on exit.
+     * 
+     * @return boolean
+     */
+    protected function add_post_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $parent_post = $this->get_test_post($user->id);
+        $this->log_user_in($user->username);
+        $fields = array(
+            "content" => $this->get_words(10),
+            "parent_ids" => $parent_post->id
+        );
+        if (!empty($this->sample_post_images)) {
+            $fields["image"] = $this->sample_post_images[0];
+        }
+        if (!empty($this->sample_riffs)) {
+            $fields["riff"] = $this->sample_riffs[0];
+            $fields["title"] = $this->get_words(2);
+            $fields["duration"] = 150;
+        }
+        $results = $this->post_to_api("add-post", $fields);
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        }
+        User::delete($user->id);
+        return $output;
+    }
+    
+    /**
+     * Creates a user and a post, then has the user star that post. Deletes the
+     * user on exit.
+     * 
+     * @return boolean
+     */
+    protected function add_star_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $post = $this->get_test_post($user->id);
+        $this->log_user_in($user->username);
+        $results = $this->post_to_api("add-star", array("id" => $post->id));
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        }
+        User::delete($user->id);
+        return $output;
+    }
+    
+    /**
+     * Creates a user and a post, then uses the model to remove the user's
+     * upvote from their own post. Then adds the upvote back via the API.
+     * Deletes the user on exit.
+     * 
+     * @return boolean
+     */
+    protected function add_upvote_test() {
+        $output = true;
+        $user = $this->get_test_user();
+        $post = $this->get_test_post($user->id);
+        Upvote::delete($post->id, $user->id);
+        $this->log_user_in($user->username);
+        $results = $this->post_to_api("add-upvote", array("id" => $post->id));
+        if (!$results || property_exists($results, "error")) {
+            echo $results->error."\n";
+            $output = false;
+        }
+        User::delete($user->id);
+        return $output;
+    }
+    
+    /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
      * @return boolean If the tests succeeded or not.
@@ -242,7 +338,10 @@ class ApiTests extends TestEnvironment {
             "logout_test" => "Logout test",
             "add_apns_token_test" => "Add APNs token test",
             "add_conversation_test" => "Add conversation test",
-            "add_follow_test" => "Add follow test"
+            "add_follow_test" => "Add follow test",
+            "add_post_test" => "Add post test",
+            "add_star_test" => "Add star test",
+            "add_upvote_test" => "Add upvote test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {
