@@ -11,8 +11,8 @@
  * Command-line arguments:
  * "--no-setup" Doesn't install or uninstall the database.
  * "--no-teardown" Doesn't uninstall the database.
- * "--type=$n" The type of tests to run, where $n is unit or populate.
- * "--cycles=$m" The number of populate cycles to run, where $m is an integer.
+ * "--type=TYPE" The type of tests to run, one of api, unit, or populate.
+ * "--cycles=CYCLES" The number of populate cycles to run.
  * "--help" Brings up the help text.
  * 
  * Ryff API <http://www.github.com/rfotino/ryff-api>
@@ -22,8 +22,8 @@
 if (in_array('--help', $argv)) {
     echo "--no-setup: Doesn't attempt to install or uninstall the database.\n";
     echo "--no-teardown: Doesn't attempt to uninstall the database.\n";
-    echo "--type: The type of test, either unit or populate. ex) --type=unit\n";
-    echo "--cycles: The number of populate cycles to run. ex) --cycles=10\n";
+    echo "--type=TYPE: The type of test. One of api, unit, or populate.\n";
+    echo "--cycles=CYCLES: The number of populate cycles to run.\n";
     echo "--help: Brings up this text.\n";
     exit;
 }
@@ -40,6 +40,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 require_once("unit-tests.class.php");
 require_once("populate-tests.class.php");
+require_once("api-tests.class.php");
 
 $lock_file = __DIR__."/tests.lock";
 if (file_exists($lock_file)) {
@@ -70,6 +71,8 @@ if (!isset($type)) {
     echo "You must specify a type.\n";
     echo "Use --help for more information.\n";
     exit;
+} else if ($type === 'api') {
+    $environment = new ApiTests();
 } else if ($type === 'unit') {
     $environment = new UnitTests();
 } else if ($type === 'populate') {
