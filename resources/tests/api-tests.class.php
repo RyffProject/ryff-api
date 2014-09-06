@@ -59,6 +59,7 @@ class ApiTests extends TestEnvironment {
         
         curl_close($ch);
 
+        $this->cookies = array();
         $temp_cookies = array();
         preg_match_all("/^Set-cookie: (.*?);/ism", $header, $temp_cookies);
         foreach( $temp_cookies[1] as $cookie ){
@@ -71,9 +72,6 @@ class ApiTests extends TestEnvironment {
             echo "Fatal Error: Invalid JSON: $output\n";
             return false;
         } else {
-            if (isset($obj->error)) {
-                echo "{$obj->error}\n";
-            }
             return $obj;
         }
     }
@@ -88,7 +86,7 @@ class ApiTests extends TestEnvironment {
     private function log_user_in($username) {
         $fields = array("auth_username" => $username, "auth_password" => "password");
         $results = $this->post_to_api("login", $fields);
-        return (bool)$results;
+        return $results && property_exists($results, "success");
     }
     
     /**
@@ -113,17 +111,16 @@ class ApiTests extends TestEnvironment {
             $files["avatar"] = $this->sample_avatars[0];
         }
         $results = $this->post_to_api("create-user", $fields, $files);
-        if (!$results) {
+        if (!$results || property_exists($results, "error")) {
             echo "Failed to create user.\n";
             return false;
         }
         $get_results = $this->post_to_api("get-user", array("id" => $results->user->id));
-        if (!$get_results) {
+        if (!$get_results || property_exists($get_results, "error")) {
             echo "Failed to get user after creation.\n";
-            return false;
         }
         User::delete($results->user->id);
-        return true;
+        return $get_results && !property_exists($get_results, "error");
     }
     
     /**
@@ -138,12 +135,38 @@ class ApiTests extends TestEnvironment {
             echo "Failed to log user in.\n";
             return false;
         }
-        $result = (bool)$this->post_to_api("get-user", array("id" => $user->id));
-        if (!$result) {
+        $results = $this->post_to_api("get-user", array("id" => $user->id));
+        if (!$results || property_exists($results, "error")) {
             echo "Failed to get user after login.\n";
         }
         User::delete($user->id);
-        return $result;
+        return $results && !property_exists($results, "error");
+    }
+    
+    /**
+     * Creates a user, logs them in, logs them out, then tests that get-user
+     * fails.
+     * 
+     * @return boolean
+     */
+    protected function logout_test() {
+        $user = $this->get_test_user();
+        if (!$this->log_user_in($user->username)) {
+            echo "Failed to log user in.\n";
+            return false;
+        }
+        $results = $this->post_to_api("logout");
+        if (!$results || property_exists($results, "error")) {
+            echo "Failed to log user out.\n";
+            User::delete($user->id);
+            return false;
+        }
+        $get_results = $this->post_to_api("get-user", array("id" => $user->id));
+        if (!$get_results || property_exists($get_results, "success")) {
+            echo "Error, not logged out after calling logout.\n";
+        }
+        User::delete($user->id);
+        return $get_results && property_exists($get_results, "error");
     }
     
     /**
@@ -154,7 +177,8 @@ class ApiTests extends TestEnvironment {
     protected function run_tests() {
         $tests = array(
             "create_user_test" => "Create user test",
-            "login_test" => "Login test"
+            "login_test" => "Login test",
+            "logout_test" => "Logout test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {
