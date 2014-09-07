@@ -42,21 +42,21 @@ abstract class TestEnvironment {
      * 
      * @var array
      */
-    protected $sample_avatars = array();
+    public $sample_avatars = array();
     
     /**
      * An array of paths to sample post images.
      * 
      * @var array
      */
-    protected $sample_post_images = array();
+    public $sample_post_images = array();
     
     /**
      * An array of paths to sample riffs.
      * 
      * @var array
      */
-    protected $sample_riffs = array();
+    public $sample_riffs = array();
     
     /**
      * Constructs a new TestEnvironment object and initializes the words array
@@ -87,7 +87,7 @@ abstract class TestEnvironment {
      * @param float $prob A number between 0 and 1.
      * @return boolean
      */
-    protected static function chance($prob) {
+    public static function chance($prob) {
         return mt_rand(0, 100) < $prob * 100;
     }
     
@@ -97,7 +97,7 @@ abstract class TestEnvironment {
      * @param $use_avatar If an avatar image should be used.
      * @return User|null
      */
-    protected function get_test_user($use_avatar = false) {
+    public function get_test_user($use_avatar = false) {
         $name = $this->get_words(static::chance(0.7) ? 2 : 1);
         if (static::chance(0.7)) {
             $name = ucwords($name);
@@ -133,7 +133,7 @@ abstract class TestEnvironment {
      * @param boolean $use_riff [optional]
      * @return Post|null
      */
-    protected function get_test_post($user_id, $parent_ids = array(),
+    public function get_test_post($user_id, $parent_ids = array(),
             $tags = array(), $mentions = array(),
             $use_image = false, $use_riff = false) {
         $content = "";
@@ -181,7 +181,7 @@ abstract class TestEnvironment {
      * 
      * @return string
      */
-    protected function get_word() {
+    public function get_word() {
         if (count($this->words)) {
             return $this->words[mt_rand(0, count($this->words) - 1)];
         } else {
@@ -195,7 +195,7 @@ abstract class TestEnvironment {
      * 
      * @return string
      */
-    protected function get_unique_word() {
+    public function get_unique_word() {
         $word = array_pop($this->unique_words);
         if ($word) {
             $this->used_words[] = $word;
@@ -214,7 +214,7 @@ abstract class TestEnvironment {
      * @param int $num_words The number of words.
      * @return string
      */
-    protected function get_words($num_words) {
+    public function get_words($num_words) {
         $words = array();
         while ($num_words > 0) {
             $words[] = $this->get_word();

@@ -90,7 +90,7 @@ if (!isset($type)) {
 }
 
 echo "Running $type tests\n";
-echo "==================\n";
+echo "========".str_repeat("=", strlen($type))."======\n";
 
 $environment->run($do_setup, $do_teardown);
 

@@ -148,7 +148,7 @@ class UnitTests extends TestEnvironment {
             return false;
         }
         $post2 = $this->get_test_post($user->id, array($post->id));
-        if (!$post2 || $post2->get_parents() != array($post)) {
+        if (!$post2 || $post2->get_parents() != array(Post::get_by_id($post->id))) {
             echo "Failed to add post with parents.\n";
             return false;
         }
