@@ -34,16 +34,19 @@ class ApiTests extends TestEnvironment {
     public function post_to_api($script_name, $fields = array(), $files = array()) {
         $ch = curl_init();
 
-        foreach ($files as $key => $path) {
-            if (!file_exists($path)) {
+        foreach ($files as $key => $file) {
+            if (!file_exists($file["path"])) {;
                 continue;
             }
-            $fields[$key] = "@".$path.";filename=".basename($path);
+            $field = "@".$file["path"];
+            $field .= ";filename=".basename($file["path"]);
+            $field .= ";type=".$file["type"];
+            $fields[$key] = $field;
         }
         curl_setopt($ch, CURLOPT_URL, SITE_ROOT."/api/$script_name.php");
         curl_setopt($ch, CURLOPT_COOKIE, implode("; ", $this->cookies));
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -114,7 +117,7 @@ class ApiTests extends TestEnvironment {
             unset($tests[$test_class_name]);
         }
         
-        //Run the other test
+        //Run the other tests
         foreach ($tests as $test) {
             if (!$test->run()) {
                 return false;

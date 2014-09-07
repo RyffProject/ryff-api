@@ -35,11 +35,18 @@ class AddPostTest extends Test {
             "content" => $this->env->get_words(10),
             "parent_ids" => $this->state["parent"]->id
         );
+        $this->state["files"] = array();
         if (!empty($this->env->sample_post_images)) {
-            $this->state["fields"]["image"] = $this->env->sample_post_images[0];
+            $this->state["files"]["image"] = array(
+                "path" => $this->env->sample_post_images[0],
+                "type" => "image/png"
+            );
         }
         if (!empty($this->env->sample_riffs)) {
-            $this->state["fields"]["riff"] = $this->env->sample_riffs[0];
+            $this->state["files"]["riff"] = array(
+                "path" => $this->env->sample_riffs[0],
+                "type" => "audio/mp4"
+            );
             $this->state["fields"]["title"] = $this->env->get_words(2);
             $this->state["fields"]["duration"] = 150;
         }

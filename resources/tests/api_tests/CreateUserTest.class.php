@@ -39,7 +39,10 @@ class CreateUserTest extends Test {
         );
         $this->state["files"] = array();
         if (!empty($this->env->sample_avatars)) {
-            $this->state["files"]["avatar"] = $this->env->sample_avatars[0];
+            $this->state["files"]["avatar"] = array(
+                "path" => $this->env->sample_avatars[0],
+                "type" => "image/png"
+            );
         }
     }
 
