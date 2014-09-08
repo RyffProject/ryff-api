@@ -5,6 +5,8 @@
  * =====================
  * 
  * Authentication required.
+ * Gets the users who have acquired the most karma in the last day, week,
+ * month, or all time, optionally matching the given tags.
  * 
  * POST variables:
  * "page" (optional) The page number of the results, 1-based.
@@ -15,7 +17,7 @@
  * 
  * Return on success:
  * "success" The success message.
- * "users" An array of user objects found nearby.
+ * "users" An array of trending user objects.
  * 
  * Return on error:
  * "error" The error message.

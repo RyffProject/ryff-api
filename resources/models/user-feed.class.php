@@ -90,17 +90,16 @@ class UserFeed {
         
         $query = "
             SELECT DISTINCT(u.`user_id`), u.`name`, u.`username`,
-                u.`email`, u.`bio`, u.`date_created`,
-                COUNT(up.`upvote_id`) AS `num_upvotes`
+                u.`email`, u.`bio`, u.`date_created`, (
+                    SELECT COUNT(*) FROM `upvotes` AS up
+                    JOIN `posts` AS p ON p.`post_id` = up.`post_id`
+                    WHERE up.`date_created` >= :from_date
+                    AND p.`user_id` = u.`user_id`
+                ) AS `num_upvotes`
             FROM `users` AS u
             ".($tags ? "JOIN `user_tags` AS t
-            ON t.`user_id` = u.`user_id`" : "")."
-            JOIN `posts` AS p
-            ON p.`user_id` = u.`user_id`
-            JOIN `upvotes` AS up
-            ON up.`post_id` = p.`post_id`
-            WHERE up.`date_created` >= :from_date
-            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
+            ON t.`user_id` = u.`user_id`
+            WHERE t.`tag` IN (".implode(',', array_map(
                 function($i) { return ':tag'.$i; },
                 range(0, count($tags) - 1)
             )).")" : "")."

@@ -184,10 +184,14 @@ class Tag {
         global $dbh;
         
         $query = "
-            SELECT `tag` FROM `user_tags`
-            WHERE `tag` LIKE :query_str
-            GROUP BY `tag`
-            ORDER BY COUNT(*) DESC
+            SELECT t1.`tag`, (
+                    SELECT COUNT(*) FROM `user_tags` AS t2
+                    WHERE t2.`tag` = t1.`tag`
+                ) AS `num_tags`
+            FROM `user_tags` AS t1
+            WHERE t1.`tag` LIKE :query_str
+            GROUP BY t1.`tag`
+            ORDER BY `num_tags` DESC
             LIMIT 10";
         $sth = $dbh->prepare($query);
         $sth->bindValue('query_str', '%'.$query_str.'%');
