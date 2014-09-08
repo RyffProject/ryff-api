@@ -6,13 +6,10 @@
  * 
  * Authentication required.
  * 
- * NOTE: Either the content of the post must be set, or the title and riff 
- * upload must both be set.
- * 
  * POST variables:
- * "title" The title of the post. Titles longer than 255 characters will be truncated.
- * "duration" (optional) Duration of the associated riff, defaults to zero.
- * "content" The body of the post. Bodies longer than 65535 bytes will be truncated.
+ * "title" (required) The title of the post. Titles longer than 255 characters will be truncated.
+ * "duration" (required) Duration of the associated riff, defaults to zero.
+ * "content" (optional) The body of the post. Bodies longer than 65535 bytes will be truncated.
  * "parent_ids" (optional) Array of ids of the parent posts sampled in this post's riff.
  * 
  * File uploads:
@@ -42,11 +39,24 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once("global.php");
 
 $content = isset($_POST['content']) ? trim($_POST['content']) : "";
-if (!$content && 
-        ((!isset($_FILES['riff']) || $_FILES['riff']['error']) ||
-        (!isset($_POST['title']) || !$_POST['title']))) {
-    echo json_encode(array("error" => "No post to add!"));
+$title = isset($_POST['title']) ? trim($_POST['title']) : "";
+$duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 0;
+if (!$title) {
+    echo json_encode(array("error" => "A post title is required."));
     exit;
+} else if ($duration <= 0) {
+    echo json_encode(array("error" => "The duration must be greater than 0."));
+    exit;
+}
+
+if (!isset($_FILES['riff'])) {
+    echo json_encode(array("error" => "A riff audio file is required."));
+    exit;
+} else if ($_FILES['riff']['error']) {
+    echo json_encode(array("error" => "There was an error uploading your audio file."));
+    exit;
+} else {
+    $riff_tmp_path = $_FILES['riff']['tmp_name'];
 }
 
 if (isset($_POST['parent_ids'])) {
@@ -64,16 +74,8 @@ if (isset($_FILES['image']) && !$_FILES['image']['error'] && $_FILES['image']['t
     $img_tmp_path = "";
 }
 
-$title = isset($_POST['title']) ? trim($_POST['title']) : "";
-$duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 0;
-if (isset($_FILES['riff']) && !$_FILES['riff']['error']) {
-    $riff_tmp_path = $_FILES['riff']['tmp_name'];
-} else {
-    $riff_tmp_path = "";
-}
-
-$post = Post::add($content, $parent_ids, $img_tmp_path,
-        $title, $duration, $riff_tmp_path);
+$post = Post::add($title, $duration, $riff_tmp_path,
+        $content, $parent_ids, $img_tmp_path);
 if ($post) {
     echo json_encode(array(
         "success" => "Successfully added post from user.",

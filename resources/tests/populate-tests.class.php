@@ -172,7 +172,7 @@ class PopulateTests extends TestEnvironment {
                 $post = $this->get_test_post(
                     $user->id, array_unique($parent_ids),
                     array_unique($tags), array_unique($mentions),
-                    static::chance(0.3), static::chance(0.8)
+                    static::chance(0.3)
                 );
                 if (!$post) {
                     echo "Failed to add post.\n";

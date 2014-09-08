@@ -59,7 +59,10 @@ class AddPostTest extends Test {
      */
     protected function test() {
         $output = true;
-        $results = $this->env->post_to_api("add-post", $this->state["fields"]);
+        $results = $this->env->post_to_api(
+            "add-post",
+            $this->state["fields"], $this->state["files"]
+        );
         if (!$results) {
             $output = false;
         } else if (property_exists($results, "error")) {

@@ -177,23 +177,12 @@ CREATE TABLE IF NOT EXISTS `post_tags` (
 CREATE TABLE IF NOT EXISTS `posts` (
   `post_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
+  `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
+  `duration` int(10) unsigned NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`post_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Table structure for table `riffs`
---
-CREATE TABLE IF NOT EXISTS `riffs` (
-  `riff_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `post_id` int(10) unsigned NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `duration` int(10) unsigned NOT NULL,
-  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`riff_id`),
-  KEY `post_id` (`post_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -389,15 +378,6 @@ ALTER TABLE `posts`
   ADD CONSTRAINT `posts_user_id_constr`
     FOREIGN KEY (`user_id`)
     REFERENCES `users` (`user_id`)
-    ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `riffs`
---
-ALTER TABLE `riffs`
-  ADD CONSTRAINT `riffs_post_id_constr`
-    FOREIGN KEY (`post_id`)
-    REFERENCES `posts` (`post_id`)
     ON DELETE CASCADE ON UPDATE CASCADE;
 
 --

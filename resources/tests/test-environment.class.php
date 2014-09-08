@@ -122,20 +122,18 @@ abstract class TestEnvironment {
     /**
      * Adds and returns a random new post for the given users, with the
      * given parent_ids optionally as parent posts. Optionally with custom tags
-     * and mentions. Will have a post image or audio if $use_image or $use_riff
-     * are set to true, respectively.
+     * and mentions. Will have a post image if $use_image is set to true.
      * 
      * @param int $user_id
      * @param array $parent_ids [optional]
      * @param array $tags [optional]
      * @param array $mentions [optional]
      * @param boolean $use_image [optional]
-     * @param boolean $use_riff [optional]
      * @return Post|null
      */
     public function get_test_post($user_id, $parent_ids = array(),
             $tags = array(), $mentions = array(),
-            $use_image = false, $use_riff = false) {
+            $use_image = false) {
         $content = "";
         if (is_array($mentions)) {
             foreach ($mentions as $username) {
@@ -155,23 +153,19 @@ abstract class TestEnvironment {
             $image_tmp_path = "";
         }
         
-        if ($use_riff && !empty($this->sample_riffs)) {
-            $riff_title = ucwords($this->get_words(mt_rand(1, 3)));
-            $riff_duration = mt_rand(45, 200);
+        $riff_title = ucwords($this->get_words(mt_rand(1, 3)));
+        $riff_duration = mt_rand(45, 200);
+        if (!empty($this->sample_riffs)) {
             $riff_tmp_path = $this->sample_riffs[array_rand($this->sample_riffs)];
-        } else {
-            $riff_title = "";
-            $riff_duration = 0;
-            $riff_tmp_path = "";
         }
         
         return Post::add(
-            $content,
-            $parent_ids,
-            $image_tmp_path,
             $riff_title,
             $riff_duration,
             $riff_tmp_path,
+            $content,
+            $parent_ids,
+            $image_tmp_path,
             $user_id
         );
     }

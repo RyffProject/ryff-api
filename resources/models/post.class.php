@@ -25,11 +25,11 @@ class Post {
     public $user;
     
     /**
-     * The Riff object associated with this post, or null if not found.
+     * The title of the post.
      * 
-     * @var Riff|null
+     * @var string
      */
-    public $riff;
+    public $title;
     
     /**
      * The text of the post.
@@ -37,6 +37,13 @@ class Post {
      * @var string
      */
     public $content;
+    
+    /**
+     * The duration of the post audio in seconds.
+     * 
+     * @var int
+     */
+    public $duration;
     
     /**
      * The date this post was created.
@@ -74,25 +81,35 @@ class Post {
     public $image_url;
     
     /**
+     * The URL for this post's associated audio file.
+     * 
+     * @var string
+     */
+    public $riff_url;
+    
+    /**
      * Constructs a new Post instance with the given member variable values.
      * 
      * @param int $id
      * @param User $user
-     * @param Riff $riff
+     * @param string $title
      * @param string $content
+     * @param int $duration
      * @param string $date_created
      */
-    protected function __construct($id, $user, $riff, $content, $date_created) {
+    protected function __construct($id, $user, $title, $content, $duration, $date_created) {
         $this->id = (int)$id;
         $this->user = $user;
-        $this->riff = $riff;
+        $this->title = $title;
         $this->content = $content;
+        $this->duration = (int)$duration;
         $this->date_created = $date_created;
         
         $this->upvotes = $this->get_num_upvotes();
         $this->is_upvoted = $this->get_is_upvoted();
         $this->is_starred = $this->get_is_starred();
         $this->image_url = $this->get_image_url();
+        $this->riff_url = $this->get_riff_url();
     }
     
     /**
@@ -187,6 +204,27 @@ class Post {
     }
     
     /**
+     * Helper function that returns the URL of this post's assiciated audio file.
+     * 
+     * @return string
+     */
+    protected function get_riff_url() {
+        if (TEST_MODE) {
+            $riff_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/{$this->id}.m4a";
+        } else {
+            $riff_path = MEDIA_ABSOLUTE_PATH."/riffs/{$this->id}.m4a";
+        }
+        if (file_exists($image_path)) {
+            if (TEST_MODE) {
+                return TEST_MEDIA_URL."/riffs/{$this->id}.m4a";
+            } else {
+                return MEDIA_URL."/riffs/{$this->id}.m4a";
+            }
+        }
+        return "";
+    }
+    
+    /**
      * Gets the post objects that are parents of this post.
      * 
      * @global PDO $dbh
@@ -235,31 +273,56 @@ class Post {
      * 
      * @global PDO $dbh
      * @global User $CURRENT_USER
-     * @param string $content The text of the post.
-     * @param array $parent_ids The array of parent ids, array() for none.
-     * @param type $img_tmp_path The path to the post image, "" for none.
-     * @param type $title The title of the associated Riff, "" for none.
-     * @param type $duration The duration of the associated Riff, 0 for none.
-     * @param type $riff_tmp_path The path to the riff audio, "" for none.
+     * @param string $title The title of the post.
+     * @param type $duration The duration of the post audio.
+     * @param type $riff_tmp_path The path to the post audio.
+     * @param string $content [optional] The text content of the post, "" for none.
+     * @param array $parent_ids [optional] The array of parent ids, array() for none.
+     * @param type $img_tmp_path [optional] The path to the post image, "" for none.
      * @param type $user_id [optional] Defaults to the current user.
      * @return Post|null The added Post object or null on failure.
      */
-    public static function add($content, $parent_ids, $img_tmp_path,
-            $title, $duration, $riff_tmp_path, $user_id = null) {
+    public static function add($title, $duration, $riff_tmp_path, $content = "",
+            $parent_ids = array(), $img_tmp_path = "", $user_id = null) {
         global $dbh, $CURRENT_USER;
         
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
         }
         
+        //Make sure if file paths are set that they exist
+        if ($riff_tmp_path && !file_exists($riff_tmp_path)) {
+            return null;
+        } else if ($img_tmp_path && !file_exists($img_tmp_path)) {
+            return null;
+        }
+        
         $query = "
-            INSERT INTO `posts` (`user_id`, `content`)
-            VALUES (:user_id, :content)";
+            INSERT INTO `posts` (`user_id`, `title`, `content`, `duration`)
+            VALUES (:user_id, :title, :content, :duration)";
         $sth = $dbh->prepare($query);
         $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('title', $title);
         $sth->bindValue('content', $content);
+        $sth->bindValue('duration', $duration);
         if ($sth->execute()) {
             $post_id = $dbh->lastInsertId();
+            
+            //Save post audio
+            if (TEST_MODE) {
+                $riff_new_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
+            } else {
+                $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
+            }
+            if (is_uploaded_file($riff_tmp_path)) {
+                $saved_riff = move_uploaded_file($riff_tmp_path, $riff_new_path);
+            } else {
+                $saved_riff = copy($riff_tmp_path, $riff_new_path);
+            }
+            if (!$saved_riff) {
+                Post::delete($post_id);
+                return null;
+            }
             
             if ($parent_ids) {
                 if (!Post::add_parents($post_id, $parent_ids)) {
@@ -286,13 +349,6 @@ class Post {
                     $saved_img = copy($img_tmp_path, $img_new_path);
                 }
                 if (!$saved_img) {
-                    Post::delete($post_id);
-                    return null;
-                }
-            }
-            
-            if ($riff_tmp_path) {
-                if (!Riff::add($post_id, $title, $duration, $riff_tmp_path)) {
                     Post::delete($post_id);
                     return null;
                 }
@@ -380,18 +436,15 @@ class Post {
         global $dbh;
         
         $query = "
-            SELECT `user_id`, `content`, `date_created`
+            SELECT `user_id`, `title`, `duration`, `content`, `date_created`
             FROM `posts`
             WHERE `post_id` = :post_id";
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
-            
             $user = User::get_by_id((int)$row['user_id']);
-            $riff = Riff::get_by_post_id($post_id);
-            
-            $post = new Post($post_id, $user, $riff, 
+            $post = new Post($post_id, $user, $row['title'], $row['duration'],
                     $row['content'], $row['date_created']);
             return $post;
         }

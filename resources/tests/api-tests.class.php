@@ -35,17 +35,16 @@ class ApiTests extends TestEnvironment {
         $ch = curl_init();
 
         foreach ($files as $key => $file) {
-            if (!file_exists($file["path"])) {;
+            if (!file_exists($file["path"])) {
                 continue;
             }
-            $field = "@".$file["path"];
-            $field .= ";filename=".basename($file["path"]);
-            $field .= ";type=".$file["type"];
-            $fields[$key] = $field;
+            $cfile = new CURLFile($file["path"], $file["type"], basename($file["path"]));
+            $fields[$key] = $cfile;
         }
         curl_setopt($ch, CURLOPT_URL, SITE_ROOT."/api/$script_name.php");
         curl_setopt($ch, CURLOPT_COOKIE, implode("; ", $this->cookies));
         curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
