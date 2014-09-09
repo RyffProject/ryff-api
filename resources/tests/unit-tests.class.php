@@ -160,6 +160,14 @@ class UnitTests extends TestEnvironment {
         return true;
     }
     
+    /**
+     * Creates two test users and one post, then has the other user make
+     * several comments on the post. Makes sure that get_for_post() gets the
+     * right number of comments and then makes sure that the comments can be
+     * deleted.
+     * 
+     * @return boolean
+     */
     protected function comment_test() {
         $user1 = $this->get_test_user();
         $user2 = $this->get_test_user();
