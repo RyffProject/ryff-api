@@ -49,7 +49,7 @@ $comment = Comment::add($content, $post_id);
 if ($comment) {
     echo json_encode(array(
         "success" => "Comment created successfully.",
-        "conversation" => $comment
+        "comment" => $comment
     ));
 } else {
     echo json_encode(array("error" => "Error creating comment."));
