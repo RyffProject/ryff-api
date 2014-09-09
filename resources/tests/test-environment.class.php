@@ -254,6 +254,25 @@ abstract class TestEnvironment {
             print_r($dbh->errorInfo());
             return false;
         }
+        
+        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/avatars/*.png") as $avatar_path) {
+            if (!unlink($avatar_path)) {
+                echo "Failed to delete avatar file at: $avatar_path\n";
+                return false;
+            }
+        }
+        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/posts/*.png") as $post_image_path) {
+            if (!unlink($post_image_path)) {
+                echo "Failed to delete post image file at: $post_image_path\n";
+                return false;
+            }
+        }
+        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/riffs/*.m4a") as $riff_path) {
+            if (!unlink($riff_path)) {
+                echo "Failed to delete riff file at: $riff_path\n";
+                return false;
+            }
+        }
         return true;
     }
     
