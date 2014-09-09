@@ -214,7 +214,7 @@ class Post {
         } else {
             $riff_path = MEDIA_ABSOLUTE_PATH."/riffs/{$this->id}.m4a";
         }
-        if (file_exists($image_path)) {
+        if (file_exists($riff_path)) {
             if (TEST_MODE) {
                 return TEST_MEDIA_URL."/riffs/{$this->id}.m4a";
             } else {
