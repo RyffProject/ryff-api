@@ -28,6 +28,7 @@ require_once("config.php");
 require_once("connect-db.php");
 
 require_once("models/auth.class.php");
+require_once("models/comment.class.php");
 require_once("models/conversation.class.php");
 require_once("models/follow.class.php");
 require_once("models/media-files.class.php");

@@ -160,6 +160,39 @@ class UnitTests extends TestEnvironment {
         return true;
     }
     
+    protected function comment_test() {
+        $user1 = $this->get_test_user();
+        $user2 = $this->get_test_user();
+        $post = $this->get_test_post($user1->id);
+        $num_comments = 3;
+        $comments = array();
+        for ($i = 0; $i < $num_comments; $i++) {
+            $comment = Comment::add($this->get_words(10), $post->id, $user2->id);
+            if (!$comment) {
+                echo "Failed to add comment.\n";
+                return false;
+            }
+            $comments[] = $comment;
+        }
+        $returned_comments = Comment::get_for_post($post->id);
+        if (!$returned_comments) {
+            echo "Failed to get comments.\n";
+            return false;
+        } else if (count($returned_comments) !== $num_comments) {
+            echo "Failed to get the correct number of comments.\n";
+            return false;
+        }
+        foreach ($comments as $comment) {
+            if (!Comment::delete($comment->id, $user2->id)) {
+                echo "Failed to delete comment.\n";
+                return false;
+            }
+        }
+        User::delete($user1->id);
+        User::delete($user2->id);
+        return true;
+    }
+    
     /**
      * Creates two users and a post by the first of them. Then has the second
      * upvote the post and then remove the upvote.
@@ -383,6 +416,7 @@ class UnitTests extends TestEnvironment {
             "update_user_test" => "Update user test",
             "follow_test" => "Follow test",
             "post_test" => "Post test",
+            "comment_test" => "Comment test",
             "upvote_test" => "Upvote test",
             "star_test" => "Star test",
             "post_tags_test" => "Post tags test",
