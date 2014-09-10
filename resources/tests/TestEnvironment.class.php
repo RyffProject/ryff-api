@@ -12,8 +12,6 @@
  * Released under the Apache License 2.0.
  */
 
-ini_set('memory_limit','1024M');
-
 abstract class TestEnvironment {
     /**
      * An array of words so for get_word() to use.
@@ -63,12 +61,8 @@ abstract class TestEnvironment {
      * from words.txt. Also gets a list of paths to sample media.
      */
     public function __construct() {
-        $raw_words = explode("\n", file_get_contents(__DIR__."/words.txt"));
-        $this->words = array_values(array_unique(array_map(function($word) {
-            return preg_replace('/[^a-z]/', '', strtolower($word));
-        }, $raw_words)));
+        $this->words = explode("\n", file_get_contents(__DIR__."/words.txt"));
         $this->unique_words = $this->words;
-        shuffle($this->unique_words);
         
         foreach (glob(__DIR__."/sample_media/avatars/*.png") as $avatar_path) {
             $this->sample_avatars[] = $avatar_path;
@@ -190,16 +184,18 @@ abstract class TestEnvironment {
      * @return string
      */
     public function get_unique_word() {
-        $word = array_pop($this->unique_words);
-        if ($word) {
-            $this->used_words[] = $word;
-            return $word;
+        if (!empty($this->unique_words)) {
+            $index = array_rand($this->unique_words);
+            $word = $this->unique_words[$index];
+            unset($this->unique_words[$index]);
+        } else {
+            do {
+                $word = substr(md5(mt_rand()), 0, mt_rand(4, 12));
+            } while (in_array($word, $this->used_words));
         }
-        do {
-            $rand_word = substr(md5(mt_rand()), 0, mt_rand(4, 12));
-        } while (!in_array($rand_word, $this->used_words));
-        $this->used_words[] = $rand_word;
-        return $rand_word;
+        
+        $this->used_words[] = $word;
+        return $word;
     }
     
     /**
