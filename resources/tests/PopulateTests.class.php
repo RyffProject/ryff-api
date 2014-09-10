@@ -11,8 +11,6 @@
  * Released under the Apache License 2.0.
  */
 
-require_once("test-environment.class.php");
-
 class PopulateTests extends TestEnvironment {
     /**
      * An array of Tag objects used for the current cycle.

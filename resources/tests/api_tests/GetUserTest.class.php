@@ -11,8 +11,6 @@
  * Released under the Apache License 2.0.
  */
 
-require_once(__DIR__."/../test.class.php");
-
 class GetUserTest extends Test {
     /**
      * Overrides abstract function in Test.

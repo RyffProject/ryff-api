@@ -11,8 +11,6 @@
  * Released under the Apache License 2.0.
  */
 
-require_once("test-environment.class.php");
-
 class UnitTests extends TestEnvironment {
     /**
      * Adds and deletes a test user.

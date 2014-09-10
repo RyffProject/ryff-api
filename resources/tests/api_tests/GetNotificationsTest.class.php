@@ -12,8 +12,6 @@
  * Released under the Apache License 2.0.
  */
 
-require_once(__DIR__."/../test.class.php");
-
 class GetNotificationsTest extends Test {
     /**
      * Overrides abstract function in Test.

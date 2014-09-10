@@ -10,8 +10,6 @@
  * Released under the Apache License 2.0.
  */
 
-require_once("test-environment.class.php");
-
 class ApiTests extends TestEnvironment {
     /**
      * An array of cookies sent with the post_to_api curl requests. Used to

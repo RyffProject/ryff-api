@@ -27,24 +27,25 @@
 require_once("config.php");
 require_once("connect-db.php");
 
-require_once("models/auth.class.php");
-require_once("models/comment.class.php");
-require_once("models/conversation.class.php");
-require_once("models/follow.class.php");
-require_once("models/media-files.class.php");
-require_once("models/message.class.php");
-require_once("models/notification.class.php");
-require_once("models/point.class.php");
-require_once("models/post.class.php");
-require_once("models/post-feed.class.php");
-require_once("models/push-notification.class.php");
-require_once("models/star.class.php");
-require_once("models/tag.class.php");
-require_once("models/upvote.class.php");
-require_once("models/user.class.php");
-require_once("models/user-feed.class.php");
-require_once("models/util.class.php");
+/**
+ * Register autoloader for model classes.
+ */
+spl_autoload_register(function($class_name) {
+    @include("models/{$class_name}.class.php");
+});
 
+/**
+ * If in test mode, register autoloader for test classes.
+ */
+if (TEST_MODE) {
+    spl_autoload_register(function($class_name) {
+        @include("tests/{$class_name}.class.php");
+    });
+}
+
+/**
+ * Get cookies for authentication.
+ */
 if (isset($_COOKIE['user_id'])) {
     $AUTH_USER_ID = (int)$_COOKIE['user_id'];
 }
@@ -52,6 +53,10 @@ if (isset($_COOKIE['auth_token'])) {
     $AUTH_TOKEN = preg_replace('/[^0-9a-f]/', '', $_COOKIE['auth_token']);
 }
 
+/**
+ * If authentication is required, attempts to authenticate the user and
+ * exits with an error on failure.
+ */
 if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
     if (!isset($AUTH_USER_ID) || !isset($AUTH_TOKEN)) {
         header("Content-Type: application/json");

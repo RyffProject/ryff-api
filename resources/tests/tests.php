@@ -38,9 +38,6 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 require_once("global.php");
-require_once("unit-tests.class.php");
-require_once("populate-tests.class.php");
-require_once("api-tests.class.php");
 
 $lock_file = __DIR__."/tests.lock";
 if (file_exists($lock_file)) {
