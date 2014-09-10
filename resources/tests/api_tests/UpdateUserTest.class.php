@@ -8,7 +8,7 @@
  * via the update-user API script. Then it verifies that the changes were
  * in fact made.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

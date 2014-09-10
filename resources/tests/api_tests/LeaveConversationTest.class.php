@@ -7,7 +7,7 @@
  * Creates three users in a conversation, logs one in, and has them leave
  * the conversation via the API. Then makes sure they are actually gone.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

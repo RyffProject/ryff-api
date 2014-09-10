@@ -7,7 +7,7 @@
  * The individual settings are marked as required or optional with a brief
  * description. Some have reasonable default values.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

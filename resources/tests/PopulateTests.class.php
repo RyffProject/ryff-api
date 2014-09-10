@@ -7,7 +7,7 @@
  * This script populates a test environment with a lot of test data. Meant
  * to be run without teardown, usually.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

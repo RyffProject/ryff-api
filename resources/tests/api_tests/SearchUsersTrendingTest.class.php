@@ -9,7 +9,7 @@
  * upvote by default this makes the first user more trending, and the third
  * least trending. Then it gets the users via the API and verifies the order.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

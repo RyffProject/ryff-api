@@ -7,7 +7,7 @@
  * Creates two users and a conversation between them, then has one of the
  * users send a message via the API.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

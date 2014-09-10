@@ -8,7 +8,7 @@
  * Attempts to set this notification as read through the API, and then
  * verifies that it has been marked as read.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

@@ -8,7 +8,7 @@
  * with two parents and two children. Gets the family via the API and
  * verifies that both parents and children were returned.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

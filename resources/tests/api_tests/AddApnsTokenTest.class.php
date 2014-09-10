@@ -7,7 +7,7 @@
  * Creates a user, logs them in, and calls add-apns-token. Then it verifies
  * that the token has been set in the database.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

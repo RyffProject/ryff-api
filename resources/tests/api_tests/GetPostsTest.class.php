@@ -8,7 +8,7 @@
  * Logs in as the first user, and gets the second's posts via the API and
  * verifies that it is the correct number.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

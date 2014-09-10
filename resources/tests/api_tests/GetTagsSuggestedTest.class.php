@@ -10,7 +10,7 @@
  * each with one tag, and the user has upvoted these. All six of these tags
  * should be returned as suggestions for the user.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

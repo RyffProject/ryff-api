@@ -7,7 +7,7 @@
  * Creates a new user, post, and several comments, then gets the comments via
  * the API and verifies that they are in the correct order.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

@@ -7,7 +7,7 @@
  * Creates two users and has one follow the other to create a notification.
  * Attempts to get this notification and makes sure it's the right one.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

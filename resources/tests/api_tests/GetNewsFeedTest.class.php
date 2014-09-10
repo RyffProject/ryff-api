@@ -7,7 +7,7 @@
  * Creates a user that follows two other users with one post each. Makes
  * sure that getting the news feed returns both these posts.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

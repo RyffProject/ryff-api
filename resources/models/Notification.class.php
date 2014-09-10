@@ -15,7 +15,7 @@
  * array of Post objects that the user was mentioned in. For type "remix", posts
  * is an array of Post objects that used one of the user's posts as a parent.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 class Notification {

@@ -11,7 +11,7 @@
  * created as a PDO object for accessing the database. If there is an error,
  * the script will output an error and exit.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

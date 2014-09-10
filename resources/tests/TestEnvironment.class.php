@@ -8,7 +8,7 @@
  * the run_tests() function. Scripts that use implementations of this class
  * should create an instance and call its run() method.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

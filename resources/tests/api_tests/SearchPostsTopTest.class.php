@@ -8,7 +8,7 @@
  * those posts 1, 2, and 3 upvotes. Then gets the posts from the API and makes
  * sure they come back in the correct order.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

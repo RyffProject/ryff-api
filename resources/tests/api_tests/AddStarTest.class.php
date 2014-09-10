@@ -6,7 +6,7 @@
  * 
  * Creates a user and a post, then has the user star that post.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

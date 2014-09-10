@@ -8,7 +8,7 @@
  * other's id. Then tries to add a conversation with only itself as an id,
  * which should fail. Deletes the users and conversation on exit.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

@@ -8,7 +8,7 @@
  * availability of sample post images and riff audio. Then adds a post via
  * the API.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

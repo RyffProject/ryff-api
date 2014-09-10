@@ -24,7 +24,7 @@
  * id will be a conversation id. If the type is 'follow', 'upvote', 'mention',
  * or 'remix', the id will be a notification id.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

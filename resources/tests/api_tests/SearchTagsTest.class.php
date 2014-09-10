@@ -7,7 +7,7 @@
  * Creates some tags and attaches them to some users. Then searches for a tag
  * and makes sure it returns the results in the correct order.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

@@ -8,7 +8,7 @@
  * for new posts with that tag, and verifies that they show up in the correct
  * order.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

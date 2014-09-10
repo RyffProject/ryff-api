@@ -7,7 +7,7 @@
  * Creates a new user, attempts to log them in, then checks that the login
  * worked by calling get-user on the logged in user.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

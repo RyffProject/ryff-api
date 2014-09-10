@@ -7,7 +7,7 @@
  * Creates a user and three tags, with each tag having successively more
  * posts. Then checks that the trending tags are returned in the right order.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

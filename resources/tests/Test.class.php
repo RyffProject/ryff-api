@@ -7,7 +7,7 @@
  * An abstract class for implementing a unit test. The subclass would
  * implement the setup(), test(), and teardown() functions.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 abstract class Test {

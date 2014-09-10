@@ -6,7 +6,7 @@
  * 
  * Provides a class for Post objects and static functions related to posts.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 class Post {

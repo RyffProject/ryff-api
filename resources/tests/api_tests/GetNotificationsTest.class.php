@@ -8,7 +8,7 @@
  * the first. Then logs in as the first and makes sure there are four
  * notifications from the API.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

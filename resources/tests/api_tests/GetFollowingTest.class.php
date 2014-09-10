@@ -7,7 +7,7 @@
  * Creates two users, has one follow the other, then makes sure the right
  * user is in the array of users following from the API.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 

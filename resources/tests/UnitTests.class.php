@@ -7,7 +7,7 @@
  * Implements unit tests for basic actions that models can take. Will test
  * user creation, following, post creation, upvoting, tagging, messaging, etc.
  * 
- * Ryff API <http://www.github.com/rfotino/ryff-api>
+ * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
 
