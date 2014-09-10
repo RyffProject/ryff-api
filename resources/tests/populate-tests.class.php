@@ -185,6 +185,38 @@ class PopulateTests extends TestEnvironment {
     }
     
     /**
+     * For 80% of users, make 1 to 2 comments on a 1 to 3 posts. Returns false
+     * with an error message if it fails to add a comment.
+     * 
+     * @return boolean
+     */
+    protected function comments_test() {
+        foreach ($this->users as $user) {
+            //20% chance this user doesn't comment
+            if ($this->chance(0.2)) {
+                continue;
+            }
+            
+            //Comment on 1-3 posts
+            $num_posts = mt_rand(1, 3);
+            for ($i = 0; $i < $num_posts; $i++) {
+                $post = $this->posts[array_rand($this->posts)];
+                //Make 1-2 comments
+                $num_comments = mt_rand(1, 2);
+                for ($j = 0; $j < $num_comments; $j++) {
+                    //Comments are 2-10 words in length
+                    if (!Comment::add($this->get_words(mt_rand(2, 10)),
+                            $post->id, $user->id)) {
+                        echo "Failed to add comment.\n";
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
      * Ten posts are chosen at random to be more likely to be upvoted than
      * others. Each user gives out between 3-10 upvotes, with a 25% chance that
      * the post will be chosen from the pool of "best" posts rather than the
@@ -302,6 +334,7 @@ class PopulateTests extends TestEnvironment {
             "users_test" => "Add users test",
             "follows_test" => "Follow users test",
             "posts_test" => "Posts test",
+            "comments_test" => "Comments test",
             "upvotes_test" => "Upvotes test",
             "stars_test" => "Stars test",
             "conversations_test" => "Conversations test",
