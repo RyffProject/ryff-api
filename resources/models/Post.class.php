@@ -444,8 +444,8 @@ class Post {
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             $user = User::get_by_id((int)$row['user_id']);
-            $post = new Post($post_id, $user, $row['title'], $row['duration'],
-                    $row['content'], $row['date_created']);
+            $post = new Post($post_id, $user, $row['title'], $row['content'],
+                    $row['duration'], $row['date_created']);
             return $post;
         }
         
