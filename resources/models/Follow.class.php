@@ -13,7 +13,7 @@ class Follow {
     /**
      * Adds a follow from $to_id to $from_id.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $to_id
      * @param int $from_id [optional] Defaults to the current user.
@@ -26,23 +26,32 @@ class Follow {
             $from_id = $CURRENT_USER->id;
         }
         
+        $dbh->beginTransaction();
+        
         $query = "
             INSERT IGNORE INTO `follows` (`to_id`, `from_id`)
             VALUES (:to_id, :from_id)";
         $sth = $dbh->prepare($query);
         $sth->bindValue('to_id', $to_id);
         $sth->bindValue('from_id', $from_id);
-        if ($sth->execute()) {
-            Notification::add($to_id, "follow", null, null, null, $from_id);
-            return true;
+        if (!$sth->execute()) {
+            $dbh->rollBack();
+            return false;
         }
-        return false;
+        
+        if (!Notification::add($to_id, "follow", null, null, null, $from_id)) {
+            $dbh->rollBack();
+            return false;
+        }
+        
+        $dbh->commit();
+        return true;
     }
     
     /**
      * Deletes the follow from $to_id to $from_id.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $to_id
      * @param int $from_id [optional] Defaults to the current user.
@@ -55,6 +64,8 @@ class Follow {
             $from_id = $CURRENT_USER->id;
         }
         
+        $dbh->beginTransaction();
+        
         $query = "
             DELETE FROM `follows`
             WHERE `to_id` = :to_id
@@ -62,17 +73,24 @@ class Follow {
         $sth = $dbh->prepare($query);
         $sth->bindValue('to_id', $to_id);
         $sth->bindValue('from_id', $from_id);
-        if ($sth->execute()) {
-            Notification::delete($to_id, "follow", null, null, null, $from_id);
-            return true;
+        if (!$sth->execute()) {
+            $dbh->rollBack();
+            return false;
         }
-        return false;
+        
+        if (!Notification::delete($to_id, "follow", null, null, null, $from_id)) {
+            $dbh->rollBack();
+            return false;
+        }
+        
+        $dbh->commit();
+        return true;
     }
     
     /**
      * Gets an array of User objects that follow the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $page The current page number.
      * @param int $limit The number of results per page.
@@ -107,7 +125,7 @@ class Follow {
     /**
      * Gets an array of User objects that the given user follows.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $page The current page number.
      * @param int $limit The number of results per page.

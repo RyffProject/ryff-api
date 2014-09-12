@@ -14,7 +14,7 @@ class PostFeed {
      * Gets the Post objects from a given user in chronological order starting
      * with the most recent.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $page [optional] The current page of results, defaults to 1.
      * @param int $limit [optional] The number of results per page, defaults to 15.
@@ -38,7 +38,10 @@ class PostFeed {
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $posts[] = Post::get_by_id((int)$row['post_id']);
+                $post = Post::get_by_id((int)$row['post_id']);
+                if ($post) {
+                    $posts[] = $post;
+                }
             }
             return $posts;
         }
@@ -49,7 +52,7 @@ class PostFeed {
      * Gets the Post objects from the users that the given user follows in
      * chronological order starting with the most recent.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $page [optional] The current page of results, defaults to 1.
      * @param int $limit [optional] The number of results per page, defaults to 15.
@@ -75,7 +78,10 @@ class PostFeed {
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $posts[] = Post::get_by_id((int)$row['post_id']);
+                $post = Post::get_by_id((int)$row['post_id']);
+                if ($post) {
+                    $posts[] = $post;
+                }
             }
             return $posts;
         }
@@ -86,7 +92,7 @@ class PostFeed {
      * Gets Post objects in chronological order starting with the most recent,
      * optionally matching the given tags.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param array $tags [optional]
      * @param int $page [optional] The current page of results, defaults to 1.
      * @param int $limit [optional] The number of results per page, defaults to 15.
@@ -113,7 +119,10 @@ class PostFeed {
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $posts[] = Post::get_by_id((int)$row['post_id']);
+                $post = Post::get_by_id((int)$row['post_id']);
+                if ($post) {
+                    $posts[] = $post;
+                }
             }
             return $posts;
         }
@@ -124,7 +133,7 @@ class PostFeed {
      * Gets Post objects with the most upvotes in the given time frame,
      * optionally matching the given tags.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $time [optional] "day", "week" (default), "month", or "all".
      * @param array $tags [optional]
      * @param int $page [optional] The current page of results, defaults to 1.
@@ -159,10 +168,10 @@ class PostFeed {
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                if (!$row['post_id']) {
-                    continue;
+                $post = Post::get_by_id((int)$row['post_id']);
+                if ($post) {
+                    $posts[] = $post;
                 }
-                $posts[] = Post::get_by_id((int)$row['post_id']);
             }
             return $posts;
         }
@@ -173,7 +182,7 @@ class PostFeed {
      * Gets Post the currently trending posts, optionally matching the given
      * tags.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param array $tags [optional]
      * @param int $page [optional] The current page of results, defaults to 1.
      * @param int $limit [optional] The number of results per page, defaults to 15.
@@ -203,10 +212,10 @@ class PostFeed {
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                if (!$row['post_id']) {
-                    continue;
+                $post = Post::get_by_id((int)$row['post_id']);
+                if ($post) {
+                    $posts[] = $post;
                 }
-                $posts[] = Post::get_by_id((int)$row['post_id']);
             }
             return $posts;
         }

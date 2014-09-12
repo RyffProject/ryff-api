@@ -147,7 +147,7 @@ class User {
      * Helper function that returns the total amount of upvotes this user's
      * posts have received.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return int
      */
     protected function get_karma() {
@@ -172,7 +172,7 @@ class User {
      * Helper function that returns an array of Tag objects attached to this
      * User object.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return array An array of Tag objects.
      */
     protected function get_tags() {
@@ -196,7 +196,7 @@ class User {
      * Helper function that returns whether the current user is following this
      * user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @return boolean
      */
@@ -224,7 +224,7 @@ class User {
     /**
      * Helper function that returns the number of users who follow this user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return int
      */
     protected function get_num_followers() {
@@ -242,7 +242,7 @@ class User {
     /**
      * Helper function that returns the number of users that this user follows.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return int
      */
     protected function get_num_following() {
@@ -260,7 +260,7 @@ class User {
     /**
      * Returns this user's latest location.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return Point|null The user's latest location or null if it isn't set.
      */
     public function get_location() {
@@ -283,7 +283,7 @@ class User {
     /**
      * Sets this user's latest location.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param double $x
      * @param double $y
      * @return boolean
@@ -308,7 +308,7 @@ class User {
      * Helper function that updates an attribute for the current user both in
      * the database and in this User object.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $key
      * @param string $value
      * @return boolean
@@ -372,7 +372,7 @@ class User {
     /**
      * Updates this user's password in the database.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $password
      * @return boolean
      */
@@ -434,7 +434,7 @@ class User {
     /**
      * Adds a new user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $name
      * @param string $username
      * @param string $email
@@ -445,6 +445,8 @@ class User {
      */
     public static function add($name, $username, $email, $bio, $password, $avatar_tmp_path) {
         global $dbh;
+        
+        $dbh->beginTransaction();
         
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
         $query = "
@@ -462,6 +464,7 @@ class User {
         $sth->bindValue('bio', $bio);
         $sth->bindValue('password_hash', $password_hash);
         if (!$sth->execute()) {
+            $dbh->rollBack();
             return null;
         }
         
@@ -478,17 +481,25 @@ class User {
                 $saved_img = copy($avatar_tmp_path, $avatar_new_path);
             }
             if (!$saved_img) {
-                User::delete($user_id);
+                $dbh->rollBack();
                 return null;
             }
         }
-        return User::get_by_id($user_id);
+        
+        $user = User::get_by_id($user_id);
+        if (!$user) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        $dbh->commit();
+        return $user;
     }
     
     /**
      * Deletes the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
@@ -500,14 +511,13 @@ class User {
             $user_id = $CURRENT_USER->id;
         }
         
-        MediaFiles::delete_from_user($user_id);
-        
         $query = "
             DELETE FROM `users`
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
         $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
+            MediaFiles::delete_from_user($user_id);
             return true;
         }
         return false;
@@ -530,7 +540,7 @@ class User {
     /**
      * Returns the user with the given username, or null if it doesn't exist.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $username
      * @return User|null
      */
@@ -555,7 +565,7 @@ class User {
     /**
      * Returns the user with the given email, or null if it doesn't exist.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $email
      * @return User|null
      */
@@ -580,7 +590,7 @@ class User {
     /**
      * Returns the user with the given user_id, or null if it doesn't exist.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param type $user_id
      * @return User|null
      */

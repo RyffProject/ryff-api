@@ -216,7 +216,7 @@ abstract class TestEnvironment {
     /**
      * Installs the test database.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return boolean If the setup was successful.
      */
     protected function setup() {
@@ -238,7 +238,7 @@ abstract class TestEnvironment {
     /**
      * Uninstalls the test database.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return boolean If the teardown was successful.
      */
     protected function teardown() {

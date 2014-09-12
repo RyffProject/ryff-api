@@ -46,7 +46,7 @@ class Tag {
     /**
      * Helper function that returns the number of users who have this tag.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return int The number of users who have this tag.
      */
     protected function get_num_users() {
@@ -65,7 +65,7 @@ class Tag {
     /**
      * Helper function that returns the number of posts that have this tag.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return int The number of posts that have this tag.
      */
     protected function get_num_posts() {
@@ -84,7 +84,7 @@ class Tag {
     /**
      * Parses a post's content and adds tags that are preceded by a #.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $post_id
      * @param string $content
      * @return boolean
@@ -118,7 +118,7 @@ class Tag {
     /**
      * Adds a single tag to the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param string $tag
      * @param int $user_id [optional] Defaults to the current user.
@@ -146,7 +146,7 @@ class Tag {
     /**
      * Deletes a single tag from the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param string $tag
      * @param int $user_id [optional] Defaults to the current user.
@@ -176,7 +176,7 @@ class Tag {
      * Returns an array of the 10 most popular user Tag objects that match the
      * given query.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $query_str The text that the matched tags should contain.
      * @return array|null An array of Tag objects, or null on failure.
      */
@@ -210,7 +210,7 @@ class Tag {
      * date. Popularity is measured by number of upvotes on posts with that tag
      * attached.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $time One of "day", "week", "month", or "all".
      * @return array|null An array of Tag objects, or null on failure.
      */
@@ -243,7 +243,7 @@ class Tag {
      * Returns an array of up to 10 tags that the given user would want to see
      * based on their current tags, their posts, posts they've upvoted, etc.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return array|null An array of Tag objects, or null on failure.
