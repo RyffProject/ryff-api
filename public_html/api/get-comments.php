@@ -4,7 +4,6 @@
  * Get Comments
  * ============
  * 
- * Authentication required.
  * Gets the comments for a specified post.
  * 
  * POST variables:
@@ -24,8 +23,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

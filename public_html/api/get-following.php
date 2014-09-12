@@ -4,7 +4,6 @@
  * Get Following
  * =============
  * 
- * Authentication required.
  * Gets the users that the given user follows.
  * 
  * POST variables:
@@ -24,8 +23,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

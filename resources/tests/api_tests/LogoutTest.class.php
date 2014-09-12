@@ -44,10 +44,7 @@ class LogoutTest extends Test {
             echo "Failed to log user out.\n";
             $output = false;
         } else {
-            $get_results = $this->env->post_to_api(
-                "get-user",
-                array("id" => $this->state["user"]->id)
-            );
+            $get_results = $this->env->post_to_api("update-user");
             if (!$get_results) {
                 $output = false;
             } else if (property_exists($get_results, "success")) {

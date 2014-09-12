@@ -32,7 +32,6 @@ class GetPostsTest extends Test {
         for ($i = 0; $i < $this->state["num_posts"]; $i++) {
             $this->env->get_test_post($this->state["user2"]->id);
         }
-        $this->env->log_user_in($this->state["user1"]->username);
     }
 
     /**

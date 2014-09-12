@@ -48,8 +48,6 @@ class SearchPostsTopTest extends Test {
             }
             $this->state["posts"][] = $post;
         }
-        
-        $this->env->log_user_in($this->state["user"]->username);
     }
 
     /**

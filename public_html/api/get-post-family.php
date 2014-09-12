@@ -4,7 +4,6 @@
  * Get Post Family
  * ===============
  * 
- * Authentication required.
  * Returns the parents and children of a given post.
  * 
  * POST variables:
@@ -23,8 +22,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

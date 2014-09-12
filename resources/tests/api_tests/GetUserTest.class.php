@@ -27,7 +27,6 @@ class GetUserTest extends Test {
     protected function setup() {
         $this->state["user1"] = $this->env->get_test_user();
         $this->state["user2"] = $this->env->get_test_user();
-        $this->env->log_user_in($this->state["user1"]->username);
     }
 
     /**

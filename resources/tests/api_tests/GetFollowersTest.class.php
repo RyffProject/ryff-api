@@ -28,7 +28,6 @@ class GetFollowersTest extends Test {
         $this->state["user1"] = $this->env->get_test_user();
         $this->state["user2"] = $this->env->get_test_user();
         Follow::add($this->state["user1"]->id, $this->state["user2"]->id);
-        $this->env->log_user_in($this->state["user1"]->username);
     }
 
     /**

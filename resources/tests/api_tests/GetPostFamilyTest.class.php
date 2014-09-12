@@ -42,8 +42,6 @@ class GetPostFamilyTest extends Test {
         $this->env->get_test_post($this->state["user"]->id, array($this->state["post"]->id));
         $this->env->get_test_post($this->state["user"]->id, array($this->state["post"]->id));
         $this->state["num_children"] = 2;
-        
-        $this->env->log_user_in($this->state["user"]->username);
     }
 
     /**

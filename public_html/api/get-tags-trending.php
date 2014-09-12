@@ -4,7 +4,6 @@
  * Get Tags Trending
  * =================
  * 
- * Authentication required.
  * Returns an array of no more than 10 post tags that are currently trending.
  * 
  * POST variables:
@@ -23,8 +22,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

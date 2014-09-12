@@ -4,7 +4,6 @@
  * Search Tags
  * ===========
  * 
- * Authentication required.
  * Returns user tags similar to the query.
  * 
  * POST variables:
@@ -22,8 +21,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

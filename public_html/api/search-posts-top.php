@@ -4,7 +4,6 @@
  * Search Posts Top
  * ================
  * 
- * Authentication required.
  * Gives an array of posts sorted by the most upvotes in a given time frame.
  * 
  * POST variables:
@@ -26,8 +25,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

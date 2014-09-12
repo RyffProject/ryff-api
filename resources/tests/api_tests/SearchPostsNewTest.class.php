@@ -39,7 +39,6 @@ class SearchPostsNewTest extends Test {
                 sleep(1);
             }
         }
-        $this->env->log_user_in($this->state["user"]->username);
     }
 
     /**

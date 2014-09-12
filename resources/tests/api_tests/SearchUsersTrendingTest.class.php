@@ -28,7 +28,6 @@ class SearchUsersTrendingTest extends Test {
      */
     protected function setup() {
         $this->state["user"] = $this->env->get_test_user();
-        $this->env->log_user_in($this->state["user"]->username);
         
         $this->state["users"] = array();
         $this->state["num_users"] = 3;

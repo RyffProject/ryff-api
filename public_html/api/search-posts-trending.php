@@ -4,7 +4,6 @@
  * Search Posts Trending
  * =====================
  * 
- * Authentication required.
  * Gives an array of posts sorted by how popular they are at the moment.
  * 
  * POST variables:
@@ -24,8 +23,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

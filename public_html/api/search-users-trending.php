@@ -4,7 +4,6 @@
  * Search Users Trending
  * =====================
  * 
- * Authentication required.
  * Gets the users who have acquired the most karma in the last day, week,
  * month, or all time, optionally matching the given tags.
  * 
@@ -27,8 +26,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

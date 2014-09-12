@@ -37,8 +37,6 @@ class SearchTagsTest extends Test {
             Tag::add_for_user($tag, $user->id);
             $this->state["users"][] = $user;
         }
-        
-        $this->env->log_user_in($this->state["user"]->username);
     }
 
     /**

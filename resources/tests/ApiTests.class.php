@@ -112,6 +112,7 @@ class ApiTests extends TestEnvironment {
                 return false;
             }
             unset($tests[$test_class_name]);
+            $this->cookies = array();
         }
         
         //Run the other tests
@@ -119,6 +120,7 @@ class ApiTests extends TestEnvironment {
             if (!$test->run()) {
                 return false;
             }
+            $this->cookies = array();
         }
         
         return true;

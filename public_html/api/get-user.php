@@ -4,8 +4,6 @@
  * Get User
  * ========
  * 
- * Authentication required.
- * 
  * POST variables:
  * "id" (optional) The id of the user you want to get.
  * "username" (optional) The username of the user to get.
@@ -22,8 +20,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),

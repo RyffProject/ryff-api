@@ -47,7 +47,6 @@ class GetTagsTrendingTest extends Test {
                 array(), array($this->state["tag3"])
             );
         }
-        $this->env->log_user_in($this->state["user"]->username);
     }
 
     /**

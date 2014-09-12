@@ -4,7 +4,7 @@
  * Get Posts
  * =========
  * 
- * Authentication required.
+ * Gets the posts from a given user.
  * 
  * POST variables:
  * "id" (optional) The id of the user whose posts you want to get. Defaults 
@@ -24,8 +24,6 @@
  */
 
 header("Content-Type: application/json");
-
-define("REQUIRES_AUTHENTICATION", true);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
