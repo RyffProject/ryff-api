@@ -15,14 +15,16 @@
  * Released under the Apache License 2.0.
  */
 
+require_once("db/NestedPDO.class.php");
+
 try {
     if (TEST_MODE) {
-        $dbh = new PDO(
+        $dbh = new NestedPDO(
             "mysql:host=".TEST_DB_HOST.";dbname=".TEST_DB_NAME,
             TEST_DB_USER, TEST_DB_PASS
         );
     } else {
-        $dbh = new PDO(
+        $dbh = new NestedPDO(
             "mysql:host=".DB_HOST.";dbname=".DB_NAME,
             DB_USER, DB_PASS
         );

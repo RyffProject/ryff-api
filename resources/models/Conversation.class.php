@@ -58,7 +58,7 @@ class Conversation {
      * Helper function that returns an array of User objects that are participants
      * in the conversation.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return array
      */
     protected function get_users() {
@@ -87,7 +87,7 @@ class Conversation {
      * Helper function that returns the latest Message object in the
      * conversation, or null if it doesn't exist.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return Message|null
      */
     protected function get_latest() {
@@ -112,7 +112,7 @@ class Conversation {
      * Helper function that returns whether this conversation has been read
      * by the current user since it was last updated.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @return boolean
      */
@@ -139,7 +139,7 @@ class Conversation {
      * Creates and returns a new Conversation object with the given users
      * as participants.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param array $user_ids Cannot be less than two unique ids.
      * @return Conversation|null The new conversation, or null on failure.
      */
@@ -154,9 +154,12 @@ class Conversation {
             return null;
         }
         
+        $dbh->beginTransaction();
+        
         $conversation_query = "
             INSERT INTO `conversations` (`date_updated`) VALUES (NOW())";
         if (!$dbh->exec($conversation_query)) {
+            $dbh->rollBack();
             return null;
         }
         $conversation_id = $dbh->lastInsertId();
@@ -176,17 +179,18 @@ class Conversation {
             $member_id_index++;
         }
         if (!$members_sth->execute()) {
-            Conversation::delete($conversation_id);
+            $dbh->rollBack();
             return null;
         }
         
+        $dbh->commit();
         return new Conversation($conversation_id);
     }
     
     /**
      * Deletes the conversation with the given id.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $conversation_id
      * @return boolean
      */
@@ -207,7 +211,7 @@ class Conversation {
     /**
      * Removes a member with the given user_id from the given conversation.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $conversation_id
      * @param int $user_id [optional] Defaults to the current user.
@@ -236,7 +240,7 @@ class Conversation {
     /**
      * Sets the conversation as read for the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $conversation_id
      * @param int $user_id [optional] Defaults to the current user.
@@ -267,7 +271,7 @@ class Conversation {
      * Returns a Conversation object corresponding to the given conversation_id,
      * if the given user is a participant. Otherwise returns null.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $conversation_id
      * @param int $user_id [optional] Defaults to the current user.
      * @return Conversation|null
@@ -299,7 +303,7 @@ class Conversation {
      * Gets the most recent conversations that a user is involved in.
      * If $unread is true, only returns unread conversations.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $page The page number of results.
      * @param int $limit The number of results per page.

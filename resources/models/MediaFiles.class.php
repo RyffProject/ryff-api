@@ -29,12 +29,9 @@ class MediaFiles {
     /**
      * Deletes all media files associated with the given post.
      * 
-     * @global PDO $dbh
      * @param int $post_id
      */
     public static function delete_from_post($post_id) {
-        global $dbh;
-        
         //Delete audio
         if (TEST_MODE) {
             $riff_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/".((int)$post_id).".m4a";
@@ -59,7 +56,7 @@ class MediaFiles {
     /**
      * Deletes all media files associated with the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      */

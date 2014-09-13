@@ -77,7 +77,7 @@ class Message {
     /**
      * Returns the message object with the given id, or null if it does not exist.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $message_id
      * @return Message|null
      */
@@ -101,7 +101,7 @@ class Message {
     /**
      * Sends a message from one user to a conversation.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param string $content
      * @param int $conversation_id
@@ -115,6 +115,8 @@ class Message {
             $user_id = $CURRENT_USER->id;
         }
         
+        $dbh->beginTransaction();
+        
         $query = "
             INSERT INTO `messages` (`conversation_id`, `user_id`, `content`)
             VALUES (:conversation_id, :user_id, :content)";
@@ -122,22 +124,38 @@ class Message {
         $sth->bindValue('conversation_id', $conversation_id);
         $sth->bindValue('user_id', $user_id);
         $sth->bindValue('content', $content);
-        if ($sth->execute()) {
-            $message_id = $dbh->lastInsertId();
-            
-            $update_conversation_query = "
-                UPDATE `conversations`
-                SET `date_updated` = NOW()
-                WHERE `conversation_id` = :conversation_id";
-            $update_conversation_sth = $dbh->prepare($update_conversation_query);
-            $update_conversation_sth->bindValue('conversation_id', $conversation_id);
-            $update_conversation_sth->execute();
-            
-            Conversation::set_read($conversation_id, $user_id);
-            
-            return Message::get_by_id($message_id);
+        
+        if (!$sth->execute()) {
+            $dbh->rollBack();
+            return null;
         }
-        return null;
+        
+        $message_id = $dbh->lastInsertId();
+
+        $update_conversation_query = "
+            UPDATE `conversations`
+            SET `date_updated` = NOW()
+            WHERE `conversation_id` = :conversation_id";
+        $update_conversation_sth = $dbh->prepare($update_conversation_query);
+        $update_conversation_sth->bindValue('conversation_id', $conversation_id);
+        if (!$update_conversation_sth->execute()) {
+            $dbh->rollBack();
+            return null;
+        }
+
+        if (!Conversation::set_read($conversation_id, $user_id)) {
+            $dbh->rollBack();
+            return null;
+        }
+
+        $message = Message::get_by_id($message_id);
+        if (!$message) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        $dbh->commit();
+        return $message;
     }
     
     /**
@@ -145,7 +163,7 @@ class Message {
      * read for the user who is requesting them. If $unread is true, only gets
      * unread messages.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $conversation_id
      * @param int $page The page number of results.
@@ -161,6 +179,8 @@ class Message {
         if ($user_id === null && $CURRENT_USER) {
             $user_id = $CURRENT_USER->id;
         }
+        
+        $dbh->beginTransaction();
         
         $query = "
             SELECT m.`message_id`, m.`user_id`, m.`content`, m.`date_created`
@@ -178,16 +198,23 @@ class Message {
         if ($unread) {
             $sth->bindValue('user_id', $user_id);
         }
-        if ($sth->execute()) {
-            $messages = array();
-            while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $messages[] = Message::create($row);
-            }
-            
-            Conversation::set_read($conversation_id, $user_id);
-            
-            return $messages;
+        
+        if (!$sth->execute()) {
+            $dbh->rollBack();
+            return null;
         }
-        return null;
+        
+        $messages = array();
+        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+            $messages[] = Message::create($row);
+        }
+        
+        if (!Conversation::set_read($conversation_id, $user_id)) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        $dbh->commit();
+        return $messages;
     }
 }

@@ -13,7 +13,7 @@ class Star {
     /**
      * Stars a post for the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $post_id
      * @param int $user_id [optional] Defaults to the current user.
@@ -41,7 +41,7 @@ class Star {
     /**
      * Removes the post from the given user's starred posts.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $post_id
      * @param int $user_id [optional] Defaults to the current user.
@@ -70,7 +70,7 @@ class Star {
     /**
      * Returns an array of the given user's starred Post objects.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return array|null An array of Post objects, or null on failure.
@@ -91,7 +91,10 @@ class Star {
         if ($sth->execute()) {
             $posts = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $posts[] = Post::get_by_id((int)$row['post_id']);
+                $post = Post::get_by_id((int)$row['post_id']);
+                if ($post) {
+                    $posts[] = $post;
+                }
             }
             return $posts;
         }

@@ -15,7 +15,7 @@ class Auth {
      * Creates a new auth token for the user and sets both the user_id and
      * auth token cookies.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
@@ -52,7 +52,7 @@ class Auth {
      * Expires the user's auth token in the database and sets
      * login cookies to expire.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $user_id [optional] Defaults to the current user.
      * @return boolean
@@ -87,7 +87,7 @@ class Auth {
     /**
      * Verifies that the username/password combination is valid.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $username
      * @param string $password
      * @return boolean
@@ -111,7 +111,7 @@ class Auth {
     /**
      * Verifies that this user_id and auth_token are valid, not expired, and match.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $user_id
      * @param string $auth_token
      * @return boolean

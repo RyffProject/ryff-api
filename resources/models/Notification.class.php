@@ -84,7 +84,7 @@ class Notification {
      * Helper function for constructor that optionally attaches user, post,
      * users, and posts as member variables.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      */
     protected function get_objects() {
         global $dbh;
@@ -148,7 +148,7 @@ class Notification {
      * been updated less than NOTIFICATION_TIMEOUT seconds ago, the new
      * notification will be stacked onto the matching one.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $user_id The user who will receive the notification.
      * @param string $type
      * @param int $base_post_obj_id The optional "post", or null.
@@ -160,6 +160,8 @@ class Notification {
     public static function add($user_id, $type, $base_post_obj_id,
             $base_user_obj_id, $leaf_post_obj_id, $leaf_user_obj_id) {
         global $dbh;
+        
+        $dbh->beginTransaction();
         
         $stack_query = "
             SELECT `notification_id` FROM `notifications`
@@ -177,7 +179,10 @@ class Notification {
         if ($base_user_obj_id) {
             $stack_sth->bindValue('user_post_obj_id', $base_user_obj_id);
         }
-        $stack_sth->execute();
+        if (!$stack_sth->execute()) {
+            $dbh->rollback();
+            return null;
+        }
         $notification_id = (int)$stack_sth->fetchColumn();
         
         if ($notification_id) {
@@ -188,6 +193,7 @@ class Notification {
             $base_sth = $dbh->prepare($base_query);
             $base_sth->bindValue('notification_id', $notification_id);
             if (!$base_sth->execute()) {
+                $dbh->rollBack();
                 return null;
             }
         } else {
@@ -203,6 +209,7 @@ class Notification {
             $base_sth->bindValue('base_post_obj_id', $base_post_obj_id);
             $base_sth->bindValue('base_user_obj_id', $base_user_obj_id);
             if (!$base_sth->execute()) {
+                $dbh->rollBack();
                 return null;
             }
             $notification_id = $dbh->lastInsertId();
@@ -218,10 +225,13 @@ class Notification {
         $leaf_sth->bindValue('notification_id', $notification_id);
         $leaf_sth->bindValue('leaf_post_obj_id', $leaf_post_obj_id);
         $leaf_sth->bindValue('leaf_user_obj_id', $leaf_user_obj_id);
-        if ($leaf_sth->execute()) {
-            return Notification::get_by_id($notification_id, $user_id);
+        if (!$leaf_sth->execute()) {
+            $dbh->rollBack();
+            return null;
         }
-        return null;
+        
+        $dbh->commit();
+        return Notification::get_by_id($notification_id, $user_id);
     }
     
     /**
@@ -230,7 +240,7 @@ class Notification {
      * For notifications of type "mention" and "remix" the notification row
      * will be automatically deleted due to foreign keys.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $user_id The user who will receive the notification.
      * @param string $type
      * @param int $base_post_obj_id The optional "post", or null.
@@ -267,10 +277,10 @@ class Notification {
         if ($leaf_user_obj_id) {
             $sth->bindValue('leaf_user_obj_id', $leaf_user_obj_id);
         }
-        if ($sth->execute()) {
-            return true;
+        if (!$sth->execute()) {
+            return false;
         }
-        return false;
+        return true;
     }
     
     /**
@@ -301,12 +311,14 @@ class Notification {
     /**
      * Marks the given notification as read.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $notification_id
      * @return boolean
      */
     public static function set_read($notification_id) {
         global $dbh;
+        
+        $dbh->beginTransaction();
         
         $query = "
             UPDATE `notifications`
@@ -315,6 +327,7 @@ class Notification {
         $sth = $dbh->prepare($query);
         $sth->bindValue('notification_id', $notification_id);
         if (!$sth->execute()) {
+            $dbh->rollBack();
             return false;
         }
         
@@ -324,14 +337,20 @@ class Notification {
             WHERE `notification_id` = :notification_id";
         $sent_sth = $dbh->prepare($sent_query);
         $sent_sth->bindValue('notification_id', $notification_id);
-        return $sent_sth->execute();
+        if (!$sent_sth->execute()) {
+            $dbh->rollBack();
+            return false;
+        }
+        
+        $dbh->commit();
+        return true;
     }
     
     /**
      * Gets the Notification object with the given notification_id, if its
      * recipient is the given user_id.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $notification_id
      * @param int $user_id
@@ -363,7 +382,7 @@ class Notification {
     /**
      * Gets an array of Notification objects for the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $page [optional] The current page of results, defaults to 1.
      * @param int $limit [optional] The number of results per page, defaults to 15.

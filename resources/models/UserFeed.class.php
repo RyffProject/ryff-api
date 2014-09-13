@@ -14,7 +14,7 @@ class UserFeed {
      * Returns an array of User objects sorted by proximity to the given user.
      * The users can optionally match an array of tags.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param Point $location The latitude and longitude coordinates that are
      *                        being queried.
@@ -62,10 +62,10 @@ class UserFeed {
         if ($sth->execute()) {
             $users = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                if (!$row['user_id']) {
-                    continue;
+                $user = User::create($row);
+                if ($user) {
+                    $users[] = $user;
                 }
-                $users[] = User::create($row);
             }
             return $users;
         }
@@ -76,7 +76,7 @@ class UserFeed {
      * Gets User objects with the most karma in the given time frame,
      * optionally matching the given tags.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param string $time [optional] "day", "week" (default), "month", or "all".
      * @param array $tags [optional]
      * @param int $page [optional] The page number of results, defaults to 1.
@@ -113,10 +113,10 @@ class UserFeed {
         if ($sth->execute()) {
             $users = array();
             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                if (!$row['user_id']) {
-                    continue;
+                $user = User::create($row);
+                if ($user) {
+                    $users[] = $user;
                 }
-                $users[] = User::create($row);
             }
             return $users;
         }

@@ -14,7 +14,7 @@ class PushNotification {
      * Removes any old device tokens that had the same device UUID, then adds
      * the new token with that UUID.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param string $token
      * @param string $uuid
@@ -67,7 +67,7 @@ class PushNotification {
     /**
      * Returns an array of all the device tokens this user has for APNs.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $user_id
      * @return array
      */
@@ -118,7 +118,7 @@ class PushNotification {
      * objects, sends it to all of the devices that the user has registered,
      * and marks the notification objects as sent.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param resource $apns_socket
      * @param int $notification_id
      * @param int $user_id
@@ -172,7 +172,7 @@ class PushNotification {
      * notification_objects table that have not yet been sent are sent in
      * order of creation.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $limit [optional] How many notifications should be sent, 0 for no limit.
      * @return int The number of notifications sent.
      */
@@ -244,7 +244,7 @@ class PushNotification {
      * The array of recipient ids should be whoever has not yet read the message.
      * After notifications are sent, the message is marked as sent.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param resource $apns_socket
      * @param int $message_id
      * @param int $conversation_id
@@ -288,7 +288,7 @@ class PushNotification {
      * This function sends push notifications to iOS devices for the messaging
      * system. Messages are sent in order of creation.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $limit [optional] How many messages should be sent, 0 for no limit.
      * @return int The number of messages sent.
      */

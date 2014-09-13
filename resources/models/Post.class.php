@@ -115,7 +115,7 @@ class Post {
     /**
      * Helper function that returns the number of upvotes this post has.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return int The number of upvotes.
      */
     protected function get_num_upvotes() {
@@ -134,7 +134,7 @@ class Post {
      * Helper function that returns whether this post is upvoted by the
      * current user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @return boolean If this post is upvoted by the current user.
      */
@@ -160,7 +160,7 @@ class Post {
      * Helper function that returns whether this post is starred by the
      * current user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @return boolean If this post is starred by the current user.
      */
@@ -227,7 +227,7 @@ class Post {
     /**
      * Gets the post objects that are parents of this post.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return array An array of Post objects
      */
     public function get_parents() {
@@ -241,7 +241,10 @@ class Post {
         $sth->bindValue('post_id', $this->id);
         $sth->execute();
         while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-            $parents[] = Post::get_by_id((int)$row['parent_id']);
+            $parent = Post::get_by_id((int)$row['parent_id']);
+            if ($parent) {
+                $parents[] = $parent;
+            }
         }
         return $parents;
     }
@@ -249,7 +252,7 @@ class Post {
     /**
      * Gets the post objects that are children of this post.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @return array An array of Post objects
      */
     public function get_children() {
@@ -263,7 +266,10 @@ class Post {
         $sth->bindValue('post_id', $this->id);
         $sth->execute();
         while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-            $children[] = Post::get_by_id((int)$row['child_id']);
+            $child = Post::get_by_id((int)$row['child_id']);
+            if ($child) {
+                $children[] = $child;
+            }
         }
         return $children;
     }
@@ -271,7 +277,7 @@ class Post {
     /**
      * Adds a new Post.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param string $title The title of the post.
      * @param type $duration The duration of the post audio.
@@ -297,6 +303,8 @@ class Post {
             return null;
         }
         
+        $dbh->beginTransaction();
+        
         $query = "
             INSERT INTO `posts` (`user_id`, `title`, `content`, `duration`)
             VALUES (:user_id, :title, :content, :duration)";
@@ -305,69 +313,93 @@ class Post {
         $sth->bindValue('title', $title);
         $sth->bindValue('content', $content);
         $sth->bindValue('duration', $duration);
-        if ($sth->execute()) {
-            $post_id = $dbh->lastInsertId();
-            
-            //Save post audio
+        if (!$sth->execute()) {
+            $dbh->rollBack();
+            return null;
+        }
+        $post_id = $dbh->lastInsertId();
+        
+        //Save post image
+        if ($img_tmp_path) {
             if (TEST_MODE) {
-                $riff_new_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
+                $img_new_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
             } else {
-                $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
+                $img_new_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
             }
-            if (is_uploaded_file($riff_tmp_path)) {
-                $saved_riff = move_uploaded_file($riff_tmp_path, $riff_new_path);
+            if (is_uploaded_file($img_tmp_path)) {
+                $saved_img = move_uploaded_file($img_tmp_path, $img_new_path);
             } else {
-                $saved_riff = copy($riff_tmp_path, $riff_new_path);
+                $saved_img = copy($img_tmp_path, $img_new_path);
             }
-            if (!$saved_riff) {
-                Post::delete($post_id);
+            if (!$saved_img) {
+                $dbh->rollBack();
                 return null;
             }
-            
-            if ($parent_ids) {
-                if (!Post::add_parents($post_id, $parent_ids)) {
-                    Post::delete($post_id);
+        }
+
+        //Save post audio
+        if (TEST_MODE) {
+            $riff_new_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
+        } else {
+            $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
+        }
+        if (is_uploaded_file($riff_tmp_path)) {
+            $saved_riff = move_uploaded_file($riff_tmp_path, $riff_new_path);
+        } else {
+            $saved_riff = copy($riff_tmp_path, $riff_new_path);
+        }
+        if (!$saved_riff) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        //Add post parents and notify them that they have been remixed
+        if ($parent_ids) {
+            if (!Post::add_parents($post_id, $parent_ids)) {
+                $dbh->rollBack();
+                return null;
+            }
+            foreach ($parent_ids as $parent_id) {
+                $parent_post = Post::get_by_id($parent_id);
+                if (!$parent_post) {
+                    $dbh->rollBack();
                     return null;
                 }
-                foreach ($parent_ids as $parent_id) {
-                    $parent_post = Post::get_by_id($parent_id);
-                    if ($parent_post->user->id !== (int)$user_id) {
-                        Notification::add($parent_post->user->id, "remix", $parent_post->id, null, $post_id, $user_id);
+                if ($parent_post->user->id !== (int)$user_id) {
+                    if (!Notification::add($parent_post->user->id, "remix",
+                            $parent_post->id, null, $post_id, $user_id)) {
+                        $dbh->rollBack();
+                        return null;
                     }
                 }
             }
-            
-            if ($img_tmp_path) {
-                if (TEST_MODE) {
-                    $img_new_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
-                } else {
-                    $img_new_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
-                }
-                if (is_uploaded_file($img_tmp_path)) {
-                    $saved_img = move_uploaded_file($img_tmp_path, $img_new_path);
-                } else {
-                    $saved_img = copy($img_tmp_path, $img_new_path);
-                }
-                if (!$saved_img) {
-                    Post::delete($post_id);
-                    return null;
-                }
-            }
-            
-            Tag::add_for_post($post_id, $content);
-            Notification::add_mentions($post_id, $content);
-            Upvote::add($post_id, $user_id);
-            
-            return Post::get_by_id($post_id);
         }
-        return null;
+        
+        //Add post tags, add notifications for people mentioned, and add upvote
+        //by the user adding the post.
+        $added_tags = Tag::add_for_post($post_id, $content);
+        $added_notification = Notification::add_mentions($post_id, $content);
+        $added_upvote = Upvote::add($post_id, $user_id);
+        if (!$added_tags || !$added_notification || !$added_upvote) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        $post = Post::get_by_id($post_id);
+        if (!$post) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        $dbh->commit();
+        return $post;
     }
     
     /**
      * Adds the $parent_ids as parents of $post_id. The $parent_ids can be
      * either a comma-separated string or an array of ids.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $post_id
      * @param string|array $parent_ids
      * @return boolean
@@ -405,14 +437,12 @@ class Post {
     /**
      * Deletes the given post.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $post_id
      * @return boolean
      */
     public static function delete($post_id) {
         global $dbh;
-        
-        MediaFiles::delete_from_post((int)$post_id);
         
         $query = "
             DELETE FROM `posts`
@@ -420,6 +450,7 @@ class Post {
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
         if ($sth->execute()) {
+            MediaFiles::delete_from_post((int)$post_id);
             return true;
         }
         return false;
@@ -428,7 +459,7 @@ class Post {
     /**
      * Gets the post object with the given $post_id, if it exists.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $post_id
      * @return Post|null
      */
@@ -444,6 +475,9 @@ class Post {
         if ($sth->execute() && $sth->rowCount()) {
             $row = $sth->fetch(PDO::FETCH_ASSOC);
             $user = User::get_by_id((int)$row['user_id']);
+            if (!$user) {
+                return null;
+            }
             $post = new Post($post_id, $user, $row['title'], $row['content'],
                     $row['duration'], $row['date_created']);
             return $post;

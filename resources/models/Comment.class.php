@@ -77,7 +77,7 @@ class Comment {
      * Adds a comment with the given text content to the given post from the
      * given user, or null on failure.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param string $content
      * @param int $post_id
@@ -91,6 +91,8 @@ class Comment {
             $user_id = $CURRENT_USER->id;
         }
         
+        $dbh->beginTransaction();
+        
         $query = "
             INSERT INTO `comments` (`content`, `post_id`, `user_id`)
             VALUES (:content, :post_id, :user_id)";
@@ -99,15 +101,24 @@ class Comment {
         $sth->bindValue('post_id', $post_id);
         $sth->bindValue('user_id', $user_id);
         if (!$sth->execute()) {
+            $dbh->rollBack();
             return null;
         }
-        return Comment::get_by_id($dbh->lastInsertId());
+        
+        $comment = Comment::get_by_id($dbh->lastInsertId());
+        if (!$comment) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        $dbh->commit();
+        return $comment;
     }
     
     /**
      * Deletes the comment with the given id, if the given user posted it.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $comment_id
      * @param int $user_id [optional] Defaults to the current user.
@@ -136,7 +147,7 @@ class Comment {
     /**
      * Returns a Comment object with the given id, or null on failure.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $comment_id
      * @return Comment|null
      */
@@ -158,7 +169,7 @@ class Comment {
     /**
      * Gets an array of Comment objects on the given post, or null on failure.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @param int $post_id
      * @param int $page [optional] The page number of results, defaults to 1.
      * @param int $limit [optional] The number of results per page, defaults to 15.

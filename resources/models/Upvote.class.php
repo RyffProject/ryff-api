@@ -13,7 +13,7 @@ class Upvote {
     /**
      * Upvotes a post for the given user.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $post_id
      * @param int $user_id [optional] Defaults to the current user.
@@ -26,26 +26,36 @@ class Upvote {
             $user_id = $CURRENT_USER->id;
         }
         
+        $dbh->beginTransaction();
+        
         $query = "
             INSERT IGNORE INTO `upvotes` (`post_id`, `user_id`)
             VALUES (:post_id, :user_id)";
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
         $sth->bindValue('user_id', $user_id);
-        if ($sth->execute()) {
-            $post = Post::get_by_id($post_id);
-            if ($post->user->id !== (int)$user_id) {
-                Notification::add($post->user->id, "upvote", $post->id, null, null, $user_id);
-            }
-            return true;
+        if (!$sth->execute()) {
+            $dbh->rollBack();
+            return false;
         }
-        return false;
+        
+        $post = Post::get_by_id($post_id);
+        if ($post && $post->user->id !== (int)$user_id) {
+            if (!Notification::add($post->user->id, "upvote",
+                    $post->id, null, null, $user_id)) {
+                $dbh->rollBack();
+                return false;
+            }
+        }
+        
+        $dbh->commit();
+        return true;
     }
     
     /**
      * Removes the given user's upvote from the post.
      * 
-     * @global PDO $dbh
+     * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param int $post_id
      * @param int $user_id [optional] Defaults to the current user.
@@ -58,6 +68,8 @@ class Upvote {
             $user_id = $CURRENT_USER->id;
         }
         
+        $dbh->beginTransaction();
+        
         $query = "
             DELETE FROM `upvotes`
             WHERE `post_id` = :post_id
@@ -65,11 +77,19 @@ class Upvote {
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
         $sth->bindValue('user_id', $user_id);
-        if ($sth->execute()) {
-            $post = Post::get_by_id($post_id);
-            Notification::delete($post->user->id, "upvote", $post->id, null, null, $user_id);
-            return true;
+        if (!$sth->execute()) {
+            $dbh->rollBack();
+            return false;
         }
-        return false;
+        
+        $post = Post::get_by_id($post_id);
+        if (!Notification::delete($post->user->id, "upvote",
+                $post->id, null, null, $user_id)) {
+            $dbh->rollBack();
+            return false;
+        }
+        
+        $dbh->commit();
+        return true;
     }
 }
