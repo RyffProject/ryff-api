@@ -141,3 +141,15 @@ define("PUSH_NOTIFICATION_LIMIT", 1000);
  * to no one but will still count toward the limit.
  */
 define("PUSH_MESSAGE_LIMIT", 1000); //How many messages the cron script will push per run
+
+
+/**
+ * Logs
+ * ----
+ */
+
+/**
+ * Error log.
+ */
+ini_set("log_errors", 1);
+ini_set("error_log", __DIR__."/../logs/error.log");

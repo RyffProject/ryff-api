@@ -35,4 +35,22 @@ class Util {
         }
         return date("Y-m-d H:i:s", $from_time);
     }
+    
+    /**
+     * Logs the time, script, user, and message in the log file specified in
+     * config.php.
+     * 
+     * @global User $CURRENT_USER
+     * @param string $message
+     */
+    public static function error_log($message) {
+        global $CURRENT_USER;
+        
+        $info = array(
+            "Script: {$_SERVER["PHP_SELF"]}",
+            "User: ".($CURRENT_USER ? $CURRENT_USER->id : "-"),
+            "Error: $message"
+        );
+        error_log(implode("   ", $info));
+    }
 }
