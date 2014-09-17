@@ -20,12 +20,12 @@ require_once("db/NestedPDO.class.php");
 try {
     if (TEST_MODE) {
         $dbh = new NestedPDO(
-            "mysql:host=".TEST_DB_HOST.";dbname=".TEST_DB_NAME,
+            "mysql:host=".TEST_DB_HOST.";dbname=".TEST_DB_NAME.";charset=utf8mb4",
             TEST_DB_USER, TEST_DB_PASS
         );
     } else {
         $dbh = new NestedPDO(
-            "mysql:host=".DB_HOST.";dbname=".DB_NAME,
+            "mysql:host=".DB_HOST.";dbname=".DB_NAME.";charset=utf8mb4",
             DB_USER, DB_PASS
         );
     }

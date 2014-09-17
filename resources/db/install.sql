@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `apns_tokens` (
   PRIMARY KEY (`apns_token_id`),
   KEY `user_id` (`user_id`),
   UNIQUE KEY (`user_id`, `device_uuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `auth_tokens`
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `auth_tokens` (
   `date_expires` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`token_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `comments`
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `comments` (
   PRIMARY KEY (`comment_id`),
   KEY `post_id` (`post_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `conversation_members`
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `conversation_members` (
   KEY `conversation_id` (`conversation_id`),
   KEY `user_id` (`user_id`),
   UNIQUE KEY (`conversation_id`, `user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `conversations`
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `conversations` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_updated` timestamp DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`conversation_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `follows`
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `follows` (
   KEY `to_id` (`to_id`),
   KEY `from_id` (`from_id`),
   UNIQUE KEY (`to_id`, `from_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `locations`
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS `locations` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`location_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `messages`
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
   PRIMARY KEY (`message_id`),
   KEY `conversation_id` (`conversation_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `notification_objects`
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS `notification_objects` (
   KEY `notification_id` (`notification_id`),
   KEY `post_obj_id` (`post_obj_id`),
   KEY `user_obj_id` (`user_obj_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `notifications`
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   KEY `user_id` (`user_id`),
   KEY `post_obj_id` (`post_obj_id`),
   KEY `user_obj_id` (`user_obj_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `post_families`
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS `post_families` (
   KEY `parent_id` (`parent_id`),
   KEY `child_id` (`child_id`),
   UNIQUE KEY (`parent_id`, `child_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `post_tags`
@@ -178,12 +178,12 @@ CREATE TABLE IF NOT EXISTS `post_families` (
 CREATE TABLE IF NOT EXISTS `post_tags` (
   `tag_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `post_id` int(10) unsigned NOT NULL,
-  `tag` varchar(255) NOT NULL,
+  `tag` varchar(191) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`tag_id`),
   KEY `post_id` (`post_id`),
   UNIQUE KEY (`post_id`, `tag`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `posts`
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`post_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `stars`
@@ -211,7 +211,7 @@ CREATE TABLE IF NOT EXISTS `stars` (
   KEY `post_id` (`post_id`),
   KEY `user_id` (`user_id`),
   UNIQUE KEY (`post_id`, `user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `upvotes`
@@ -225,7 +225,7 @@ CREATE TABLE IF NOT EXISTS `upvotes` (
   KEY `post_id` (`post_id`),
   KEY `user_id` (`user_id`),
   UNIQUE KEY (`post_id`, `user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `user_tags`
@@ -233,12 +233,12 @@ CREATE TABLE IF NOT EXISTS `upvotes` (
 CREATE TABLE IF NOT EXISTS `user_tags` (
   `tag_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
-  `tag` varchar(255) NOT NULL,
+  `tag` varchar(191) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`tag_id`),
   KEY `user_id` (`user_id`),
   UNIQUE KEY (`user_id`, `tag`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `users`
@@ -247,7 +247,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `username` varchar(32) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `email` varchar(191) NOT NULL,
   `bio` text NOT NULL,
   `password` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   PRIMARY KEY (`user_id`),
   UNIQUE KEY (`username`),
   UNIQUE KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 
 --
