@@ -23,6 +23,8 @@ $type = isset($_GET['type']) ? $_GET['type'] : '';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if (!in_array($type, array("avatar", "post", "riff")) || !$id) {
+    header("HTTP/1.1 404 Not Found", true, 404);
+    exit;
 }
 
 switch ($type) {
