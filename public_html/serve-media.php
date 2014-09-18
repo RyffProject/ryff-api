@@ -8,6 +8,10 @@
  * In the future this can be used to restrict access further if privacy
  * settings are implemented.
  * 
+ * GET variables:
+ * "type" (required) The type of resource (avatar, post, or riff) to be served.
+ * "id" (required) The id of the resource to be served.
+ * 
  * Ryff API <http://www.github.com/RyffProject/ryff-api>
  * Released under the Apache License 2.0.
  */
