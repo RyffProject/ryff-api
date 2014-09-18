@@ -23,12 +23,6 @@
 define("SITE_ROOT", "");
 
 /**
- * The outward facing url of the media folder of the site. ex) http://localhost/media
- * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
- */
-define("MEDIA_URL", "");
-
-/**
  * The absolute path to the media folder. ex) /var/www/html/media
  * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
  */

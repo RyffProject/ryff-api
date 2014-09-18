@@ -133,7 +133,7 @@ class User {
             $path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
         }
         if (file_exists($path)) {
-            return MEDIA_URL."/avatars/{$this->id}.png";
+            return SITE_ROOT."/media/avatars/{$this->id}.png";
         } else {
             return "";
         }

@@ -194,7 +194,7 @@ class Post {
             $image_path = MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
         }
         if (file_exists($image_path)) {
-            return MEDIA_URL."/posts/{$this->id}.png";
+            return SITE_ROOT."/media/posts/{$this->id}.png";
         }
         return "";
     }
@@ -211,7 +211,7 @@ class Post {
             $riff_path = MEDIA_ABSOLUTE_PATH."/riffs/{$this->id}.m4a";
         }
         if (file_exists($riff_path)) {
-            return MEDIA_URL."/riffs/{$this->id}.m4a";
+            return SITE_ROOT."/media/riffs/{$this->id}.m4a";
         }
         return "";
     }
