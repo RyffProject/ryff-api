@@ -62,4 +62,4 @@ if (!$object_exists || !file_exists($file_path)) {
 
 header("Content-Type: $content_type");
 header("Content-Length: ".filesize($file_path));
-echo file_get_contents($file_path);
+readfile($file_path);
