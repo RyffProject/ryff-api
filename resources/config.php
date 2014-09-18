@@ -18,15 +18,15 @@
  */
 
 /**
- * The outward facing url of the site. ex) http://localhost
+ * The outward facing url of the site. ex) http://localhost/ryff
  */
-define("SITE_ROOT", "");
+define("SITE_ROOT", "http://localhost/ryff");
 
 /**
  * The absolute path to the media folder. ex) /var/www/html/media
  * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
  */
-define("MEDIA_ABSOLUTE_PATH", "");
+define("MEDIA_ABSOLUTE_PATH", __DIR__."/../public_html/media");
 
 /**
  * The amount of time it takes for auth tokens to expire, in seconds.
@@ -53,9 +53,9 @@ date_default_timezone_set("America/Los_Angeles");
  * The main database credentials. The database must be created manually and
  * then tables must be installed with the provided SQL script before use.
  */
-define("DB_NAME", "");
-define("DB_USER", "");
-define("DB_HOST", "");
+define("DB_NAME", "ryff");
+define("DB_USER", "ryff");
+define("DB_HOST", "localhost");
 define("DB_PASS", "");
 
 
@@ -68,23 +68,23 @@ define("DB_PASS", "");
  * Use the test database and media.
  */
 if (!defined("TEST_MODE")) {
-    define("TEST_MODE", false);
+    define("TEST_MODE", true);
 }
 
 /**
  * The absolute path to the test media folder. ex) /var/www/html/test_media
  * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
  */
-define("TEST_MEDIA_ABSOLUTE_PATH", "");
+define("TEST_MEDIA_ABSOLUTE_PATH", __DIR__."/../public_html/test_media");
 
 /**
  * The test database credentials. Used for running the test suite or for
  * populating a database with test data. The database must be created manually
  * before use, but tables will be installed at runtime.
  */
-define("TEST_DB_NAME", "");
-define("TEST_DB_USER", "");
-define("TEST_DB_HOST", "");
+define("TEST_DB_NAME", "ryfftest");
+define("TEST_DB_USER", "ryff");
+define("TEST_DB_HOST", "localhost");
 define("TEST_DB_PASS", "");
 
 
