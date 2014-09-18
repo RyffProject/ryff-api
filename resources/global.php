@@ -60,7 +60,7 @@ if (isset($_COOKIE['user_id']) && isset($_COOKIE['auth_token'])) {
  * exits with an error on failure.
  */
 if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
-    if (!isset($CURRENT_USER)) {
+    if (!isset($CURRENT_USER) || !$CURRENT_USER) {
         header("Content-Type: application/json");
         echo json_encode(array("error" => "Authentication required."));
         exit;

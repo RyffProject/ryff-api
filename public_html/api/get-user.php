@@ -26,6 +26,10 @@ set_include_path(implode(PATH_SEPARATOR, array(
     __DIR__."/../../resources"
 )));
 
+if (!isset($_POST['id']) && !isset($_POST['username'])) {
+    define("REQUIRES_AUTHENTICATION", true);
+}
+
 require_once("global.php");
 
 if (isset($_POST['id'])) {

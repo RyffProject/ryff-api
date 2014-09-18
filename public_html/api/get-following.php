@@ -29,15 +29,15 @@ set_include_path(implode(PATH_SEPARATOR, array(
     __DIR__."/../../resources"
 )));
 
-require_once("global.php");
-
 if (isset($_POST['id'])) {
     $user_id = (int)$_POST['id'];
 } else {
-    $user_id = $CURRENT_USER->id;
+    define("REQUIRES_AUTHENTICATION", true);
 }
 
-$user = User::get_by_id($user_id);
+require_once("global.php");
+
+$user = isset($user_id) ? User::get_by_id($user_id) : $CURRENT_USER;
 if (!$user) {
     echo json_encode(array("error" => "You must provide a valid user id."));
     exit;
