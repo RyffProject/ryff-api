@@ -1,0 +1,9 @@
+Options +FollowSymlinks
+RewriteEngine On
+
+RewriteRule \.gitignore - [R=404]
+RewriteRule ^test_media/ - [R=404]
+
+RewriteRule ^media/avatars/(\d+)\.png$ serve-media.php?type=avatar&id=$1
+RewriteRule ^media/posts/(\d+)\.png$ serve-media.php?type=post&id=$1
+RewriteRule ^media/riffs/(\d+)\.m4a$ serve-media.php?type=riff&id=$1

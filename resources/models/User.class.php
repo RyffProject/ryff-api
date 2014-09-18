@@ -133,11 +133,7 @@ class User {
             $path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
         }
         if (file_exists($path)) {
-            if (TEST_MODE) {
-                return TEST_MEDIA_URL."/avatars/{$this->id}.png";
-            } else {
-                return MEDIA_URL."/avatars/{$this->id}.png";
-            }
+            return MEDIA_URL."/avatars/{$this->id}.png";
         } else {
             return "";
         }
@@ -591,7 +587,7 @@ class User {
      * Returns the user with the given user_id, or null if it doesn't exist.
      * 
      * @global NestedPDO $dbh
-     * @param type $user_id
+     * @param int $user_id
      * @return User|null
      */
     public static function get_by_id($user_id) {
@@ -610,5 +606,23 @@ class User {
             return User::create($row);
         }
         return null;
+    }
+    
+    /**
+     * Returns true if the user with the given id exists, or false otherwise.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $user_id
+     * @return boolean
+     */
+    public static function exists($user_id) {
+        global $dbh;
+        
+        $query = "
+            SELECT 1 FROM `users` WHERE `user_id` = :user_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $user_id);
+        $sth->execute();
+        return (bool)$sth->fetchColumn();
     }
 }

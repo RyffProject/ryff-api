@@ -78,13 +78,6 @@ if (!defined("TEST_MODE")) {
 }
 
 /**
- * The outward facing url of the test media folder of the site.
- * ex) http://localhost/test_media
- * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
- */
-define("TEST_MEDIA_URL", "");
-
-/**
  * The absolute path to the test media folder. ex) /var/www/html/test_media
  * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
  */

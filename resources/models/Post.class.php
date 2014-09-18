@@ -194,11 +194,7 @@ class Post {
             $image_path = MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
         }
         if (file_exists($image_path)) {
-            if (TEST_MODE) {
-                return TEST_MEDIA_URL."/posts/{$this->id}.png";
-            } else {
-                return MEDIA_URL."/posts/{$this->id}.png";
-            }
+            return MEDIA_URL."/posts/{$this->id}.png";
         }
         return "";
     }
@@ -215,11 +211,7 @@ class Post {
             $riff_path = MEDIA_ABSOLUTE_PATH."/riffs/{$this->id}.m4a";
         }
         if (file_exists($riff_path)) {
-            if (TEST_MODE) {
-                return TEST_MEDIA_URL."/riffs/{$this->id}.m4a";
-            } else {
-                return MEDIA_URL."/riffs/{$this->id}.m4a";
-            }
+            return MEDIA_URL."/riffs/{$this->id}.m4a";
         }
         return "";
     }
@@ -484,5 +476,23 @@ class Post {
         }
         
         return null;
+    }
+    
+    /**
+     * Returns true if the post with the given id exists, or false otherwise.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @return boolean
+     */
+    public static function exists($post_id) {
+        global $dbh;
+        
+        $query = "
+            SELECT 1 FROM `posts` WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->execute();
+        return (bool)$sth->fetchColumn();
     }
 }
