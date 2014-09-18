@@ -46,11 +46,13 @@ if (TEST_MODE) {
 /**
  * Get cookies for authentication.
  */
-if (isset($_COOKIE['user_id'])) {
+if (isset($_COOKIE['user_id']) && isset($_COOKIE['auth_token'])) {
     $AUTH_USER_ID = (int)$_COOKIE['user_id'];
-}
-if (isset($_COOKIE['auth_token'])) {
     $AUTH_TOKEN = preg_replace('/[^0-9a-f]/', '', $_COOKIE['auth_token']);
+    
+    if (Auth::is_auth_token_valid($AUTH_USER_ID, $AUTH_TOKEN)) {
+        $CURRENT_USER = User::get_by_id($AUTH_USER_ID);
+    }
 }
 
 /**
@@ -58,16 +60,9 @@ if (isset($_COOKIE['auth_token'])) {
  * exits with an error on failure.
  */
 if (defined("REQUIRES_AUTHENTICATION") && REQUIRES_AUTHENTICATION) {
-    if (!isset($AUTH_USER_ID) || !isset($AUTH_TOKEN)) {
+    if (!isset($CURRENT_USER)) {
         header("Content-Type: application/json");
         echo json_encode(array("error" => "Authentication required."));
         exit;
     }
-    
-    if (!Auth::is_auth_token_valid($AUTH_USER_ID, $AUTH_TOKEN)) {
-        header("Content-Type: application/json");
-        echo json_encode(array("error" => "Invalid credentials."));
-        exit;
-    }
-    $CURRENT_USER = User::get_by_id($AUTH_USER_ID);
 }
