@@ -251,28 +251,12 @@ abstract class TestEnvironment {
             return false;
         }
         
-        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/avatars/*.{gif,jpg,png}", GLOB_BRACE) as $avatar_path) {
-            if (!unlink($avatar_path)) {
-                echo "Failed to delete avatar file at: $avatar_path\n";
-                return false;
-            }
-        }
-        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/avatars/small/*.{gif,jpg,png}", GLOB_BRACE) as $avatar_small_path) {
-            if (!unlink($avatar_small_path)) {
-                echo "Failed to delete avatar file at: $avatar_small_path\n";
-                return false;
-            }
-        }
-        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/posts/*.{gif,jpg,png}", GLOB_BRACE) as $post_image_path) {
-            if (!unlink($post_image_path)) {
-                echo "Failed to delete post image file at: $post_image_path\n";
-                return false;
-            }
-        }
-        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/riffs/*.m4a") as $riff_path) {
-            if (!unlink($riff_path)) {
-                echo "Failed to delete riff file at: $riff_path\n";
-                return false;
+        foreach (array("/avatars", "/avatars/small", "/posts", "/posts/medium", "/posts/small", "/riffs") as $dir) {
+            foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."$dir/*.{gif,jpg,png,m4a}", GLOB_BRACE) as $path) {
+                if (!unlink($path)) {
+                    echo "Failed to delete media file at: $path.\n";
+                    return false;
+                }
             }
         }
         return true;

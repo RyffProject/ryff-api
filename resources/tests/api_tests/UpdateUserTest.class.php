@@ -81,7 +81,7 @@ class UpdateUserTest extends Test {
                 echo "Failed to update user's email.\n";
                 $output = false;
             }
-            if ($this->state["files"] && !$updated_user->avatar) {
+            if ($this->state["files"] && !$updated_user->avatar_url) {
                 echo "Failed to update user's avatar.\n";
                 $output = false;
             }
