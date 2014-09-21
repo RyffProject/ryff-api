@@ -64,7 +64,7 @@ abstract class TestEnvironment {
         $this->words = explode("\n", file_get_contents(__DIR__."/words.txt"));
         $this->unique_words = $this->words;
         
-        foreach (glob(__DIR__."/sample_media/avatars/*.png") as $avatar_path) {
+        foreach (glob(__DIR__."/sample_media/avatars/*.{gif,jpg,png}", GLOB_BRACE) as $avatar_path) {
             $this->sample_avatars[] = $avatar_path;
         }
         foreach (glob(__DIR__."/sample_media/posts/*.png") as $post_image_path) {
@@ -251,13 +251,19 @@ abstract class TestEnvironment {
             return false;
         }
         
-        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/avatars/*.png") as $avatar_path) {
+        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/avatars/*.{gif,jpg,png}", GLOB_BRACE) as $avatar_path) {
             if (!unlink($avatar_path)) {
                 echo "Failed to delete avatar file at: $avatar_path\n";
                 return false;
             }
         }
-        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/posts/*.png") as $post_image_path) {
+        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/avatars/small/*.{gif,jpg,png}", GLOB_BRACE) as $avatar_small_path) {
+            if (!unlink($avatar_small_path)) {
+                echo "Failed to delete avatar file at: $avatar_small_path\n";
+                return false;
+            }
+        }
+        foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."/posts/*.{gif,jpg,png}", GLOB_BRACE) as $post_image_path) {
             if (!unlink($post_image_path)) {
                 echo "Failed to delete post image file at: $post_image_path\n";
                 return false;

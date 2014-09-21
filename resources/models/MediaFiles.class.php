@@ -165,4 +165,20 @@ class MediaFiles {
             return imagepng($dest_image, $dest_path);
         }
     }
+    
+    public static function save_avatar($avatar_source_path, $user_id) {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $avatar_dest_path = "$media_dir/avatars/$user_id.png";
+        $avatar_dest_small_path = "$media_dir/avatars/small/$user_id.jpg";
+        
+        if (!static::save_image($avatar_source_path, $avatar_dest_path,
+                IMAGETYPE_PNG, 800, 800)) {
+            return false;
+        } else if (!static::save_image($avatar_source_path, $avatar_dest_small_path,
+                IMAGETYPE_JPEG, 100, 100, 80)) {
+            return false;
+        }
+        
+        return true;
+    }
 }

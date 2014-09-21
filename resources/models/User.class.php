@@ -57,7 +57,14 @@ class User {
      * 
      * @var string
      */
-    public $avatar;
+    public $avatar_url;
+    
+    /**
+     * The URL for the user's avatar thumbnail, or "" if none is set.
+     * 
+     * @var string
+     */
+    public $avatar_small_url;
     
     /**
      * The total amount of upvotes this user's posts have received.
@@ -112,7 +119,8 @@ class User {
         $this->bio = $bio;
         $this->date_created = $date_created;
         
-        $this->avatar = $this->get_avatar_url();
+        $this->avatar_url = $this->get_avatar_url();
+        $this->avatar_small_url = $this->get_avatar_small_url();
         $this->karma = $this->get_karma();
         $this->tags = $this->get_tags();
         $this->is_following = $this->get_is_following();
@@ -127,13 +135,24 @@ class User {
      * @return string
      */
     protected function get_avatar_url() {
-        if (TEST_MODE) {
-            $path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
-        } else {
-            $path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
-        }
-        if (file_exists($path)) {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        if (file_exists("$media_dir/avatars/{$this->id}.png")) {
             return SITE_ROOT."/media/avatars/{$this->id}.png";
+        } else {
+            return "";
+        }
+    }
+    
+    /**
+     * Helper function that returns the URL of this user's avatar image, or
+     * "" if it doesn't exist.
+     * 
+     * @return string
+     */
+    protected function get_avatar_small_url() {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        if (file_exists("$media_dir/avatars/small/{$this->id}.jpg")) {
+            return SITE_ROOT."/media/avatars/small/{$this->id}.jpg";
         } else {
             return "";
         }
@@ -389,25 +408,6 @@ class User {
     }
     
     /**
-     * Sets this user's avatar image.
-     * 
-     * @param string $avatar_tmp_path
-     * @return boolean
-     */
-    public function set_avatar($avatar_tmp_path) {
-        if (TEST_MODE) {
-            $avatar_new_path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
-        } else {
-            $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/{$this->id}.png";
-        }
-        if (is_uploaded_file($avatar_tmp_path)) {
-            return move_uploaded_file($avatar_tmp_path, $avatar_new_path);
-        } else {
-            return copy($avatar_tmp_path, $avatar_new_path);
-        }
-    }
-    
-    /**
      * Constructs and returns a User instance from a database row.
      * 
      * @param type $row
@@ -466,17 +466,7 @@ class User {
         
         $user_id = $dbh->lastInsertId();
         if ($avatar_tmp_path) {
-            if (TEST_MODE) {
-                $avatar_new_path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
-            } else {
-                $avatar_new_path = MEDIA_ABSOLUTE_PATH."/avatars/$user_id.png";
-            }
-            if (is_uploaded_file($avatar_tmp_path)) {
-                $saved_img = move_uploaded_file($avatar_tmp_path, $avatar_new_path);
-            } else {
-                $saved_img = copy($avatar_tmp_path, $avatar_new_path);
-            }
-            if (!$saved_img) {
+            if (!MediaFiles::save_avatar($avatar_tmp_path, $user_id)) {
                 $dbh->rollBack();
                 return null;
             }

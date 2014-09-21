@@ -105,13 +105,10 @@ if (isset($_FILES['avatar'])) {
     if ($_FILES['avatar']['error']) {
         echo json_encode(array("error" => "There was an error with your avatar upload."));
         exit;
-    } else if ($_FILES['avatar']['type'] !== "image/png") {
-        echo json_encode(array("error" => "Your avatar must be in PNG format."));
-        exit;
     }
     
     $avatar_tmp_path = $_FILES['avatar']['tmp_name'];
-    if (!$CURRENT_USER->set_avatar($avatar_tmp_path)) {
+    if (!MediaFiles::save_avatar($avatar_tmp_path, $CURRENT_USER->id)) {
         echo json_encode(array("error" => "Unable to upload avatar."));
         exit;
     }

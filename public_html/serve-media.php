@@ -26,38 +26,33 @@ require_once("global.php");
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-if (!in_array($type, array("avatar", "post", "riff")) || !$id) {
+if (!in_array($type, array("avatar", "avatar_small", "post", "riff")) || !$id) {
     header("HTTP/1.1 404 Not Found", true, 404);
     exit;
 }
+
+$media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
 
 switch ($type) {
     case "avatar":
         $content_type = "image/png";
         $object_exists = User::exists($id);
-        if (TEST_MODE) {
-            $file_path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/$id.png";
-        } else {
-            $file_path = MEDIA_ABSOLUTE_PATH."/avatars/$id.png";
-        }
+        $file_path = "$media_dir/avatars/$id.png";
+        break;
+    case "avatar_small":
+        $content_type = "image/jpeg";
+        $object_exists = User::exists($id);
+        $file_path = "$media_dir/avatars/small/$id.jpg";
         break;
     case "post":
         $content_type = "image/png";
         $object_exists = Post::exists($id);
-        if (TEST_MODE) {
-            $file_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/$id.png";
-        } else {
-            $file_path = MEDIA_ABSOLUTE_PATH."/posts/$id.png";
-        }
+        $file_path = "$media_dir/posts/$id.png";
         break;
     case "riff":
         $content_type = "audio/mp4";
         $object_exists = Post::exists($id);
-        if (TEST_MODE) {
-            $file_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/$id.m4a";
-        } else {
-            $file_path = MEDIA_ABSOLUTE_PATH."/riffs/$id.m4a";
-        }
+        $file_path = "$media_dir/riffs/$id.m4a";
         break;
 }
 

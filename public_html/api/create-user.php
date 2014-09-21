@@ -77,7 +77,7 @@ if ($email) {
     }
 }
 
-if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && $_FILES['avatar']['type'] === "image/png") {
+if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && @getimagesize($_FILES['avatar']['tmp_name'])) {
     $avatar_tmp_path = $_FILES['avatar']['tmp_name'];
 } else {
     $avatar_tmp_path = "";
