@@ -16,13 +16,14 @@ class MediaFiles {
      * @param int $user_id
      */
     public static function delete_user_image($user_id) {
-        if (TEST_MODE) {
-            $path = TEST_MEDIA_ABSOLUTE_PATH."/avatars/".((int)$user_id).".png";
-        } else {
-            $path = MEDIA_ABSOLUTE_PATH."/avatars/".((int)$user_id).".png";
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $avatar_path = "$media_dir/avatars/$user_id.png";
+        $avatar_small_path = "$media_dir/avatars/small/$user_id.jpg";
+        if (file_exists($avatar_path)) {
+            unlink($avatar_path);
         }
-        if (file_exists($path)) {
-            unlink($path);
+        if (file_exists($avatar_small_path)) {
+            unlink($avatar_small_path);
         }
     }
     
@@ -32,24 +33,22 @@ class MediaFiles {
      * @param int $post_id
      */
     public static function delete_from_post($post_id) {
-        //Delete audio
-        if (TEST_MODE) {
-            $riff_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/".((int)$post_id).".m4a";
-        } else {
-            $riff_path = MEDIA_ABSOLUTE_PATH."/riffs/".((int)$post_id).".m4a";
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $img_path = "$media_dir/posts/$post_id.png";
+        $img_medium_path = "$media_dir/posts/medium/$post_id.jpg";
+        $img_small_path = "$media_dir/posts/small/$post_id.jpg";
+        $riff_path = "$media_dir/riffs/$post_id.m4a";
+        if (file_exists($img_path)) {
+            unlink($img_path);
+        }
+        if (file_exists($img_medium_path)) {
+            unlink($img_medium_path);
+        }
+        if (file_exists($img_small_path)) {
+            unlink($img_small_path);
         }
         if (file_exists($riff_path)) {
             unlink($riff_path);
-        }
-        
-        //Delete image
-        if (TEST_MODE) {
-            $img_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/".((int)$post_id).".png";
-        } else {
-            $img_path = MEDIA_ABSOLUTE_PATH."/posts/".((int)$post_id).".png";
-        }
-        if (file_exists($img_path)) {
-            unlink($img_path);
         }
     }
     
