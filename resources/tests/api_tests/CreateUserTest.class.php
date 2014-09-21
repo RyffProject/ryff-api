@@ -38,8 +38,7 @@ class CreateUserTest extends Test {
         $this->state["files"] = array();
         if (!empty($this->env->sample_avatars)) {
             $this->state["files"]["avatar"] = array(
-                "path" => $this->env->sample_avatars[0],
-                "type" => "image/png"
+                "path" => $this->env->sample_avatars[0]
             );
         }
     }

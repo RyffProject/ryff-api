@@ -25,13 +25,7 @@ require_once("global.php");
 
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-$allowed_types = array(
-    "avatar", "avatar_small",
-    "post", "post_medium", "post_small",
-    "riff"
-);
-if (!in_array($type, $allowed_types) || !$id) {
+if (!$type || !$id) {
     header("HTTP/1.1 404 Not Found", true, 404);
     exit;
 }
@@ -69,6 +63,9 @@ switch ($type) {
         $object_exists = Post::exists($id);
         $file_path = "$media_dir/riffs/$id.m4a";
         break;
+    default:
+        header("HTTP/1.1 404 Not Found", true, 404);
+        exit;
 }
 
 if (!$object_exists || !file_exists($file_path)) {

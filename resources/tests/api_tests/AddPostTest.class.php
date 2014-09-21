@@ -36,8 +36,7 @@ class AddPostTest extends Test {
         $this->state["files"] = array();
         if (!empty($this->env->sample_post_images)) {
             $this->state["files"]["image"] = array(
-                "path" => $this->env->sample_post_images[0],
-                "type" => "image/png"
+                "path" => $this->env->sample_post_images[0]
             );
         }
         if (!empty($this->env->sample_riffs)) {

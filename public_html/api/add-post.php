@@ -68,7 +68,7 @@ if (isset($_POST['parent_ids'])) {
     $parent_ids = array();
 }
 
-if (isset($_FILES['image']) && !$_FILES['image']['error'] && $_FILES['image']['type'] === "image/png") {
+if (isset($_FILES['image']) && !$_FILES['image']['error']) {
     $img_tmp_path = $_FILES['image']['tmp_name'];
 } else {
     $img_tmp_path = "";

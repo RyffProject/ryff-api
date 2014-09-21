@@ -36,7 +36,7 @@ class ApiTests extends TestEnvironment {
             if (!file_exists($file["path"])) {
                 continue;
             }
-            $cfile = new CURLFile($file["path"], $file["type"], basename($file["path"]));
+            $cfile = new CURLFile($file["path"], null, basename($file["path"]));
             $fields[$key] = $cfile;
         }
         curl_setopt($ch, CURLOPT_URL, SITE_ROOT."/api/$script_name.php");
