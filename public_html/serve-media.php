@@ -63,6 +63,11 @@ switch ($type) {
         $object_exists = Post::exists($id);
         $file_path = "$media_dir/riffs/$id.m4a";
         break;
+    case "riff_hq":
+        $content_type = "audio/mp4";
+        $object_exists = Post::exists($id);
+        $file_path = "$media_dir/riffs/hq/$id.m4a";
+        break;
     default:
         header("HTTP/1.1 404 Not Found", true, 404);
         exit;

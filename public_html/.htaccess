@@ -12,3 +12,4 @@ RewriteRule ^media/posts/medium/(\d+)\.jpg$ serve-media.php?type=post_medium&id=
 RewriteRule ^media/posts/small/(\d+)\.jpg$ serve-media.php?type=post_small&id=$1
 
 RewriteRule ^media/riffs/(\d+)\.m4a$ serve-media.php?type=riff&id=$1
+RewriteRule ^media/riffs/hq/(\d+)\.m4a$ serve-media.php?type=riff_hq&id=$1

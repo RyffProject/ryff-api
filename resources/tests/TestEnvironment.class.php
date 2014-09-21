@@ -70,7 +70,7 @@ abstract class TestEnvironment {
         foreach (glob(__DIR__."/sample_media/posts/*.{gif,jpg,png}", GLOB_BRACE) as $post_image_path) {
             $this->sample_post_images[] = $post_image_path;
         }
-        foreach (glob(__DIR__."/sample_media/riffs/*.m4a") as $riff_path) {
+        foreach (glob(__DIR__."/sample_media/riffs/*.{aac,flac,mp3,m4a,ogg,wav}", GLOB_BRACE) as $riff_path) {
             $this->sample_riffs[] = $riff_path;
         }
     }
@@ -251,7 +251,12 @@ abstract class TestEnvironment {
             return false;
         }
         
-        foreach (array("/avatars", "/avatars/small", "/posts", "/posts/medium", "/posts/small", "/riffs") as $dir) {
+        $dirs_to_clear = array(
+            "/avatars", "/avatars/small",
+            "/posts", "/posts/medium", "/posts/small",
+            "/riffs", "/riffs/hq"
+        );
+        foreach ($dirs_to_clear as $dir) {
             foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."$dir/*.{gif,jpg,png,m4a}", GLOB_BRACE) as $path) {
                 if (!unlink($path)) {
                     echo "Failed to delete media file at: $path.\n";

@@ -216,4 +216,47 @@ class MediaFiles {
         
         return true;
     }
+    
+    /**
+     * Attempts to convert audio from $source_path and save it as both 128k and
+     * 256k AAC-encoded .m4a files for the given $post_id, using ffmpeg.
+     * 
+     * @param string $source_path
+     * @param int $post_id
+     * @return boolean
+     */
+    public static function save_riff($source_path, $post_id) {
+        if (!file_exists($source_path)) {
+            return false;
+        }
+        
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $riff_dest_path = "$media_dir/riffs/$post_id.m4a";
+        $riff_hq_dest_path = "$media_dir/riffs/hq/$post_id.m4a";
+        
+        $command = "ffmpeg -y -i ".escapeshellarg($source_path).
+                " -c:a aac -strict -2 -b:a 128k ".escapeshellarg($riff_dest_path).
+                " > /dev/null 2>&1";
+        exec($command, $output, $return_var);
+        if ($return_var) {
+            if (file_exists($riff_dest_path)) {
+                unlink($riff_dest_path);
+            }
+            return false;
+        }
+        
+        $hq_command = "ffmpeg -y -i ".escapeshellarg($source_path).
+                " -c:a aac -strict -2 -b:a 256k ".escapeshellarg($riff_hq_dest_path).
+                " > /dev/null 2>&1";
+        exec($hq_command, $output, $return_var);
+        if ($return_var) {
+            unlink($riff_dest_path);
+            if (file_exists($riff_hq_dest_path)) {
+                unlink($riff_hq_dest_path);
+            }
+            return false;
+        }
+        
+        return true;
+    }
 }

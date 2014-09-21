@@ -97,11 +97,18 @@ class Post {
     public $image_small_url;
     
     /**
-     * The URL for this post's associated audio file.
+     * The URL for this post's associated listening quality audio file.
      * 
      * @var string
      */
     public $riff_url;
+    
+    /**
+     * The URL for this post's associated high quality audio file.
+     * 
+     * @var string
+     */
+    public $riff_hq_url;
     
     /**
      * Constructs a new Post instance with the given member variable values.
@@ -128,6 +135,7 @@ class Post {
         $this->image_medium_url = $this->get_image_medium_url();
         $this->image_small_url = $this->get_image_small_url();
         $this->riff_url = $this->get_riff_url();
+        $this->riff_hq_url = $this->get_riff_hq_url();
     }
     
     /**
@@ -242,18 +250,29 @@ class Post {
     }
     
     /**
-     * Helper function that returns the URL of this post's assiciated audio file.
+     * Helper function that returns the URL of this post's assiciated listening
+     * quality audio file.
      * 
      * @return string
      */
     protected function get_riff_url() {
-        if (TEST_MODE) {
-            $riff_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/{$this->id}.m4a";
-        } else {
-            $riff_path = MEDIA_ABSOLUTE_PATH."/riffs/{$this->id}.m4a";
-        }
-        if (file_exists($riff_path)) {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        if (file_exists("$media_dir/riffs/{$this->id}.m4a")) {
             return SITE_ROOT."/media/riffs/{$this->id}.m4a";
+        }
+        return "";
+    }
+    
+    /**
+     * Helper function that returns the URL of this post's assiciated high
+     * quality audio file.
+     * 
+     * @return string
+     */
+    protected function get_riff_hq_url() {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        if (file_exists("$media_dir/riffs/hq/{$this->id}.m4a")) {
+            return SITE_ROOT."/media/riffs/hq/{$this->id}.m4a";
         }
         return "";
     }
@@ -362,17 +381,7 @@ class Post {
         }
 
         //Save post audio
-        if (TEST_MODE) {
-            $riff_new_path = TEST_MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
-        } else {
-            $riff_new_path = MEDIA_ABSOLUTE_PATH."/riffs/$post_id.m4a";
-        }
-        if (is_uploaded_file($riff_tmp_path)) {
-            $saved_riff = move_uploaded_file($riff_tmp_path, $riff_new_path);
-        } else {
-            $saved_riff = copy($riff_tmp_path, $riff_new_path);
-        }
-        if (!$saved_riff) {
+        if (!MediaFiles::save_riff($riff_tmp_path, $post_id)) {
             $dbh->rollBack();
             return null;
         }
