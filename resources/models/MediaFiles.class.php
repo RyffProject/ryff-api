@@ -166,6 +166,14 @@ class MediaFiles {
         }
     }
     
+    /**
+     * Saves an avatar image as a full size 800x800 .png and a 100x100 .jpg
+     * thumbnail.
+     * 
+     * @param string $avatar_source_path
+     * @param int $user_id
+     * @return boolean
+     */
     public static function save_avatar($avatar_source_path, $user_id) {
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
         $avatar_dest_path = "$media_dir/avatars/$user_id.png";
@@ -175,6 +183,34 @@ class MediaFiles {
                 IMAGETYPE_PNG, 800, 800)) {
             return false;
         } else if (!static::save_image($avatar_source_path, $avatar_dest_small_path,
+                IMAGETYPE_JPEG, 100, 100, 80)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Saves a post image as a full size 800x600 .png, a 400x400 .jpg medium
+     * thumbnail, and a 100x100 .jpg small thumbnail.
+     * 
+     * @param string $post_image_source_path
+     * @param int $post_id
+     * @return boolean
+     */
+    public static function save_post_image($post_image_source_path, $post_id) {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $post_image_dest_path = "$media_dir/posts/$post_id.png";
+        $post_image_medium_dest_path = "$media_dir/posts/medium/$post_id.jpg";
+        $post_image_small_dest_path = "$media_dir/posts/small/$post_id.jpg";
+        
+        if (!static::save_image($post_image_source_path, $post_image_dest_path,
+                IMAGETYPE_PNG, 800, 600)) {
+            return false;
+        } else if (!static::save_image($post_image_source_path, $post_image_medium_dest_path,
+                IMAGETYPE_JPEG, 400, 400, 80)) {
+            return false;
+        } else if (!static::save_image($post_image_source_path, $post_image_small_dest_path,
                 IMAGETYPE_JPEG, 100, 100, 80)) {
             return false;
         }

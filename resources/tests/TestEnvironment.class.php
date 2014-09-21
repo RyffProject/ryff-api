@@ -67,7 +67,7 @@ abstract class TestEnvironment {
         foreach (glob(__DIR__."/sample_media/avatars/*.{gif,jpg,png}", GLOB_BRACE) as $avatar_path) {
             $this->sample_avatars[] = $avatar_path;
         }
-        foreach (glob(__DIR__."/sample_media/posts/*.png") as $post_image_path) {
+        foreach (glob(__DIR__."/sample_media/posts/*.{gif,jpg,png}", GLOB_BRACE) as $post_image_path) {
             $this->sample_post_images[] = $post_image_path;
         }
         foreach (glob(__DIR__."/sample_media/riffs/*.m4a") as $riff_path) {

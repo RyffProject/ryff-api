@@ -26,7 +26,12 @@ require_once("global.php");
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-if (!in_array($type, array("avatar", "avatar_small", "post", "riff")) || !$id) {
+$allowed_types = array(
+    "avatar", "avatar_small",
+    "post", "post_medium", "post_small",
+    "riff"
+);
+if (!in_array($type, $allowed_types) || !$id) {
     header("HTTP/1.1 404 Not Found", true, 404);
     exit;
 }
@@ -48,6 +53,16 @@ switch ($type) {
         $content_type = "image/png";
         $object_exists = Post::exists($id);
         $file_path = "$media_dir/posts/$id.png";
+        break;
+    case "post_medium":
+        $content_type = "image/jpeg";
+        $object_exists = Post::exists($id);
+        $file_path = "$media_dir/posts/medium/$id.jpg";
+        break;
+    case "post_small":
+        $content_type = "image/jpeg";
+        $object_exists = Post::exists($id);
+        $file_path = "$media_dir/posts/small/$id.jpg";
         break;
     case "riff":
         $content_type = "audio/mp4";

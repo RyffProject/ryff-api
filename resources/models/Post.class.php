@@ -81,6 +81,22 @@ class Post {
     public $image_url;
     
     /**
+     * The URL for this post's associated medium thumbnail image, or "" if no
+     * image is found.
+     * 
+     * @var string
+     */
+    public $image_medium_url;
+    
+    /**
+     * The URL for this post's associated small thumbnail image, or "" if no
+     * image is found.
+     * 
+     * @var string
+     */
+    public $image_small_url;
+    
+    /**
      * The URL for this post's associated audio file.
      * 
      * @var string
@@ -109,6 +125,8 @@ class Post {
         $this->is_upvoted = $this->get_is_upvoted();
         $this->is_starred = $this->get_is_starred();
         $this->image_url = $this->get_image_url();
+        $this->image_medium_url = $this->get_image_medium_url();
+        $this->image_small_url = $this->get_image_small_url();
         $this->riff_url = $this->get_riff_url();
     }
     
@@ -188,13 +206,37 @@ class Post {
      * @return string The image URL or "" if not found.
      */
     protected function get_image_url() {
-        if (TEST_MODE) {
-            $image_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
-        } else {
-            $image_path = MEDIA_ABSOLUTE_PATH."/posts/{$this->id}.png";
-        }
-        if (file_exists($image_path)) {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        if (file_exists("$media_dir/posts/{$this->id}.png")) {
             return SITE_ROOT."/media/posts/{$this->id}.png";
+        }
+        return "";
+    }
+    
+    /**
+     * Helper function that returns the URL of this post's associated medium
+     * thumbnail image.
+     * 
+     * @return string The image URL or "" if not found.
+     */
+    protected function get_image_medium_url() {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        if (file_exists("$media_dir/posts/medium/{$this->id}.jpg")) {
+            return SITE_ROOT."/media/posts/medium/{$this->id}.jpg";
+        }
+        return "";
+    }
+    
+    /**
+     * Helper function that returns the URL of this post's associated small
+     * thumbnail image.
+     * 
+     * @return string The image URL or "" if not found.
+     */
+    protected function get_image_small_url() {
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        if (file_exists("$media_dir/posts/small/{$this->id}.jpg")) {
+            return SITE_ROOT."/media/posts/small/{$this->id}.jpg";
         }
         return "";
     }
@@ -313,17 +355,7 @@ class Post {
         
         //Save post image
         if ($img_tmp_path) {
-            if (TEST_MODE) {
-                $img_new_path = TEST_MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
-            } else {
-                $img_new_path = MEDIA_ABSOLUTE_PATH."/posts/$post_id.png";
-            }
-            if (is_uploaded_file($img_tmp_path)) {
-                $saved_img = move_uploaded_file($img_tmp_path, $img_new_path);
-            } else {
-                $saved_img = copy($img_tmp_path, $img_new_path);
-            }
-            if (!$saved_img) {
+            if (!MediaFiles::save_post_image($img_tmp_path, $post_id)) {
                 $dbh->rollBack();
                 return null;
             }
