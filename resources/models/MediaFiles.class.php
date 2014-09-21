@@ -80,4 +80,89 @@ class MediaFiles {
         
         MediaFiles::delete_user_image($user_id);
     }
+    
+    /**
+     * Returns a GD image resource if the given file is a valid
+     * GIF, JPEG, or PNG, or false on failure.
+     * 
+     * @param string $path
+     * @return resource|false
+     */
+    protected static function get_image_resource($path) {
+        $info = @getimagesize($path);
+        if (!$info || !$info[0] || !$info[1]) {
+            return false;
+        }
+        
+        switch ($info[2]) {
+            case IMAGETYPE_GIF:
+                $image = imagecreatefromgif($path);
+                break;
+            case IMAGETYPE_JPEG:
+                $image = imagecreatefromjpeg($path);
+                break;
+            case IMAGETYPE_PNG:
+                $image = imagecreatefrompng($path);
+                break;
+            default:
+                return false;
+        }
+        
+        return $image;
+    }
+    
+    /**
+     * Saves the image from $source_path to the file given by $dest_path, as
+     * either a JPEG or PNG depending on $image_type. If $width and $height are
+     * set, the source image is scaled and cropped to the given size. If saving
+     * a JPEG, $quality can be from 0 to 100.
+     * 
+     * @param string $source_path
+     * @param string $dest_path
+     * @param int $image_type Must be IMAGETYPE_JPEG or IMAGETYPE_PNG.
+     * @param int $width [optional]
+     * @param int $height [optional]
+     * @param int $quality [optional] Defaults to 100.
+     * @return boolean
+     */
+    public static function save_image($source_path, $dest_path, $image_type,
+            $width = null, $height = null, $quality = 100) {
+        if (!in_array($image_type, array(IMAGETYPE_JPEG, IMAGETYPE_PNG))) {
+            return false;
+        }
+        
+        $source_image = static::get_image_resource($source_path);
+        if (!$source_image) {
+            return false;
+        }
+        
+        if ((int)$width <= 0 || (int)$height <= 0) {
+            $dest_image = $source_image;
+        } else {
+            $dest_image = imagecreatetruecolor($width, $height);
+            if ($image_type === IMAGETYPE_JPEG) {
+                $white = imagecolorallocate($dest_image, 255, 255, 255);
+                imagefill($dest_image, 0, 0, $white);
+            } else if ($image_type === IMAGETYPE_PNG) {
+                imagealphablending($dest_image, false);
+                imagesavealpha($dest_image, true);
+            }
+            $original_width = imagesx($source_image);
+            $original_height = imagesy($source_image);
+            $scale_factor = max((double)$width / $original_width, (double)$height / $original_height);
+            imagecopyresampled($dest_image, $source_image,
+                ($width - ($original_width * $scale_factor)) / 2,
+                ($height - ($original_height * $scale_factor)) / 2,
+                0, 0,
+                $scale_factor * $original_width, $scale_factor * $original_height,
+                $original_width, $original_height
+            );
+        }
+        
+        if ($image_type === IMAGETYPE_JPEG) {
+            return imagejpeg($dest_image, $dest_path, $quality);
+        } else if ($image_type === IMAGETYPE_PNG) {
+            return imagepng($dest_image, $dest_path);
+        }
+    }
 }
