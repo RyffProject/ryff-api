@@ -140,3 +140,15 @@ define("PUSH_MESSAGE_LIMIT", 1000); //How many messages the cron script will pus
  */
 ini_set("log_errors", 1);
 ini_set("error_log", __DIR__."/../logs/error.log");
+
+
+/**
+ * Audio Conversion
+ * ----------------
+ */
+
+/**
+ * Name of ffmpeg command line utility. Will need to be changed to "avconv"
+ * for newer versions of Ubuntu.
+ */
+define("FFMPEG_COMMAND", "ffmpeg");
