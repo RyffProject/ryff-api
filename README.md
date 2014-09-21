@@ -18,6 +18,10 @@ Make a MySQL user named ryff with access to two databases named ryff and ryfftes
 
 You will need to edit `resources/config.php` for your setup. The SITE_ROOT will be used for URLs returned by the API. DB_PASS and TEST_DB_PASS will need to be set if you gave a password to your database user. By default TEST_MODE is set to true, and will need to be changed to false before using in a non-testing environment.
 
+The GD image processing extension needs to be installed for PHP. You can check if this is installed by checking `phpinfo()`.
+
+You will also need to have ffmpeg installed. If you are using Ubuntu and `avconv` instead of `ffmpeg`, you will need to change the FFMPEG_COMMAND constant in `resources/config.php` to be "avconv".
+
 ### Tests
 
 The test script can be run by
