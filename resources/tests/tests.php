@@ -30,7 +30,7 @@ if (in_array('--help', $argv)) {
 
 define("TEST_MODE", true);
 
-set_time_limit(300);
+set_time_limit(0);
 
 set_include_path(implode(PATH_SEPARATOR, array(
     get_include_path(),
