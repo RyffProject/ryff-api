@@ -235,7 +235,7 @@ class MediaFiles {
         $riff_hq_dest_path = "$media_dir/riffs/hq/$post_id.m4a";
         
         $command = FFMPEG_COMMAND." -y -i ".escapeshellarg($source_path).
-                " -c:a aac -strict -2 -b:a 128k ".escapeshellarg($riff_dest_path).
+                " -c:a ".FFMPEG_CODEC." -b:a 128k ".escapeshellarg($riff_dest_path).
                 " > /dev/null 2>&1";
         exec($command, $output, $return_var);
         if ($return_var) {
@@ -246,7 +246,7 @@ class MediaFiles {
         }
         
         $hq_command = FFMPEG_COMMAND." -y -i ".escapeshellarg($source_path).
-                " -c:a aac -strict -2 -b:a 256k ".escapeshellarg($riff_hq_dest_path).
+                " -c:a ".FFMPEG_CODEC." -b:a 256k ".escapeshellarg($riff_hq_dest_path).
                 " > /dev/null 2>&1";
         exec($hq_command, $output, $return_var);
         if ($return_var) {

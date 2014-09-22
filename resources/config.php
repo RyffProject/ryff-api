@@ -152,3 +152,9 @@ ini_set("error_log", __DIR__."/../logs/error.log");
  * for newer versions of Ubuntu.
  */
 define("FFMPEG_COMMAND", "ffmpeg");
+
+/**
+ * Audio codec passed to ffmpeg when converting audio. You may have codecs
+ * available on your system besides the default.
+ */
+define("FFMPEG_CODEC", "aac -strict -2");
