@@ -218,6 +218,45 @@ class MediaFiles {
     }
     
     /**
+     * Uses ffprobe or avconv (set in AUDIO_INFO_COMMAND) to get audio codec
+     * information as JSON, which it then decodes. Returns information on
+     * codec name, number of channels, duration, bitrate, etc. If the command
+     * fails or the file is not a recognized audio file with a single stream,
+     * this function returns null.
+     * 
+     * @param string $audio_path
+     * @return array|null
+     */
+    public static function get_audio_info($audio_path) {
+        $command = sprintf(AUDIO_INFO_COMMAND, escapeshellarg($audio_path));
+        exec($command, $output_array, $return_var);
+        if ($return_var) {
+            return null;
+        }
+        $output = json_decode(implode("", $output_array), true);
+        if (!$output || !isset($output["streams"]) ||
+                !is_array($output["streams"]) || count($output["streams"]) !== 1 ||
+                !isset($output["streams"][0]["codec_type"]) ||
+                $output["streams"][0]["codec_type"] !== "audio") {
+            return null;
+        }
+        
+        $interesting_data = array(
+            "codec_name", "codec_long_name", "channels",
+            "channel_layout", "duration", "bit_rate"
+        );
+        $info = array();
+        foreach ($interesting_data as $key) {
+            if (isset($output["streams"][0][$key])) {
+                $info[$key] = $output["streams"][0][$key];
+            } else {
+                $info[$key] = "";
+            }
+        }
+        return $info;
+    }
+    
+    /**
      * Attempts to convert audio from $source_path and save it as both 128k and
      * 256k AAC-encoded .m4a files for the given $post_id, using ffmpeg.
      * 

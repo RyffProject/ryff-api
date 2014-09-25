@@ -158,3 +158,14 @@ define("FFMPEG_COMMAND", "ffmpeg");
  * available on your system besides the default.
  */
 define("FFMPEG_CODEC", "aac -strict -2");
+
+/**
+ * Command for getting audio information using ffprobe. Can be substituted for
+ * avprobe on Ubuntu machines with avconv installed. In the future this will
+ * be auto detected.
+ * 
+ * Sample command for avprobe:
+ * avprobe -loglevel quiet -show_format -show_streams %s -of json
+ */
+define("AUDIO_INFO_COMMAND", 
+        "ffprobe -loglevel quiet -show_format -show_streams %s -print_format json");
