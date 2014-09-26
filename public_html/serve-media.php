@@ -31,6 +31,9 @@ if (!$type || !$id) {
 }
 
 $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+$riff_path = "$media_dir/riffs/$id.m4a";
+$riff_hq_path = "$media_path/riffs/hq/$id.m4a";
+$riff_raw_path = "$media_path/riffs/raw/$id.m4a";
 
 switch ($type) {
     case "avatar":
@@ -61,12 +64,23 @@ switch ($type) {
     case "riff":
         $content_type = "audio/mp4";
         $object_exists = Post::exists($id);
-        $file_path = "$media_dir/riffs/$id.m4a";
+        if (Post::is_converted($id, false) && file_exists($riff_path)) {
+            $file_path = $riff_path;
+        } else if (Post::is_converted($id, true) && file_exists($riff_hq_path)) {
+            $file_path = $riff_hq_path;
+        } else if (file_exists($riff_raw_path)) {
+            $file_path = $riff_raw_path;
+        }
         break;
     case "riff_hq":
         $content_type = "audio/mp4";
         $object_exists = Post::exists($id);
         $file_path = "$media_dir/riffs/hq/$id.m4a";
+        if (Post::is_converted($id, true) && file_exists($riff_hq_path)) {
+            $file_path = $riff_hq_path;
+        } else if (file_exists($riff_raw_path)) {
+            $file_path = $riff_raw_path;
+        }
         break;
     default:
         header("HTTP/1.1 404 Not Found", true, 404);

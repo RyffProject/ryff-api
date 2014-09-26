@@ -134,8 +134,8 @@ class Post {
         $this->image_url = $this->get_image_url();
         $this->image_medium_url = $this->get_image_medium_url();
         $this->image_small_url = $this->get_image_small_url();
-        $this->riff_url = $this->get_riff_url();
-        $this->riff_hq_url = $this->get_riff_hq_url();
+        $this->riff_url = SITE_ROOT."/media/riffs/{$this->id}.m4a";;
+        $this->riff_hq_url = SITE_ROOT."/media/riffs/hq/{$this->id}.m4a";;
     }
     
     /**
@@ -250,34 +250,6 @@ class Post {
     }
     
     /**
-     * Helper function that returns the URL of this post's assiciated listening
-     * quality audio file.
-     * 
-     * @return string
-     */
-    protected function get_riff_url() {
-        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
-        if (file_exists("$media_dir/riffs/{$this->id}.m4a")) {
-            return SITE_ROOT."/media/riffs/{$this->id}.m4a";
-        }
-        return "";
-    }
-    
-    /**
-     * Helper function that returns the URL of this post's assiciated high
-     * quality audio file.
-     * 
-     * @return string
-     */
-    protected function get_riff_hq_url() {
-        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
-        if (file_exists("$media_dir/riffs/hq/{$this->id}.m4a")) {
-            return SITE_ROOT."/media/riffs/hq/{$this->id}.m4a";
-        }
-        return "";
-    }
-    
-    /**
      * Gets the post objects that are parents of this post.
      * 
      * @global NestedPDO $dbh
@@ -333,15 +305,14 @@ class Post {
      * @global NestedPDO $dbh
      * @global User $CURRENT_USER
      * @param string $title The title of the post.
-     * @param type $duration The duration of the post audio.
      * @param type $riff_tmp_path The path to the post audio.
      * @param string $content [optional] The text content of the post, "" for none.
      * @param array $parent_ids [optional] The array of parent ids, array() for none.
      * @param type $img_tmp_path [optional] The path to the post image, "" for none.
      * @param type $user_id [optional] Defaults to the current user.
-     * @return Post|null The added Post object or null on failure.
+     * @return int|null The added Post object's id or null on failure.
      */
-    public static function add($title, $duration, $riff_tmp_path, $content = "",
+    public static function add($title, $riff_tmp_path, $content = "",
             $parent_ids = array(), $img_tmp_path = "", $user_id = null) {
         global $dbh, $CURRENT_USER;
         
@@ -359,13 +330,12 @@ class Post {
         $dbh->beginTransaction();
         
         $query = "
-            INSERT INTO `posts` (`user_id`, `title`, `content`, `duration`)
-            VALUES (:user_id, :title, :content, :duration)";
+            INSERT INTO `posts` (`user_id`, `title`, `content`)
+            VALUES (:user_id, :title, :content)";
         $sth = $dbh->prepare($query);
         $sth->bindValue('user_id', $user_id);
         $sth->bindValue('title', $title);
         $sth->bindValue('content', $content);
-        $sth->bindValue('duration', $duration);
         if (!$sth->execute()) {
             $dbh->rollBack();
             return null;
@@ -418,14 +388,8 @@ class Post {
             return null;
         }
         
-        $post = Post::get_by_id($post_id);
-        if (!$post) {
-            $dbh->rollBack();
-            return null;
-        }
-        
         $dbh->commit();
-        return $post;
+        return $post_id;
     }
     
     /**
@@ -501,8 +465,7 @@ class Post {
         
         $query = "
             SELECT `user_id`, `title`, `duration`, `content`, `date_created`
-            FROM `posts`
-            WHERE `post_id` = :post_id";
+            FROM `posts` WHERE `post_id` = :post_id AND `active` = 1";
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
         if ($sth->execute() && $sth->rowCount()) {
@@ -530,10 +493,113 @@ class Post {
         global $dbh;
         
         $query = "
-            SELECT 1 FROM `posts` WHERE `post_id` = :post_id";
+            SELECT 1 FROM `posts` WHERE `post_id` = :post_id AND `active` = 1";
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
         $sth->execute();
         return (bool)$sth->fetchColumn();
+    }
+    
+    /**
+     * Checks whether the current post is active and thus ready for listening.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @return boolean
+     */
+    public static function is_active($post_id) {
+        global $dbh;
+        $query = "SELECT `active` FROM `posts` WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->execute();
+        return (bool)$sth->fetchColumn();
+    }
+    
+    /**
+     * Checks whether the current post is converted to high-quality audio if
+     * $hq is true, or regular quality if it is false.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @param boolean $hq
+     * @return boolean
+     */
+    public static function is_converted($post_id, $hq) {
+        global $dbh;
+        $query = "
+            SELECT `".($hq ? "hq_" : "")."converted`
+            FROM `posts` WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->execute();
+        return (bool)$sth->fetchColumn();
+    }
+    
+    /**
+     * Sets the duration of a given post, in seconds. Returns true on success
+     * or false on failure.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @param int $duration
+     * @return boolean
+     */
+    public static function set_duration($post_id, $duration) {
+        global $dbh;
+        $query = "UPDATE `posts` SET `duration` = :duration WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('duration', $duration);
+        if (!$sth->execute()) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Sets the given post as active, so it is available for streaming and can
+     * be found in searches or people's profiles, etc.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @param bool $active
+     * @return boolean
+     */
+    public static function set_active($post_id, $active) {
+        global $dbh;
+        $query = "UPDATE `posts` SET `active` = :active WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('active', $active ? 1 : 0);
+        if (!$sth->execute()) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Sets that the given post has finished its audio processing. $hq is true
+     * if the high-quality file is done, or false otherwise. $converted
+     * is true for successful conversion or false on error.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @param boolean $hq
+     * @param boolean $converted
+     * @return boolean
+     */
+    public static function set_converted($post_id, $hq, $converted) {
+        global $dbh;
+        $query = "
+            UPDATE `posts` SET `".($hq ? "hq_" : "")."converted` = :converted
+            WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('active', $converted ? 1 : 0);
+        if (!$sth->execute()) {
+            return false;
+        }
+        return true;
     }
 }

@@ -194,6 +194,9 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `title` varchar(255) NOT NULL,
   `content` text NOT NULL,
   `duration` int(10) unsigned NOT NULL,
+  `active` int(1) NOT NULL DEFAULT 0,
+  `converted` int(1) NOT NULL DEFAULT 0,
+  `hq_converted` int(1) NOT NULL DEFAULT 0,
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`post_id`),
   KEY `user_id` (`user_id`)

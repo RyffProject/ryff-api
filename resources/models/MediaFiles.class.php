@@ -257,24 +257,31 @@ class MediaFiles {
     }
     
     /**
-     * Attempts to convert audio from $source_path and save it as both 128k and
-     * 256k AAC-encoded .m4a files for the given $post_id, using ffmpeg.
+     * Attempts to convert audio from $source_path and save it as an AAC-encoded
+     * M4A file for the given $post_id, using ffmpeg. Saves as either 256k if
+     * $is_hq is true or $128k otherwise. Returns true if the conversion
+     * succeeded or false on failure.
      * 
      * @param string $source_path
      * @param int $post_id
+     * @param boolean $hq
      * @return boolean
      */
-    public static function save_riff($source_path, $post_id) {
+    public static function save_audio($source_path, $post_id, $hq) {
         if (!file_exists($source_path)) {
             return false;
         }
         
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
-        $riff_dest_path = "$media_dir/riffs/$post_id.m4a";
-        $riff_hq_dest_path = "$media_dir/riffs/hq/$post_id.m4a";
+        if ($hq) {
+            $riff_dest_path = "$media_dir/riffs/hq/$post_id.m4a";
+        } else {
+            $riff_dest_path = "$media_dir/riffs/$post_id.m4a";
+        }
+        $bitrate = $hq ? "256k" : "128k";
         
         $command = FFMPEG_COMMAND." -y -i ".escapeshellarg($source_path).
-                " -c:a ".FFMPEG_CODEC." -b:a 128k ".escapeshellarg($riff_dest_path).
+                " -c:a ".FFMPEG_CODEC." -b:a $bitrate ".escapeshellarg($riff_dest_path).
                 " > /dev/null 2>&1";
         exec($command, $output, $return_var);
         if ($return_var) {
@@ -284,18 +291,55 @@ class MediaFiles {
             return false;
         }
         
-        $hq_command = FFMPEG_COMMAND." -y -i ".escapeshellarg($source_path).
-                " -c:a ".FFMPEG_CODEC." -b:a 256k ".escapeshellarg($riff_hq_dest_path).
-                " > /dev/null 2>&1";
-        exec($hq_command, $output, $return_var);
-        if ($return_var) {
-            unlink($riff_dest_path);
-            if (file_exists($riff_hq_dest_path)) {
-                unlink($riff_hq_dest_path);
-            }
+        return true;
+    }
+    
+    /**
+     * Gets the audio info from $source_path, then if it is in aac format and
+     * in the right bitrate it will be copied to media/riffs/hq, otherwise
+     * it will be copied to media/riffs/raw. Also sets the post as active if
+     * the audio is available for listening.
+     * 
+     * @global NestedPDO $dbh
+     * @param string $source_path
+     * @param int $post_id
+     * @return boolean
+     */
+    public static function save_riff($source_path, $post_id) {
+        global $dbh;
+        
+        $dbh->beginTransaction();
+        
+        $audio_info = static::get_audio_info($source_path);
+        if (!$audio_info) {
+            $dbh->rollBack();
+            return false;
+        } else if (!Post::set_duration($post_id, ceil((double)$audio_info['duration']))) {
+            $dbh->rollBack();
             return false;
         }
         
+        $copy_func = is_uploaded_file($source_path) ? "move_uploaded_file" : "copy";
+        $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $dest_hq_path = "$media_dir/riffs/hq/$post_id.m4a";
+        $dest_raw_path = "$media_dir/riffs/raw/$post_id.m4a";
+        if ($audio_info['codec_name'] === "aac") {
+            if ((int)$audio_info['bit_rate'] >= 192000 && (int)$audio_info['bit_rate'] <= 320000) {
+                if (!$copy_func($source_path, $dest_hq_path) || !Post::set_active($post_id, true) ||
+                        !Post::set_converted($post_id, true, true)) {
+                    $dbh->rollBack();
+                    return false;
+                }
+            } else if (!$copy_func($source_path, $dest_raw_path) || !Post::set_active($post_id, true)) {
+                $dbh->rollBack();
+                return false;
+            }
+        } else if (!$copy_func($source_path, $dest_raw_path)) {
+            $dbh->rollBack();
+            return false;
+        }
+        
+        $dbh->commit();
         return true;
     }
 }

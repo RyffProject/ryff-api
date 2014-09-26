@@ -8,7 +8,6 @@
  * 
  * POST variables:
  * "title" (required) The title of the post. Titles longer than 255 characters will be truncated.
- * "duration" (required) Duration of the associated riff, defaults to zero.
  * "content" (optional) The body of the post. Bodies longer than 65535 bytes will be truncated.
  * "parent_ids" (optional) Array of ids of the parent posts sampled in this post's riff.
  * 
@@ -18,7 +17,7 @@
  * 
  * Return on success:
  * "success" The success message.
- * "post" The created post object.
+ * "post"|"post_id" The new Post object or the post id if it was uploaded but must be converted.
  * 
  * Return on error:
  * "error" The error message.
@@ -40,12 +39,8 @@ require_once("global.php");
 
 $content = isset($_POST['content']) ? trim($_POST['content']) : "";
 $title = isset($_POST['title']) ? trim($_POST['title']) : "";
-$duration = isset($_POST['duration']) ? (int)$_POST['duration'] : 0;
 if (!$title) {
     echo json_encode(array("error" => "A post title is required."));
-    exit;
-} else if ($duration <= 0) {
-    echo json_encode(array("error" => "The duration must be greater than 0."));
     exit;
 }
 
@@ -74,13 +69,20 @@ if (isset($_FILES['image']) && !$_FILES['image']['error']) {
     $img_tmp_path = "";
 }
 
-$post = Post::add($title, $duration, $riff_tmp_path,
+$post_id = Post::add($title, $riff_tmp_path,
         $content, $parent_ids, $img_tmp_path);
-if ($post) {
-    echo json_encode(array(
-        "success" => "Successfully added post from user.",
-        "post" => Post::get_by_id($post->id)
-    ));
+if ($post_id) {
+    if (Post::is_active($post_id)) {
+        echo json_encode(array(
+            "success" => "Successfully added post from user.",
+            "post" => Post::get_by_id($post->id)
+        ));
+    } else {
+        echo json_encode(array(
+            "success" => "Your post has been uploaded and is awaiting processing.",
+            "post_id" => $post_id
+        ));
+    }
 } else {
     echo json_encode(array("error" => "Error adding post from user."));
 }

@@ -70,7 +70,7 @@ abstract class TestEnvironment {
         foreach (glob(__DIR__."/sample_media/posts/*.{gif,jpg,png}", GLOB_BRACE) as $post_image_path) {
             $this->sample_post_images[] = $post_image_path;
         }
-        foreach (glob(__DIR__."/sample_media/riffs/*.{aac,flac,mp3,m4a,ogg,wav}", GLOB_BRACE) as $riff_path) {
+        foreach (glob(__DIR__."/sample_media/riffs/*.m4a", GLOB_BRACE) as $riff_path) {
             $this->sample_riffs[] = $riff_path;
         }
     }
@@ -148,20 +148,19 @@ abstract class TestEnvironment {
         }
         
         $riff_title = ucwords($this->get_words(mt_rand(1, 3)));
-        $riff_duration = mt_rand(45, 200);
         if (!empty($this->sample_riffs)) {
             $riff_tmp_path = $this->sample_riffs[array_rand($this->sample_riffs)];
         }
         
-        return Post::add(
+        $post_id = Post::add(
             $riff_title,
-            $riff_duration,
             $riff_tmp_path,
             $content,
             $parent_ids,
             $image_tmp_path,
             $user_id
         );
+        return Post::get_by_id($post_id);
     }
     
     /**

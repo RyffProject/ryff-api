@@ -31,6 +31,7 @@ class PostFeed {
         $query = "
             SELECT `post_id` FROM `posts`
             WHERE `user_id` = :user_id
+            AND `active` = 1
             ORDER BY `date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
@@ -70,7 +71,8 @@ class PostFeed {
             SELECT a.`post_id` FROM `posts` AS a
             JOIN `follows` AS b
             ON b.`to_id` = a.`user_id`
-            AND b.`from_id` = :user_id
+            WHERE b.`from_id` = :user_id
+            AND a.`active` = 1
             ORDER BY a.`date_created` DESC
             LIMIT ".(((int)$page - 1) * (int)$limit).", ".((int)$limit);
         $sth = $dbh->prepare($query);
@@ -105,8 +107,9 @@ class PostFeed {
             SELECT DISTINCT(p.`post_id`)
             FROM `posts` AS p
             ".($tags ? "JOIN `post_tags` AS t
-            ON t.`post_id` = p.`post_id`
-            WHERE t.`tag` IN (".implode(',', array_map(
+            ON t.`post_id` = p.`post_id`" : "")."
+            WHERE p.`active` = 1
+            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
                 function($i) { return ':tag'.$i; },
                 range(0, count($tags) - 1)
             )).")" : "")."
@@ -153,8 +156,9 @@ class PostFeed {
                 ) AS `num_upvotes`
             FROM `posts` AS p
             ".($tags ? "JOIN `post_tags` AS t
-            ON t.`post_id` = p.`post_id`
-            WHERE t.`tag` IN (".implode(',', array_map(
+            ON t.`post_id` = p.`post_id`" : "")."
+            WHERE p.`active` = 1
+            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
                 function($i) { return ':tag'.$i; },
                 range(0, count($tags) - 1)
             )).")" : "")."
@@ -198,8 +202,9 @@ class PostFeed {
                 ) / (NOW() - p.`date_created`) AS `score`
             FROM `posts` AS p
             ".($tags ? "JOIN `post_tags` AS t
-            ON t.`post_id` = p.`post_id`
-            WHERE t.`tag` IN (".implode(',', array_map(
+            ON t.`post_id` = p.`post_id`" : "")."
+            WHERE p.`active` = 1
+            ".($tags ? "AND t.`tag` IN (".implode(',', array_map(
                 function($i) { return ':tag'.$i; },
                 range(0, count($tags) - 1)
             )).")" : "")."
