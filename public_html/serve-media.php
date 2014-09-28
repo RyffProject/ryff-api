@@ -31,9 +31,9 @@ if (!$type || !$id) {
 }
 
 $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
-$riff_path = "$media_dir/riffs/$id.m4a";
-$riff_hq_path = "$media_path/riffs/hq/$id.m4a";
-$riff_raw_path = "$media_path/riffs/raw/$id.m4a";
+$riff_path = "$media_dir/riffs/$id.mp3";
+$riff_hq_path = "$media_path/riffs/hq/$id.mp3";
+$riff_raw_path = "$media_path/riffs/raw/$id.mp3";
 
 switch ($type) {
     case "avatar":
@@ -62,7 +62,7 @@ switch ($type) {
         $file_path = "$media_dir/posts/small/$id.jpg";
         break;
     case "riff":
-        $content_type = "audio/mp4";
+        $content_type = "audio/mpeg";
         $object_exists = Post::exists($id);
         if (Post::is_converted($id, false) && file_exists($riff_path)) {
             $file_path = $riff_path;
@@ -73,9 +73,9 @@ switch ($type) {
         }
         break;
     case "riff_hq":
-        $content_type = "audio/mp4";
+        $content_type = "audio/mpeg";
         $object_exists = Post::exists($id);
-        $file_path = "$media_dir/riffs/hq/$id.m4a";
+        $file_path = "$media_dir/riffs/hq/$id.mp3";
         if (Post::is_converted($id, true) && file_exists($riff_hq_path)) {
             $file_path = $riff_hq_path;
         } else if (file_exists($riff_raw_path)) {

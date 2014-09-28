@@ -11,5 +11,5 @@ RewriteRule ^media/posts/(\d+)\.png$ serve-media.php?type=post&id=$1
 RewriteRule ^media/posts/medium/(\d+)\.jpg$ serve-media.php?type=post_medium&id=$1
 RewriteRule ^media/posts/small/(\d+)\.jpg$ serve-media.php?type=post_small&id=$1
 
-RewriteRule ^media/riffs/(\d+)\.m4a$ serve-media.php?type=riff&id=$1
-RewriteRule ^media/riffs/hq/(\d+)\.m4a$ serve-media.php?type=riff_hq&id=$1
+RewriteRule ^media/riffs/(\d+)\.mp3$ serve-media.php?type=riff&id=$1
+RewriteRule ^media/riffs/hq/(\d+)\.mp3$ serve-media.php?type=riff_hq&id=$1

@@ -42,7 +42,7 @@ class AddPostTest extends Test {
         if (!empty($this->env->sample_riffs)) {
             $this->state["files"]["riff"] = array(
                 "path" => $this->env->sample_riffs[0],
-                "type" => "audio/mp4"
+                "type" => "audio/mpeg"
             );
             $this->state["fields"]["title"] = $this->env->get_words(2);
             $this->state["fields"]["duration"] = 150;

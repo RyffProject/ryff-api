@@ -157,7 +157,7 @@ define("FFMPEG_COMMAND", "ffmpeg");
  * Audio codec passed to ffmpeg when converting audio. You may have codecs
  * available on your system besides the default.
  */
-define("FFMPEG_CODEC", "aac -strict -2");
+define("FFMPEG_CODEC", "mp3");
 
 /**
  * Command for getting audio information using ffprobe. Can be substituted for

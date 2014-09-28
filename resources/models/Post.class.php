@@ -134,8 +134,8 @@ class Post {
         $this->image_url = $this->get_image_url();
         $this->image_medium_url = $this->get_image_medium_url();
         $this->image_small_url = $this->get_image_small_url();
-        $this->riff_url = SITE_ROOT."/media/riffs/{$this->id}.m4a";;
-        $this->riff_hq_url = SITE_ROOT."/media/riffs/hq/{$this->id}.m4a";;
+        $this->riff_url = SITE_ROOT."/media/riffs/{$this->id}.mp3";;
+        $this->riff_hq_url = SITE_ROOT."/media/riffs/hq/{$this->id}.mp3";;
     }
     
     /**

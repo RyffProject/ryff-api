@@ -39,9 +39,9 @@ class MediaFiles {
             "$media_dir/posts/$post_id.png",
             "$media_dir/posts/medium/$post_id.jpg",
             "$media_dir/posts/small/$post_id.jpg",
-            "$media_dir/riffs/$post_id.m4a",
-            "$media_dir/riffs/hq/$post_id.m4a",
-            "$media_dir/riffs/raw/$post_id.m4a"
+            "$media_dir/riffs/$post_id.mp3",
+            "$media_dir/riffs/hq/$post_id.mp3",
+            "$media_dir/riffs/raw/$post_id.mp3"
         );
         foreach ($paths as $path) {
             if (file_exists($path) && !unlink($path)) {
@@ -262,8 +262,8 @@ class MediaFiles {
     }
     
     /**
-     * Attempts to convert audio from $source_path and save it as an AAC-encoded
-     * M4A file for the given $post_id, using ffmpeg. Saves as either 256k if
+     * Attempts to convert audio from $source_path and save it as an MP3
+     * file for the given $post_id, using ffmpeg. Saves as either 256k if
      * $is_hq is true or $128k otherwise. Returns true if the conversion
      * succeeded or false on failure.
      * 
@@ -279,9 +279,9 @@ class MediaFiles {
         
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
         if ($hq) {
-            $riff_dest_path = "$media_dir/riffs/hq/$post_id.m4a";
+            $riff_dest_path = "$media_dir/riffs/hq/$post_id.mp3";
         } else {
-            $riff_dest_path = "$media_dir/riffs/$post_id.m4a";
+            $riff_dest_path = "$media_dir/riffs/$post_id.mp3";
         }
         $bitrate = $hq ? "256k" : "128k";
         
@@ -300,7 +300,7 @@ class MediaFiles {
     }
     
     /**
-     * Gets the audio info from $source_path, then if it is in aac format and
+     * Gets the audio info from $source_path, then if it is in mp3 format and
      * in the right bitrate it will be copied to media/riffs/hq, otherwise
      * it will be copied to media/riffs/raw. Also sets the post as active if
      * the audio is available for listening.
@@ -326,9 +326,9 @@ class MediaFiles {
         
         $copy_func = is_uploaded_file($source_path) ? "move_uploaded_file" : "copy";
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
-        $dest_hq_path = "$media_dir/riffs/hq/$post_id.m4a";
-        $dest_raw_path = "$media_dir/riffs/raw/$post_id.m4a";
-        if ($audio_info['codec_name'] === "aac") {
+        $dest_hq_path = "$media_dir/riffs/hq/$post_id.mp3";
+        $dest_raw_path = "$media_dir/riffs/raw/$post_id.mp3";
+        if ($audio_info['codec_name'] === "mp3") {
             if ((int)$audio_info['bit_rate'] >= 192000 && (int)$audio_info['bit_rate'] <= 320000) {
                 if (!$copy_func($source_path, $dest_hq_path) || !Post::set_active($post_id, true) ||
                         !Post::set_converted($post_id, true, true)) {

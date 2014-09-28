@@ -13,7 +13,7 @@
  * 
  * File uploads:
  * "image" (optional) A PNG image.
- * "riff" An .m4a audio file.
+ * "riff" An .mp3 audio file.
  * 
  * Return on success:
  * "success" The success message.

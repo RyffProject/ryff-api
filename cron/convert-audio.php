@@ -48,8 +48,8 @@ while (time() - $start_time < $total_time) {
     $converted_hq = (bool)$post_results['hq_converted'];
     
     $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
-    $raw_path = "$media_dir/riffs/raw/$post_id.m4a";
-    $hq_path = "$media_dir/riffs/hq/$post_id.m4a";
+    $raw_path = "$media_dir/riffs/raw/$post_id.mp3";
+    $hq_path = "$media_dir/riffs/hq/$post_id.mp3";
     
     //Save high quality
     if (!$active || !$converted_hq) {
