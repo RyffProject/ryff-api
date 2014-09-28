@@ -497,13 +497,14 @@ class User {
             $user_id = $CURRENT_USER->id;
         }
         
+        MediaFiles::delete_from_user($user_id);
+        
         $query = "
             DELETE FROM `users`
             WHERE `user_id` = :user_id";
         $sth = $dbh->prepare($query);
         $sth->bindValue('user_id', $user_id);
         if ($sth->execute()) {
-            MediaFiles::delete_from_user($user_id);
             return true;
         }
         return false;

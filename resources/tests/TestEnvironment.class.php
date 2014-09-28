@@ -253,7 +253,7 @@ abstract class TestEnvironment {
         $dirs_to_clear = array(
             "/avatars", "/avatars/small",
             "/posts", "/posts/medium", "/posts/small",
-            "/riffs", "/riffs/hq"
+            "/riffs", "/riffs/hq", "/riffs/raw"
         );
         foreach ($dirs_to_clear as $dir) {
             foreach (glob(TEST_MEDIA_ABSOLUTE_PATH."$dir/*.{gif,jpg,png,m4a}", GLOB_BRACE) as $path) {
