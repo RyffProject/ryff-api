@@ -31,25 +31,24 @@ class MediaFiles {
      * Deletes all media files associated with the given post.
      * 
      * @param int $post_id
+     * @return boolean
      */
     public static function delete_from_post($post_id) {
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
-        $img_path = "$media_dir/posts/$post_id.png";
-        $img_medium_path = "$media_dir/posts/medium/$post_id.jpg";
-        $img_small_path = "$media_dir/posts/small/$post_id.jpg";
-        $riff_path = "$media_dir/riffs/$post_id.m4a";
-        if (file_exists($img_path)) {
-            unlink($img_path);
+        $paths = array(
+            "$media_dir/posts/$post_id.png",
+            "$media_dir/posts/medium/$post_id.jpg",
+            "$media_dir/posts/small/$post_id.jpg",
+            "$media_dir/riffs/$post_id.m4a",
+            "$media_dir/riffs/hq/$post_id.m4a",
+            "$media_dir/riffs/raw/$post_id.m4a"
+        );
+        foreach ($paths as $path) {
+            if (file_exists($path) && !unlink($path)) {
+                return false;
+            }
         }
-        if (file_exists($img_medium_path)) {
-            unlink($img_medium_path);
-        }
-        if (file_exists($img_small_path)) {
-            unlink($img_small_path);
-        }
-        if (file_exists($riff_path)) {
-            unlink($riff_path);
-        }
+        return true;
     }
     
     /**
@@ -228,6 +227,12 @@ class MediaFiles {
      * @return array|null
      */
     public static function get_audio_info($audio_path) {
+        if (!(fileperms($audio_path) & 0x0004)) {
+            if (!chmod($audio_path, 0644)) {
+                return null;
+            }
+        }
+        
         $command = sprintf(AUDIO_INFO_COMMAND, escapeshellarg($audio_path));
         exec($command, $output_array, $return_var);
         if ($return_var) {
