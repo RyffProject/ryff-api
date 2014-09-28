@@ -25,7 +25,7 @@ $start_time = time();
 $total_time = 50;
 
 while (time() - $start_time < $total_time) {
-    //$dbh->beginTransaction();
+    $dbh->beginTransaction();
     $post_query = "
         SELECT `post_id`, `user_id`, `active`, `converted`, `hq_converted`
         FROM `posts`
