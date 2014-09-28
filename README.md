@@ -42,6 +42,8 @@ The `cron/send-push-notifications.php` script should be run as often as possible
 Apple Push Notifications are the only type sent right now. You will need to edit `resources/config.php` with your
 APNs credentials.
 
+The `cron/convert-audio.php` script should be run once a minute to convert audio uploads to a few standard bitrates.
+
 ## Contributors
 
 * [Robert Fotino](https://github.com/rfotino)

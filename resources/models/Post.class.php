@@ -596,7 +596,7 @@ class Post {
             WHERE `post_id` = :post_id";
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
-        $sth->bindValue('active', $converted ? 1 : 0);
+        $sth->bindValue('converted', $converted ? 1 : 0);
         if (!$sth->execute()) {
             return false;
         }
