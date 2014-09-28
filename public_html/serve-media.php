@@ -32,8 +32,8 @@ if (!$type || !$id) {
 
 $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
 $riff_path = "$media_dir/riffs/$id.mp3";
-$riff_hq_path = "$media_path/riffs/hq/$id.mp3";
-$riff_raw_path = "$media_path/riffs/raw/$id.mp3";
+$riff_hq_path = "$media_dir/riffs/hq/$id.mp3";
+$riff_raw_path = "$media_dir/riffs/raw/$id.mp3";
 
 switch ($type) {
     case "avatar":
