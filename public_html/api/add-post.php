@@ -75,7 +75,7 @@ if ($post_id) {
     if (Post::is_active($post_id)) {
         echo json_encode(array(
             "success" => "Successfully added post from user.",
-            "post" => Post::get_by_id($post->id)
+            "post" => Post::get_by_id($post_id)
         ));
     } else {
         echo json_encode(array(
