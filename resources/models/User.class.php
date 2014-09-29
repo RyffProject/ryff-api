@@ -510,6 +510,32 @@ class User {
         return false;
     }
     
+    public static function get_audio_usage($user_id, $timeframe) {
+        global $dbh;
+        
+        $from_date = date("Y-m-d H:i:s", time() - $timeframe);
+        $query = "
+            SELECT SUM(p.`duration`) AS `length`, SUM(p.`filesize`) AS `size`
+            FROM `posts` AS p
+            WHERE p.`user_id` = :user_id
+            AND p.`date_created` >= :from_date";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('user_id', $user_id);
+        $sth->bindValue('from_date', $from_date);
+        if (!$sth->execute() || !$sth->rowCount() || !($row = $sth->fetch(PDO::FETCH_ASSOC))) {
+            return null;
+        }
+        return $row;
+    }
+    
+    /**
+     * Returns the username corresponding to the given $user_id, or null if
+     * not found.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $user_id
+     * @return string|null
+     */
     public static function get_username($user_id) {
         global $dbh;
         

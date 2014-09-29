@@ -311,6 +311,7 @@ class Post {
      * @param type $img_tmp_path [optional] The path to the post image, "" for none.
      * @param type $user_id [optional] Defaults to the current user.
      * @return int|null The added Post object's id or null on failure.
+     * @throws AudioQuotaException
      */
     public static function add($title, $riff_tmp_path, $content = "",
             $parent_ids = array(), $img_tmp_path = "", $user_id = null) {
@@ -321,10 +322,22 @@ class Post {
         }
         
         //Make sure if file paths are set that they exist
-        if ($riff_tmp_path && !file_exists($riff_tmp_path)) {
+        if (!file_exists($riff_tmp_path)) {
             return null;
         } else if ($img_tmp_path && !file_exists($img_tmp_path)) {
             return null;
+        }
+        
+        //Check audio quota
+        if (!TEST_MODE && (AUDIO_QUOTA_LENGTH || AUDIO_QUOTA_SIZE)) {
+            $audio_usage = User::get_audio_usage($user_id, AUDIO_QUOTA_TIMEFRAME);
+            $audio_info = MediaFiles::get_audio_info($riff_tmp_path);
+            $audio_length = $audio_info ? ceil((double)$audio_info['duration']) : 0;
+            $audio_size = filesize($riff_tmp_path);
+            if ((AUDIO_QUOTA_LENGTH && $audio_usage['length'] + $audio_length > AUDIO_QUOTA_LENGTH) ||
+                    (AUDIO_QUOTA_SIZE && $audio_usage['size'] + $audio_size > AUDIO_QUOTA_SIZE)) {
+                throw new AudioQuotaException;
+            }
         }
         
         $dbh->beginTransaction();
@@ -551,6 +564,27 @@ class Post {
         $sth = $dbh->prepare($query);
         $sth->bindValue('post_id', $post_id);
         $sth->bindValue('duration', $duration);
+        if (!$sth->execute()) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Sets the file size of a given post, in bytes. Returns true on success
+     * or false on failure.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @param int $filesize
+     * @return boolean
+     */
+    public static function set_filesize($post_id, $filesize) {
+        global $dbh;
+        $query = "UPDATE `posts` SET `filesize` = :filesize WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        $sth->bindValue('filesize', $filesize);
         if (!$sth->execute()) {
             return false;
         }

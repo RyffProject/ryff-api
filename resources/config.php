@@ -169,3 +169,28 @@ define("FFMPEG_CODEC", "mp3");
  */
 define("AUDIO_INFO_COMMAND", 
         "ffprobe -loglevel quiet -show_format -show_streams %s -print_format json");
+
+
+/**
+ * Audio Quota
+ * -----------
+ */
+
+/**
+ * The length of time for which this quota will apply. So this value says you
+ * can upload X amount of audio per AUDIO_QUOTA_TIMEFRAME seconds. Only applies
+ * when TEST_MODE is false.
+ */
+define("AUDIO_QUOTA_TIMEFRAME", 86400);
+
+/**
+ * The seconds of audio that a user can upload per AUDIO_QUOTA_TIMEFRAME seconds.
+ * Set to 0 for no quota.
+ */
+define("AUDIO_QUOTA_LENGTH", 7200);
+
+/**
+ * The bytes of audio that a user can upload per AUDIO_QUOTA_TIMEFRAME seconds.
+ * Set to 0 for no quota.
+ */
+define("AUDIO_QUOTA_SIZE", 235929600);

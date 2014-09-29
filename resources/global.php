@@ -31,7 +31,8 @@ require_once("connect-db.php");
  * Register autoloader for model classes.
  */
 spl_autoload_register(function($class_name) {
-    @include("models/{$class_name}.class.php");
+    @include_once("models/{$class_name}.class.php");
+    @include_once("exceptions/{$class_name}.class.php");
 });
 
 /**
@@ -39,7 +40,7 @@ spl_autoload_register(function($class_name) {
  */
 if (TEST_MODE) {
     spl_autoload_register(function($class_name) {
-        @include("tests/{$class_name}.class.php");
+        @include_once("tests/{$class_name}.class.php");
     });
 }
 

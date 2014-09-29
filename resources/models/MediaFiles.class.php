@@ -322,6 +322,9 @@ class MediaFiles {
         } else if (!Post::set_duration($post_id, ceil((double)$audio_info['duration']))) {
             $dbh->rollBack();
             return false;
+        } else if (!Post::set_filesize($post_id, filesize($source_path))) {
+            $dbh->rollBack();
+            return false;
         }
         
         $copy_func = is_uploaded_file($source_path) ? "move_uploaded_file" : "copy";

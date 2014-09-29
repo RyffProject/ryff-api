@@ -13,7 +13,7 @@
  * 
  * File uploads:
  * "image" (optional) A PNG image.
- * "riff" An .mp3 audio file.
+ * "riff" (required) An .mp3 audio file.
  * 
  * Return on success:
  * "success" The success message.
@@ -69,8 +69,18 @@ if (isset($_FILES['image']) && !$_FILES['image']['error']) {
     $img_tmp_path = "";
 }
 
-$post_id = Post::add($title, $riff_tmp_path,
-        $content, $parent_ids, $img_tmp_path);
+try {
+    $post_id = Post::add(
+        $title, $riff_tmp_path,
+        $content, $parent_ids, $img_tmp_path
+    );
+} catch (AudioQuotaException $ex) {
+    echo json_encode(array(
+        "error" => "You have exceeded your audio quota."
+    ));
+    exit;
+}
+
 if ($post_id) {
     if (Post::is_active($post_id)) {
         echo json_encode(array(
