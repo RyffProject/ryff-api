@@ -245,7 +245,7 @@ define("PREREGISTRATION_ACTIVATION_EMAIL_SUBJECT", "Ryff Activation");
  * %ACTIVATION_CODE% will be replaced with the actual activation code.
  */
 define("PREREGISTRATION_ACTIVATION_EMAIL_BODY", <<<'EMAIL_BODY'
-<p>Thank you for preregistering for <a href="https://ryff.me">Ryff</p>! We are
+<p>Thank you for preregistering for <a href="https://ryff.me">Ryff</a>! We are
 ready for users to try out the service, and we welcome you to download the app
 on the App Store. Your activation code is below, you will need it for registration.</p>
 

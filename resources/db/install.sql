@@ -276,8 +276,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `date_updated` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`user_id`),
-  UNIQUE KEY (`username`),
-  UNIQUE KEY (`email`)
+  UNIQUE KEY (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 

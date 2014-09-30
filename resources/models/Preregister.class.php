@@ -135,7 +135,7 @@ class Preregister {
         $chars = "abcdefghijklmnopqrstuvwxyz0123456789";
         $code = "";
         for ($i = 0; $i < 10; $i++) {
-            $code .= $chars[mt_rand(0, strlen($chars))];
+            $code .= $chars[mt_rand(0, strlen($chars) - 1)];
         }
         return $code;
     }
@@ -151,7 +151,7 @@ class Preregister {
      * @param string $body
      * @return boolean
      */
-    protected static function send_email($to, $from, $subject, $body) {
+    public static function send_email($to, $from, $subject, $body) {
         $headers = array(
             'To: '.$to,
             'From: '.$from,
@@ -164,6 +164,47 @@ class Preregister {
         if (!mail($to, $subject, $body, implode("\r\n", $headers))) {
             return false;
         }
+        return true;
+    }
+    
+    /**
+     * Sends out an activation email for the given email address, if one
+     * exists in the database.
+     * 
+     * @global NestedPDO $dbh
+     * @param string $email
+     * @return boolean
+     */
+    public static function send_activation($email) {
+        global $dbh;
+        
+        $dbh->beginTransaction();
+        $query = "
+            SELECT `preregister_id`, `activation_code` FROM `preregisters`
+            WHERE `email` = :email FOR UPDATE";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('email', $email);
+        if (!$sth->execute() || !$sth->rowCount() || !($row = $sth->fetch(PDO::FETCH_ASSOC))) {
+            $dbh->rollBack();
+            return false;
+        }
+        $email_body = str_replace("%ACTIVATION_CODE%", $row['activation_code'],
+                PREREGISTRATION_ACTIVATION_EMAIL_BODY);
+        if (!static::send_email($email, FROM_EMAIL,
+                PREREGISTRATION_ACTIVATION_EMAIL_SUBJECT, $email_body)) {
+            $dbh->rollBack();
+            return false;
+        }
+        $update_query = "
+            UPDATE `preregisters` SET `sent` = 1, `date_sent` = NOW()
+            WHERE `preregister_id` = :preregister_id";
+        $update_sth = $dbh->prepare($update_query);
+        $update_sth->bindValue('preregister_id', $row['preregister_id']);
+        if (!$update_sth->execute() || !$update_sth->rowCount()) {
+            $dbh->rollBack();
+            return false;
+        }
+        $dbh->commit();
         return true;
     }
 }

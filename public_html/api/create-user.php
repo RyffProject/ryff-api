@@ -96,7 +96,7 @@ if (isset($_FILES['avatar']) && !$_FILES['avatar']['error'] && @getimagesize($_F
     $avatar_tmp_path = "";
 }
 
-$user = User::add($name, $username, $email, $bio, $password, $avatar_tmp_path);
+$user = User::add($name, $username, $email, $bio, $password, $avatar_tmp_path, $activation_code);
 if ($user) {
     if (isset($_POST['latitude']) && isset($_POST['longitude'])) {
         $latitude = (double)$_POST['latitude'];
