@@ -194,3 +194,64 @@ define("AUDIO_QUOTA_LENGTH", 7200);
  * Set to 0 for no quota.
  */
 define("AUDIO_QUOTA_SIZE", 235929600);
+
+
+/**
+ * Registration
+ * ------------
+ */
+
+/**
+ * Whether registration is open or closed. If registration is closed, users will
+ * be able to put their email in a table for preregisters. The script at
+ * resources/send-activation-emails.php will send out activation codes for these
+ * users, and user creation will require a valid activation code.
+ */
+define("REGISTRATION_OPEN", true);
+
+/**
+ * The "from" email address. Should be from the same domain as the original
+ * server, unless you have DNS set up correctly.
+ */
+define("FROM_EMAIL", "Ryff Registration <register@ryff.me>");
+
+/**
+ * The subject for the preregistration received email.
+ */
+define("PREREGISTRATION_RECEIVED_EMAIL_SUBJECT", "Ryff Preregistration");
+
+/**
+ * This will be the email that users receive upon successfully preregistering
+ * when registration is closed.
+ */
+define("PREREGISTRATION_RECEIVED_EMAIL_BODY", <<<'EMAIL_BODY'
+<p>Thank you for letting us know you are interested by preregistering for
+<a href="https://ryff.me">Ryff</a>! Your activation code will be sent to you
+with instructions for creating your account when the service launches.</p>
+
+<p>Thank you,<br />
+The Ryff Team</p>
+EMAIL_BODY
+);
+
+/**
+ * The subject for the preregistration received email.
+ */
+define("PREREGISTRATION_ACTIVATION_EMAIL_SUBJECT", "Ryff Activation");
+
+/**
+ * This will be the email that preregistered users receive when activation
+ * codes are sent out so that users can begin using the service. The variable
+ * %ACTIVATION_CODE% will be replaced with the actual activation code.
+ */
+define("PREREGISTRATION_ACTIVATION_EMAIL_BODY", <<<'EMAIL_BODY'
+<p>Thank you for preregistering for <a href="https://ryff.me">Ryff</p>! We are
+ready for users to try out the service, and we welcome you to download the app
+on the App Store. Your activation code is below, you will need it for registration.</p>
+
+<p>Activation Code: %ACTIVATION_CODE%</p>
+
+<p>Thank you,<br />
+The Ryff Team</p>
+EMAIL_BODY
+);

@@ -437,9 +437,11 @@ class User {
      * @param string $bio
      * @param string $password
      * @param string $avatar_tmp_path
+     * @param string $activation_code [optional]
      * @return User|null The new User object, or null on failure.
      */
-    public static function add($name, $username, $email, $bio, $password, $avatar_tmp_path) {
+    public static function add($name, $username, $email, $bio, $password,
+            $avatar_tmp_path, $activation_code = null) {
         global $dbh;
         
         $dbh->beginTransaction();
@@ -474,6 +476,12 @@ class User {
         
         $user = User::get_by_id($user_id);
         if (!$user) {
+            $dbh->rollBack();
+            return null;
+        }
+        
+        if (!REGISTRATION_OPEN && !Preregister::set_used($activation_code, $user_id)) {
+            echo "fucksticks\n";
             $dbh->rollBack();
             return null;
         }

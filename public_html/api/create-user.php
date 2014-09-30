@@ -10,6 +10,7 @@
  * POST variables:
  * "username" (required) The username for the new user. No more than 32 characters.
  * "password" (required) The password for the new user.
+ * "activation_code" (optional) The activation code, required if registration is not open.
  * "name" (optional) The name for the new user. No more than 255 characters.
  * "email" (optional) The email address for the new user. No more than 255 characters.
  * "bio" (optional) The bio[graphy] for the new user. No more than 65535 bytes.
@@ -41,9 +42,21 @@ require_once("global.php");
 
 $name = isset($_POST['name']) ? trim($_POST['name']) : "";
 $username = isset($_POST['username']) ? trim($_POST['username']) : "";
+$activation_code = isset($_POST['activation_code']) ? trim($_POST['activation_code']) : "";
 $email = isset($_POST['email']) ? trim($_POST['email']) : "";
 $bio = isset($_POST['bio']) ? trim($_POST['bio']) : "";
 $password = isset($_POST['password']) ? trim($_POST['password']) : "";
+
+//Check activation code
+if (!REGISTRATION_OPEN) {
+    if (!$activation_code) {
+        echo json_encode(array("error" => "Registration is closed, you must provide an activation code."));
+        exit;
+    } else if (!Preregister::is_activation_valid($activation_code)) {
+        echo json_encode(array("error" => "Your activation code is invalid."));
+        exit;
+    }
+}
 
 if (strlen($name) > 255) {
     echo json_encode(array("error" => "Name cannot be more than 255 characters."));

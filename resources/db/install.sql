@@ -204,6 +204,25 @@ CREATE TABLE IF NOT EXISTS `posts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
+-- Table structure for table `preregisters`
+--
+CREATE TABLE IF NOT EXISTS `preregisters` (
+  `preregister_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `email` varchar(191) NOT NULL,
+  `activation_code` varchar(191) NOT NULL,
+  `sent` int(1) NOT NULL DEFAULT 0,
+  `used` int(1) NOT NULL DEFAULT 0,
+  `user_id` int(10) unsigned NULL DEFAULT NULL,
+  `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_sent` timestamp NULL DEFAULT NULL,
+  `date_used` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`preregister_id`),
+  KEY `user_id` (`user_id`),
+  UNIQUE KEY (`email`),
+  UNIQUE KEY (`activation_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1;
+
+--
 -- Table structure for table `stars`
 --
 CREATE TABLE IF NOT EXISTS `stars` (
@@ -410,6 +429,15 @@ ALTER TABLE `posts`
     FOREIGN KEY (`user_id`)
     REFERENCES `users` (`user_id`)
     ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `preregisters`
+--
+ALTER TABLE `preregisters`
+  ADD CONSTRAINT `preregisters_user_id_constr`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users` (`user_id`)
+    ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `stars`
