@@ -481,7 +481,6 @@ class User {
         }
         
         if (!REGISTRATION_OPEN && !Preregister::set_used($activation_code, $user_id)) {
-            echo "fucksticks\n";
             $dbh->rollBack();
             return null;
         }
