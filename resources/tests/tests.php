@@ -39,14 +39,6 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once("global.php");
 
-$lock_file = __DIR__."/tests.lock";
-if (file_exists($lock_file)) {
-    echo "Found existing tests lock file. Exiting now.\n";
-    exit;
-}
-
-file_put_contents($lock_file, "Locked at ".date('Y-m-d H:i:s')."\n");
-
 if (in_array('--no-setup', $argv)) {
     $do_setup = false;
 } else {
@@ -81,10 +73,18 @@ if (!isset($type)) {
         }
     }
 } else {
-    echo "The type must be either unit or populate.\n";
+    echo "The type must be either api, unit, or populate.\n";
     echo "Use --help for more information.\n";
     exit;
 }
+
+$lock_file = __DIR__."/tests.lock";
+if (file_exists($lock_file)) {
+    echo "Found existing tests lock file. Exiting now.\n";
+    exit;
+}
+
+file_put_contents($lock_file, "Locked at ".date('Y-m-d H:i:s')."\n");
 
 echo "Running $type tests\n";
 echo "========".str_repeat("=", strlen($type))."======\n";
