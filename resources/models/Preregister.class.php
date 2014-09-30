@@ -153,7 +153,6 @@ class Preregister {
      */
     public static function send_email($to, $from, $subject, $body) {
         $headers = array(
-            'To: '.$to,
             'From: '.$from,
             'Reply-To: '.$from,
             'Return-Path: '.$from,
