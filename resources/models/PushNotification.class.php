@@ -87,6 +87,17 @@ class PushNotification {
         return $tokens;
     }
     
+    /**
+     * Returns the message that should be sent with this notifcation based
+     * on type, users involved, etc.
+     * 
+     * @param string $type
+     * @param mixed $base_user_id
+     * @param mixed $base_post_id
+     * @param mixed $leaf_user_ids
+     * @param mixed $leaf_post_ids
+     * @return string
+     */
     protected static function get_message($type, $base_user_id, $base_post_id,
             $leaf_user_ids, $leaf_post_ids) {
         $message = "";
@@ -108,6 +119,12 @@ class PushNotification {
                 break;
             case 'remix':
                 $message .= " remixed your post.";
+                break;
+            case 'post-converted':
+                $message .= Post::get_title($base_post_id)." has finished converting.";
+                break;
+            case 'post-failed':
+                $message .= Post::get_title($base_post_id)." failed to convert.";
                 break;
         }
         return $message;

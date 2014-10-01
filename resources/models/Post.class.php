@@ -496,6 +496,24 @@ class Post {
     }
     
     /**
+     * Returns the title of the post with the given id, or null if not found.
+     * 
+     * @global NestedPDO $dbh
+     * @param int $post_id
+     * @return string|null
+     */
+    public static function get_title($post_id) {
+        global $dbh;
+        $query = "SELECT `title` FROM `posts` WHERE `post_id` = :post_id";
+        $sth = $dbh->prepare($query);
+        $sth->bindValue('post_id', $post_id);
+        if (!$sth->execute() || !$sth->rowCount()) {
+            return null;
+        }
+        return $sth->fetchColumn();
+    }
+    
+    /**
      * Returns true if the post with the given id exists, or false otherwise.
      * 
      * @global NestedPDO $dbh
