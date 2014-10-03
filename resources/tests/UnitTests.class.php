@@ -410,6 +410,24 @@ class UnitTests extends TestEnvironment {
         return true;
     }
     
+    protected function preferences_test() {
+        $user = $this->get_test_user();
+        if (!Preferences::update_notification_preference('follow', false, $user->id)) {
+            echo "Failed to update notification preference.\n";
+            return false;
+        }
+        $preferences = Preferences::get_notification_preferences($user->id);
+        if (!$preferences) {
+            echo "Failed to get notification preferences.\n";
+            return false;
+        } else if ($preferences['follow']) {
+            echo "Failed to update follow notification value.\n";
+            return false;
+        }
+        User::delete($user->id);
+        return true;
+    }
+    
     /**
      * Overrides abstract method run_test() from class TestEnvironment.
      * 
@@ -429,7 +447,8 @@ class UnitTests extends TestEnvironment {
             "user_tags_test" => "User tags test",
             "conversation_test" => "Conversation test",
             "message_test" => "Message test",
-            "notification_test" => "Notification test"
+            "notification_test" => "Notification test",
+            "preferences_test" => "Preferences test"
         );
         foreach ($tests as $test => $message) {
             if (!$this->do_test($test, $message)) {

@@ -28,7 +28,7 @@ class Preferences {
         }
         
         $query = "
-            SELECT `value` FROM `notification_preferences`
+            SELECT `type`, `value` FROM `notification_preferences`
             WHERE `user_id` = :user_id
             ".($type ? "AND `type` = :type" : "");
         $sth = $dbh->prepare($query);
