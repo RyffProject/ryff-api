@@ -16,7 +16,7 @@ Clone the respository with `git clone https://github.com/RyffProject/ryff-api.gi
 
 Make a MySQL user named ryff with access to two databases named ryff and ryfftest. Then Run the SQL install script under `resources/db/install.sql` on the ryff and ryfftest databases.
 
-You will need to edit `resources/config.php` for your setup. The SITE_ROOT will be used for URLs returned by the API. DB_PASS and TEST_DB_PASS will need to be set if you gave a password to your database user. By default TEST_MODE is set to true, and will need to be changed to false before using in a non-testing environment.
+You will need to edit `resources/config.php` for your setup. The SITE_ROOT will be used for URLs returned by the API. DB_PASS and TEST_DB_PASS will need to be set if you gave a password to your database user. By default TEST_MODE is set to true, and will need to be changed to false before using in a non-testing environment. By default REGISTRATION_OPEN is set to true, as this is required for the tests to run. If you set it to false, users will be able to preregister by posting their email to `public_html/api/add-preregister.php` but they will need an activation code during account creation. Activation emails can be sent out with `resources/preregisters/send-activation-emails.php`. More information is at the top of that file.
 
 The GD image processing extension needs to be installed for PHP. You can check if this is installed by checking `phpinfo()`.
 
