@@ -152,23 +152,31 @@ class PushNotification {
             $notification_object_ids) {
         global $dbh;
         
-        $message = static::get_message(
-                $type, $base_user_id, $base_post_id,
-                $leaf_user_ids, $leaf_post_ids);
-        
-        $payload = json_encode(array(
-            'aps' => array('alert' => $message),
-            'type' => $type,
-            'id' => $notification_id
-        ));
-        
-        $apns_tokens = static::get_apns_tokens($user_id);
-        foreach ($apns_tokens as $token) {
-            $msg = chr(0).pack('n', 32).pack('H*', $token).pack('n', strlen($payload)).$payload;
-            if (!fwrite($apns_socket, $msg, strlen($msg))) {
-                return false;
+        /**
+         * Only send the notification if preferences allow.
+         * If $type contains a hyphen, it should only check for preferences on
+         * the left side of the hyphen (i.e. notification types are namespaced by hyphens).
+         */
+        $type_namespace = strpos($type, "-") === -1 ? $type : strstr($type, "-", true);
+        $prefs = Preferences::get_notification_preferences($user_id, $type_namespace);
+        if ($prefs[$type_namespace]) {
+            $message = static::get_message(
+                    $type, $base_user_id, $base_post_id,
+                    $leaf_user_ids, $leaf_post_ids);
+            $payload = json_encode(array(
+                'aps' => array('alert' => $message),
+                'type' => $type,
+                'id' => $notification_id
+            ));
+            $apns_tokens = static::get_apns_tokens($user_id);
+            foreach ($apns_tokens as $token) {
+                $msg = chr(0).pack('n', 32).pack('H*', $token).pack('n', strlen($payload)).$payload;
+                if (!fwrite($apns_socket, $msg, strlen($msg))) {
+                    return false;
+                }
             }
         }
+        
         $query = "
             UPDATE `notification_objects`
             SET `sent` = 1, `date_sent` = NOW()
@@ -283,11 +291,17 @@ class PushNotification {
         ));
         
         foreach ($recipient_ids as $user_id) {
-            $apns_tokens = static::get_apns_tokens($user_id);
-            foreach ($apns_tokens as $token) {
-                $msg = chr(0).pack('n', 32).pack('H*', $token).pack('n', strlen($payload)).$payload;
-                if (!fwrite($apns_socket, $msg, strlen($msg))) {
-                    return false;
+            /**
+             * Only send notifications if preferences allow.
+             */
+            $prefs = Preferences::get_notification_preferences($user_id, "message");
+            if ($prefs["message"]) {
+                $apns_tokens = static::get_apns_tokens($user_id);
+                foreach ($apns_tokens as $token) {
+                    $msg = chr(0).pack('n', 32).pack('H*', $token).pack('n', strlen($payload)).$payload;
+                    if (!fwrite($apns_socket, $msg, strlen($msg))) {
+                        return false;
+                    }
                 }
             }
         }
