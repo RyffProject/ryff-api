@@ -68,7 +68,9 @@ class Preferences {
         
         $query = "
             UPDATE `notification_preferences`
-            SET `type` = :type, `value` = :value, `user_id` = :user_id";
+            SET `value` = :value
+            WHERE `type` = :type
+            AND `user_id` = :user_id";
         $sth = $dbh->prepare($query);
         $sth->bindValue('type', $type);
         $sth->bindValue('value', $value);
