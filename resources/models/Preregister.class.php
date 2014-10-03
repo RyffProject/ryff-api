@@ -2,7 +2,7 @@
 
 /**
  * @class Preregister
- * ===========
+ * ==================
  * 
  * Provides static functions for adding preregisters, sending out activation
  * emails, and other preregister-related tasks.

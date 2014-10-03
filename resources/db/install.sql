@@ -140,6 +140,18 @@ CREATE TABLE IF NOT EXISTS `notification_objects` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 --
+-- Table structure for table `notification_preferences`
+--
+CREATE TABLE IF NOT EXISTS `notification_preferences` (
+  `notification_preference_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `type` varchar(32) NOT NULL,
+  `value` int(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`notification_preference_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT = 1 ;
+
+--
 -- Table structure for table `notifications`
 --
 CREATE TABLE IF NOT EXISTS `notifications` (
@@ -378,6 +390,15 @@ ALTER TABLE `notification_objects`
     ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `notification_objects_user_obj_id_constr`
     FOREIGN KEY (`user_obj_id`)
+    REFERENCES `users` (`user_id`)
+    ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `notification_preferences`
+--
+ALTER TABLE `notification_preferences`
+  ADD CONSTRAINT `notification_preferences_user_id_constr`
+    FOREIGN KEY (`user_id`)
     REFERENCES `users` (`user_id`)
     ON DELETE CASCADE ON UPDATE CASCADE;
 

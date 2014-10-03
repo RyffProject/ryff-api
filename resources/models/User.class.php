@@ -480,6 +480,11 @@ class User {
             return null;
         }
         
+        if (!Preferences::add_default_notification_preferences($user_id)) {
+            $dbh->rollBack();
+            return null;
+        }
+        
         if (!REGISTRATION_OPEN && !Preregister::set_used($activation_code, $user_id)) {
             $dbh->rollBack();
             return null;
