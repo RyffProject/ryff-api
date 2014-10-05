@@ -27,6 +27,8 @@ set_time_limit(0);
 require_once(__DIR__."/resources/config.php");
 require_once(__DIR__."/resources/db/NestedPDO.class.php");
 
+$error = false;
+
 /**
  * Check for the -f option for force uninstalling databases.
  */
@@ -44,31 +46,35 @@ try {
         "mysql:host=".TEST_DB_HOST.";dbname=".TEST_DB_NAME.";charset=utf8mb4",
         TEST_DB_USER, TEST_DB_PASS
     );
-    $testdb_is_installed = $dbh_test->query("
+    $testdb_results = $dbh_test->query("
         SELECT * FROM `information_schema`.`tables`
         WHERE `table_schema` = '".TEST_DB_NAME."'
     ");
+    $testdb_is_installed = $testdb_results && $testdb_results->rowCount();
     $testdb_do_install = true;
     if ($force) {
         if ($dbh_test->query($db_uninstall_script) !== false) {
             echo "Uninstalled existing test database.\n";
         } else {
+            $error = true;
             echo "Error uninstalling existing test database.\n";
             echo "Database said: ".print_r($dbh_test->errorInfo(), true)."\n";
         }
     } else if ($testdb_is_installed) {
-        echo "Existing test database installation found. Use -f to reinstall the database.\n";
+        echo "Existing test database found. Use -f to reinstall the database.\n";
         $testdb_do_install = false;
     }
     if ($testdb_do_install) {
         if ($dbh_test->query($db_install_script) !== false) {
             echo "Installed test database.\n";
         } else {
+            $error = true;
             echo "Error installing test database.\n";
             echo "Database said: ".print_r($dbh_test->errorInfo(), true)."\n";
         }
     }
 } catch (Exception $ex) {
+    $error = true;
     echo "Unable to connect to the Test Database.\n";
     echo "Database said: ".$ex->getMessage()."\n";
 }
@@ -79,31 +85,35 @@ try {
         "mysql:host=".DB_HOST.";dbname=".DB_NAME.";charset=utf8mb4",
         DB_USER, DB_PASS
     );
-    $proddb_is_installed = $dbh_prod->query("
+    $proddb_results = $dbh_test->query("
         SELECT * FROM `information_schema`.`tables`
-        WHERE `table_schema` = '".DB_NAME."'
+        WHERE `table_schema` = '".TEST_DB_NAME."'
     ");
+    $proddb_is_installed = $proddb_results && $proddb_results->rowCount();
     $proddb_do_install = true;
     if ($force) {
         if ($dbh_prod->query($db_uninstall_script) !== false) {
             echo "Uninstalled existing production database.\n";
         } else {
+            $error = true;
             echo "Error uninstalling existing production database.\n";
             echo "Database said: ".print_r($dbh_prod->errorInfo(), true)."\n";
         }
     } else if ($proddb_is_installed) {
-        echo "Existing production database installation found. Use -f to reinstall the database.\n";
+        echo "Existing production database found. Use -f to reinstall the database.\n";
         $proddb_do_install = false;
     }
     if ($proddb_do_install) {
         if ($dbh_prod->query($db_install_script) !== false) {
             echo "Installed production database.\n";
         } else {
+            $error = true;
             echo "Error installing production database.\n";
             echo "Database said: ".print_r($dbh_prod->errorInfo(), true)."\n";
         }
     }
 } catch (Exception $ex) {
+    $error = true;
     echo "Unable to connect to the production Database.\n";
     echo "Database said: ".$ex->getMessage()."\n";
 }
@@ -114,6 +124,7 @@ try {
 if (function_exists("curl_init")) {
     echo "cURL extension for PHP found.\n";
 } else {
+    $error = true;
     echo "You must install the cURL extension for PHP.\n";
     echo "Use 'apt-get install php5-curl' or the equivalent for your system.\n";
 }
@@ -121,6 +132,16 @@ if (function_exists("curl_init")) {
 if (function_exists("imagecreatetruecolor")) {
     echo "GD image processing library found.\n";
 } else {
+    $error = true;
     echo "You must install the GD image processing library for PHP.\n";
     echo "Use 'apt-get install php5-gd' or the equivalent for your system.\n";
+}
+
+/**
+ * If there were errors, let the user know.
+ */
+if ($error) {
+    echo "\e[31mCompleted with errors.\e[0m\n";
+} else {
+    echo "\e[32mCompleted successfully.\e[0m\n";
 }
