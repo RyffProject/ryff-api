@@ -138,6 +138,40 @@ if (function_exists("imagecreatetruecolor")) {
 }
 
 /**
+ * Check for writable media directories.
+ */
+$media_dir_errors = false;
+$media_subpaths = array(
+    "/avatars", "/avatars/small",
+    "/posts", "/posts/medium", "/posts/small",
+    "/riffs", "/riffs/hq", "/riffs/raw"
+);
+$all_media_subpaths = array_merge(
+    array(MEDIA_ABSOLUTE_PATH, TEST_MEDIA_ABSOLUTE_PATH),
+    array_map(function($i) { return MEDIA_ABSOLUTE_PATH.$i; }, $media_subpaths),
+    array_map(function($i) { return TEST_MEDIA_ABSOLUTE_PATH.$i; }, $media_subpaths)
+);
+foreach ($all_media_subpaths as $subpath) {
+    if (!file_exists($subpath)) {
+        $error = true;
+        $media_dir_errors = true;
+        echo "Unable to find media directory: $subpath.\n";
+    } else if (!is_writable($subpath)) {
+        if (!chmod($subpath, 0777)) {
+            $error = true;
+            $media_dir_errors = true;
+            echo "Unable to make media directory writable: $subpath.\n";
+            echo "Run 'chmod 777 $subpath' to fix this.\n";
+        } else {
+            echo "Successfully made media directory writable: $subpath.\n";
+        }
+    }
+}
+if (!$media_dir_errors) {
+    echo "All media directories exist and are writable.\n";
+}
+
+/**
  * If there were errors, let the user know.
  */
 if ($error) {
