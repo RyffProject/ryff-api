@@ -172,6 +172,38 @@ if (!$media_dir_errors) {
 }
 
 /**
+ * Checks for audio conversion software.
+ */
+$ffmpeg_error = false;
+$current_command = FFMPEG_COMMAND." --help > /dev/null 2>&1";
+exec($current_command, $output, $return_var);
+if ($return_var === 127) {
+    $error = true;
+    $ffmpeg_error = true;
+    echo "Command '".FFMPEG_COMMAND."' not found (FFMPEG_COMMAND in config.php).\n";
+} else if ($return_var) {
+    $error = true;
+    $ffmpeg_error = true;
+    echo "Command '".FFMPEG_COMMAND."' caused an error (FFMPEG_COMMAND in config.php).\n";
+} else {
+    echo "Command '".FFMPEG_COMMAND."' worked successfully.\n";
+}
+if ($ffmpeg_error) {
+    exec("ffmpeg --help > /dev/null 2>&1", $output, $ffmpeg_return_var);
+    exec("avconv --help > /dev/null 2>&1", $output, $avconv_return_var);
+    if (!$ffmpeg_return_var) {
+        echo "Command 'ffmpeg' found, change FFMPEG_COMMAND in config.php.\n";
+        echo "You should also change AUDIO_INFO_COMMAND to use 'ffprobe'.\n";
+    } else if (!$avconv_return_var) {
+        echo "Command 'avconv' found, change FFMPEG_COMMAND in config.php.\n";
+        echo "You should laso change AUDIO_INFO_COMMAND to use 'avprobe'.\n";
+    } else {
+        echo "No command line audio conversion software found.\n";
+        echo "Please install 'ffmpeg' or 'avconv' (on Ubuntu).\n";
+    }
+}
+
+/**
  * If there were errors, let the user know.
  */
 if ($error) {
