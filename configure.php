@@ -180,11 +180,11 @@ exec($current_command, $output, $return_var);
 if ($return_var === 127) {
     $error = true;
     $ffmpeg_error = true;
-    echo "Command '".FFMPEG_COMMAND."' not found (FFMPEG_COMMAND in config.php).\n";
+    echo "Command '".FFMPEG_COMMAND."' not found.\n";
 } else if ($return_var) {
     $error = true;
     $ffmpeg_error = true;
-    echo "Command '".FFMPEG_COMMAND."' caused an error (FFMPEG_COMMAND in config.php).\n";
+    echo "Command '".FFMPEG_COMMAND."' caused an error.\n";
 } else {
     echo "Command '".FFMPEG_COMMAND."' worked successfully.\n";
 }
