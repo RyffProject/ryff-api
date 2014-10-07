@@ -27,6 +27,29 @@ set_time_limit(0);
 require_once(__DIR__."/resources/config.php");
 require_once(__DIR__."/resources/db/NestedPDO.class.php");
 
+/**
+ * Wraps string in red color code for terminal output.
+ * 
+ * @param string $str
+ * @return string
+ */
+function error_text($str) {
+    return "\e[31m$str\e[0m";
+}
+
+/**
+ * Wraps string in green color code for terminal output.
+ * 
+ * @param string $str
+ * @return string
+ */
+function success_text($str) {
+    return "\e[32m$str\e[0m";
+}
+
+/**
+ * Start out with no error.
+ */
 $error = false;
 
 /**
@@ -54,10 +77,10 @@ try {
     $testdb_do_install = true;
     if ($force) {
         if ($dbh_test->query($db_uninstall_script) !== false) {
-            echo "Uninstalled existing test database.\n";
+            echo success_text("Uninstalled existing test database.\n");
         } else {
             $error = true;
-            echo "Error uninstalling existing test database.\n";
+            echo error_text("Error uninstalling existing test database.\n");
             echo "Database said: ".print_r($dbh_test->errorInfo(), true)."\n";
         }
     } else if ($testdb_is_installed) {
@@ -66,16 +89,16 @@ try {
     }
     if ($testdb_do_install) {
         if ($dbh_test->query($db_install_script) !== false) {
-            echo "Installed test database.\n";
+            echo success_text("Installed test database.\n");
         } else {
             $error = true;
-            echo "Error installing test database.\n";
+            echo error_text("Error installing test database.\n");
             echo "Database said: ".print_r($dbh_test->errorInfo(), true)."\n";
         }
     }
 } catch (Exception $ex) {
     $error = true;
-    echo "Unable to connect to the Test Database.\n";
+    echo error_text("Unable to connect to the Test Database.\n");
     echo "Database said: ".$ex->getMessage()."\n";
 }
 
@@ -93,10 +116,10 @@ try {
     $proddb_do_install = true;
     if ($force) {
         if ($dbh_prod->query($db_uninstall_script) !== false) {
-            echo "Uninstalled existing production database.\n";
+            echo success_text("Uninstalled existing production database.\n");
         } else {
             $error = true;
-            echo "Error uninstalling existing production database.\n";
+            echo error_text("Error uninstalling existing production database.\n");
             echo "Database said: ".print_r($dbh_prod->errorInfo(), true)."\n";
         }
     } else if ($proddb_is_installed) {
@@ -105,16 +128,16 @@ try {
     }
     if ($proddb_do_install) {
         if ($dbh_prod->query($db_install_script) !== false) {
-            echo "Installed production database.\n";
+            echo success_text("Installed production database.\n");
         } else {
             $error = true;
-            echo "Error installing production database.\n";
+            echo error_text("Error installing production database.\n");
             echo "Database said: ".print_r($dbh_prod->errorInfo(), true)."\n";
         }
     }
 } catch (Exception $ex) {
     $error = true;
-    echo "Unable to connect to the production Database.\n";
+    echo error_text("Unable to connect to the production Database.\n");
     echo "Database said: ".$ex->getMessage()."\n";
 }
 
@@ -125,7 +148,7 @@ if (function_exists("curl_init")) {
     echo "cURL extension for PHP found.\n";
 } else {
     $error = true;
-    echo "You must install the cURL extension for PHP.\n";
+    echo error_text("You must install the cURL extension for PHP.\n");
     echo "Use 'apt-get install php5-curl' or the equivalent for your system.\n";
 }
 
@@ -133,7 +156,7 @@ if (function_exists("imagecreatetruecolor")) {
     echo "GD image processing library found.\n";
 } else {
     $error = true;
-    echo "You must install the GD image processing library for PHP.\n";
+    echo error_text("You must install the GD image processing library for PHP.\n");
     echo "Use 'apt-get install php5-gd' or the equivalent for your system.\n";
 }
 
@@ -155,15 +178,15 @@ foreach ($all_media_subpaths as $subpath) {
     if (!file_exists($subpath)) {
         $error = true;
         $media_dir_errors = true;
-        echo "Unable to find media directory: $subpath.\n";
+        echo error_text("Unable to find media directory: $subpath.\n");
     } else if (!is_writable($subpath)) {
         if (!chmod($subpath, 0777)) {
             $error = true;
             $media_dir_errors = true;
-            echo "Unable to make media directory writable: $subpath.\n";
+            echo error_text("Unable to make media directory writable: $subpath.\n");
             echo "Run 'chmod 777 $subpath' to fix this.\n";
         } else {
-            echo "Successfully made media directory writable: $subpath.\n";
+            echo success_text("Successfully made media directory writable: $subpath.\n");
         }
     }
 }
@@ -180,13 +203,13 @@ exec($current_command, $output, $return_var);
 if ($return_var === 127) {
     $error = true;
     $ffmpeg_error = true;
-    echo "Command '".FFMPEG_COMMAND."' not found.\n";
+    echo error_text("Command '".FFMPEG_COMMAND."' not found.\n");
 } else if ($return_var) {
     $error = true;
     $ffmpeg_error = true;
-    echo "Command '".FFMPEG_COMMAND."' caused an error.\n";
+    echo error_text("Command '".FFMPEG_COMMAND."' caused an error.\n");
 } else {
-    echo "Command '".FFMPEG_COMMAND."' worked successfully.\n";
+    echo "Command '".FFMPEG_COMMAND."' found.\n";
 }
 if ($ffmpeg_error) {
     exec("ffmpeg --help > /dev/null 2>&1", $output, $ffmpeg_return_var);
@@ -198,7 +221,7 @@ if ($ffmpeg_error) {
         echo "Command 'avconv' found, change FFMPEG_COMMAND in config.php.\n";
         echo "You should laso change AUDIO_INFO_COMMAND to use 'avprobe'.\n";
     } else {
-        echo "No command line audio conversion software found.\n";
+        echo error_text("No command line audio conversion software found.\n");
         echo "Please install 'ffmpeg' or 'avconv' (on Ubuntu).\n";
     }
 }
@@ -207,7 +230,7 @@ if ($ffmpeg_error) {
  * If there were errors, let the user know.
  */
 if ($error) {
-    echo "\e[31mCompleted with errors.\e[0m\n";
+    echo error_text("Completed with errors.\n");
 } else {
-    echo "\e[32mCompleted successfully.\e[0m\n";
+    echo success_text("Completed successfully.\n");
 }
