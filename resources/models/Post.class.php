@@ -136,8 +136,8 @@ class Post {
         $this->image_small_url = $this->get_image_small_url();
 
         $riff_ext_dir = TEST_MODE ? TEST_MEDIA_EXT_PATH : MEDIA_EXT_PATH;
-        $this->riff_url = SITE_ROOT.riff_ext_dir."/riffs/{$this->id}.mp3";;
-        $this->riff_hq_url = SITE_ROOT.riff_ext_dir."/riffs/hq/{$this->id}.mp3";;
+        $this->riff_url = SITE_ROOT.$riff_ext_dir."/riffs/{$this->id}.mp3";;
+        $this->riff_hq_url = SITE_ROOT.$riff_ext_dir."/riffs/hq/{$this->id}.mp3";;
     }
     
     /**
