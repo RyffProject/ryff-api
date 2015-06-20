@@ -136,8 +136,9 @@ class User {
      */
     protected function get_avatar_url() {
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $media_ext_dir = TEST_MODE ? TEST_MEDIA_EXT_PATH : MEDIA_EXT_PATH;
         if (file_exists("$media_dir/avatars/{$this->id}.png")) {
-            return SITE_ROOT."/media/avatars/{$this->id}.png";
+            return SITE_ROOT.$media_ext_dir."/avatars/{$this->id}.png";
         } else {
             return "";
         }
@@ -151,8 +152,9 @@ class User {
      */
     protected function get_avatar_small_url() {
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $media_ext_dir = TEST_MODE ? TEST_MEDIA_EXT_PATH : MEDIA_EXT_PATH;
         if (file_exists("$media_dir/avatars/small/{$this->id}.jpg")) {
-            return SITE_ROOT."/media/avatars/small/{$this->id}.jpg";
+            return SITE_ROOT.$media_ext_dir."/avatars/small/{$this->id}.jpg";
         } else {
             return "";
         }

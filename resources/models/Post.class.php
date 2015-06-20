@@ -134,8 +134,10 @@ class Post {
         $this->image_url = $this->get_image_url();
         $this->image_medium_url = $this->get_image_medium_url();
         $this->image_small_url = $this->get_image_small_url();
-        $this->riff_url = SITE_ROOT."/media/riffs/{$this->id}.mp3";;
-        $this->riff_hq_url = SITE_ROOT."/media/riffs/hq/{$this->id}.mp3";;
+
+        $riff_ext_dir = TEST_MODE ? TEST_MEDIA_EXT_PATH : MEDIA_EXT_PATH;
+        $this->riff_url = SITE_ROOT.riff_ext_dir."/riffs/{$this->id}.mp3";;
+        $this->riff_hq_url = SITE_ROOT.riff_ext_dir."/riffs/hq/{$this->id}.mp3";;
     }
     
     /**
@@ -215,8 +217,9 @@ class Post {
      */
     protected function get_image_url() {
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $media_ext_dir = TEST_MODE ? TEST_MEDIA_EXT_PATH : MEDIA_EXT_PATH;
         if (file_exists("$media_dir/posts/{$this->id}.png")) {
-            return SITE_ROOT."/media/posts/{$this->id}.png";
+            return SITE_ROOT.$media_ext_dir."/posts/{$this->id}.png";
         }
         return "";
     }
@@ -229,8 +232,9 @@ class Post {
      */
     protected function get_image_medium_url() {
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $media_ext_dir = TEST_MODE ? TEST_MEDIA_EXT_PATH : MEDIA_EXT_PATH;
         if (file_exists("$media_dir/posts/medium/{$this->id}.jpg")) {
-            return SITE_ROOT."/media/posts/medium/{$this->id}.jpg";
+            return SITE_ROOT.$media_ext_dir."/posts/medium/{$this->id}.jpg";
         }
         return "";
     }
@@ -243,8 +247,9 @@ class Post {
      */
     protected function get_image_small_url() {
         $media_dir = TEST_MODE ? TEST_MEDIA_ABSOLUTE_PATH : MEDIA_ABSOLUTE_PATH;
+        $media_ext_dir = TEST_MODE ? TEST_MEDIA_EXT_PATH : MEDIA_EXT_PATH;
         if (file_exists("$media_dir/posts/small/{$this->id}.jpg")) {
-            return SITE_ROOT."/media/posts/small/{$this->id}.jpg";
+            return SITE_ROOT.$media_ext_dir."/posts/small/{$this->id}.jpg";
         }
         return "";
     }

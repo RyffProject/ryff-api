@@ -27,6 +27,7 @@ define("SITE_ROOT", "http://localhost/ryff");
  * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
  */
 define("MEDIA_ABSOLUTE_PATH", __DIR__."/../public_html/media");
+define("MEDIA_EXT_PATH", "/media");
 
 /**
  * The amount of time it takes for auth tokens to expire, in seconds.
@@ -76,6 +77,7 @@ if (!defined("TEST_MODE")) {
  * The media folder contains 'avatars', 'posts', and 'riffs' subfolders.
  */
 define("TEST_MEDIA_ABSOLUTE_PATH", __DIR__."/../public_html/test_media");
+define("TEST_MEDIA_EXT_PATH", "/test_media");
 
 /**
  * The test database credentials. Used for running the test suite or for
